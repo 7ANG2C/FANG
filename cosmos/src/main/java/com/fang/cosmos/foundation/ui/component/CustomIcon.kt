@@ -10,7 +10,7 @@ import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.res.vectorResource
 
 /**
- * 客製化 Icon ，解決原生 Composable 一定要輸入 contentDescription 的問題
+ * Customized [Icon] to solve the problem that contentDescription must have a value.
  */
 @Composable
 fun CustomIcon(

@@ -10,7 +10,7 @@
         android:supportsRtl="true"
         android:theme="@style/arr_Theme.Arrangement">
         <activity
-            android:name=".MainActivity"
+            android:name=".ArrangementActivity"
             android:exported="true"
             android:theme="@style/arr_Theme.Arrangement">
             <intent-filter>

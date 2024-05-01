@@ -23,7 +23,7 @@ import com.fang.cosmos.foundation.ui.dsl.ComposableInvoke
 import com.fang.cosmos.foundation.ui.ext.clickableNoRipple
 
 /**
- * 客製化 BottomSheet，解決 [ModalBottomSheet] 無法設置底部 padding 問題
+ *  Customized [ModalBottomSheet] to solve the problem of being unable to set bottom padding.
  */
 @Composable
 fun CustomBottomSheet(

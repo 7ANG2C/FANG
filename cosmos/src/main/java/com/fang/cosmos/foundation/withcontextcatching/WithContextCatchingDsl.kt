@@ -2,26 +2,26 @@ package com.fang.cosmos.foundation.withcontextcatching
 
 import kotlinx.coroutines.CoroutineScope
 
-suspend fun <R> withMainCoroutineCatching(
-    block: suspend CoroutineScope.() -> R
+suspend fun <T> withMainCoroutineCatching(
+    block: suspend CoroutineScope.() -> T
 ) = withMainCoroutine {
     kotlin.runCatching { block() }
 }
 
-suspend fun <R> withUnconfinedCoroutineCatching(
-    block: suspend CoroutineScope.() -> R
+suspend fun <T> withUnconfinedCoroutineCatching(
+    block: suspend CoroutineScope.() -> T
 ) = withUnconfinedCoroutine {
     kotlin.runCatching { block() }
 }
 
-suspend fun <R> withDefaultCoroutineCatching(
-    block: suspend CoroutineScope.() -> R
+suspend fun <T> withDefaultCoroutineCatching(
+    block: suspend CoroutineScope.() -> T
 ) = withDefaultCoroutine {
     kotlin.runCatching { block() }
 }
 
-suspend fun <R> withIoCoroutineCatching(
-    block: suspend CoroutineScope.() -> R
+suspend fun <T> withIoCoroutineCatching(
+    block: suspend CoroutineScope.() -> T
 ) = withIoCoroutine {
     kotlin.runCatching { block() }
 }

@@ -8,9 +8,6 @@ import androidx.compose.runtime.produceState
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalView
 
-/**
- * 當鍵盤收起時，清除焦點
- */
 @Composable
 fun ClearFocusWhenImeClosed() {
     val focusManager = LocalFocusManager.current

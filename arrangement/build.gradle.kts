@@ -42,10 +42,7 @@ android {
     }
 
     buildTypes {
-        all {
-            isShrinkResources = true
-            isMinifyEnabled = true
-        }
+        all { isMinifyEnabled = false }
         debug {
             applicationIdSuffix = ".debug"
         }

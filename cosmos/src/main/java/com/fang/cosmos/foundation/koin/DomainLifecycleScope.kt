@@ -8,7 +8,7 @@ import org.koin.core.scope.Scope
 import org.koin.mp.KoinPlatform.getKoin
 
 /**
- * Declare 指定 [scopeId] 的 [definition] (koin [single])
+ * Declare koin [single] [definition] for [scopeId].
  */
 inline fun <reified T> Module.domainScoped(
     scopeId: String,
@@ -25,7 +25,7 @@ inline fun <reified T> Module.domainScoped(
 }
 
 /**
- * 關閉指定 [scopeId] 的 koin [Scope]
+ * Close koin [Scope] for [scopeId].
  */
 fun closeDomainScope(scopeId: String) {
     runCatching {

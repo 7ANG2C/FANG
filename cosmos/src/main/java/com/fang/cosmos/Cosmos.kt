@@ -2,10 +2,13 @@ package com.fang.cosmos
 
 import androidx.datastore.core.DataStore
 
+/**
+ * Cosmos Helper
+ */
 internal object Cosmos {
 
     /**
-     * module id qualifier
+     * Module qualifier.
      * For the purpose of prefix for [DataStore] ..., or other else.
      */
     const val QUALIFIER = "f_cosmos"

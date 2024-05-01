@@ -11,7 +11,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 
 /**
- * 客製化 Image ，解決原生 Composable 一定要輸入 contentDescription 的問題
+ * Customized [Image] to solve the problem that contentDescription must have a value.
  */
 @Composable
 fun CustomImage(

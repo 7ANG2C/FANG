@@ -18,7 +18,7 @@ import com.fang.cosmos.foundation.typealiaz.Invoke
 import com.fang.cosmos.foundation.ui.ext.clickableNoRipple
 
 /**
- * DialogThemed 基底
+ * DialogThemed Base
  */
 @Composable
 fun DialogThemedScreen(
