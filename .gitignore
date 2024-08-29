@@ -13,6 +13,7 @@ captures/
 .externalNativeBuild/
 .cxx/
 *.apk
+*.ap_
 output.json
 
 # IntelliJ
@@ -25,9 +26,18 @@ render.experimental.xml
 # Keystore files
 *.jks
 *.keystore
+publish/
 
 # Google Services (e.g. APIs or Firebase)
 google-services.json
 
 # Android Profiling
 *.hprof
+
+#
+*.dex
+*.class
+bin/
+gen/
+out/
+.navigation/

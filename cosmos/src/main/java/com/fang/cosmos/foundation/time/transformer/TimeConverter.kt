@@ -1,0 +1,142 @@
+package com.fang.cosmos.foundation.time.transformer
+
+import android.content.Context
+import android.os.Looper
+import android.text.format.DateFormat
+import com.fang.cosmos.definition.CosmosDef
+import java.text.SimpleDateFormat
+import java.util.Calendar
+import java.util.Date
+import java.util.Locale
+import java.util.TimeZone
+
+object TimeConverter {
+    /**
+     * 將 [timeMillis] format 成具有 [pattern] date string
+     */
+    fun format(
+        timeMillis: Long?,
+        pattern: String = TimePattern.SYSTEM_Y_M_D,
+        locale: Locale = Locale.getDefault(),
+        timeZone: TimeZone = TimeZone.getDefault(),
+    ) = runCatching {
+        getDateFormatter(
+            pattern = pattern,
+            locale = locale,
+            timeZone = timeZone,
+        ).format(timeMillis)
+    }.getOrNull()
+
+    /**
+     * 將 [date] format 成具有 [pattern] date string
+     */
+    fun format(
+        date: Date?,
+        pattern: String = TimePattern.SYSTEM_Y_M_D,
+        locale: Locale = Locale.getDefault(),
+        timeZone: TimeZone = TimeZone.getDefault(),
+    ) = format(
+        timeMillis = date?.time,
+        pattern = pattern,
+        locale = locale,
+        timeZone = timeZone,
+    )
+
+    /**
+     * 將 [calendar] format 成具有 [pattern] date string
+     */
+    fun format(
+        calendar: Calendar?,
+        pattern: String = TimePattern.SYSTEM_Y_M_D,
+        locale: Locale = Locale.getDefault(),
+        timeZone: TimeZone = TimeZone.getDefault(),
+    ) = format(
+        date = calendar?.time,
+        pattern = pattern,
+        locale = locale,
+        timeZone = timeZone,
+    )
+
+    /**
+     * 將具有 [pattern] 的 [timeString] parse 成 [Date]
+     */
+    fun parse(
+        pattern: String,
+        timeString: String?,
+        locale: Locale = Locale.getDefault(),
+        timeZone: TimeZone = TimeZone.getDefault(),
+    ) = runCatching {
+        getDateFormatter(
+            pattern = pattern,
+            locale = locale,
+            timeZone = timeZone,
+        ).parse(requireNotNull(timeString))
+    }.getOrNull()
+
+    /**
+     * 將具有 [inputPattern] 的 [timeString] transform 成具有 [outputPattern] date string
+     */
+    fun transform(
+        inputPattern: String,
+        timeString: String,
+        outputPattern: String = TimePattern.SYSTEM_Y_M_D,
+        inputLocale: Locale = Locale.getDefault(),
+        inputTimeZone: TimeZone = TimeZone.getDefault(),
+        outputLocale: Locale = Locale.getDefault(),
+        outputTimeZone: TimeZone = TimeZone.getDefault(),
+    ) = format(
+        date =
+            parse(
+                pattern = inputPattern,
+                timeString = timeString,
+                locale = inputLocale,
+                timeZone = inputTimeZone,
+            ),
+        pattern = outputPattern,
+        locale = outputLocale,
+        timeZone = outputTimeZone,
+    )
+
+    /**
+     * 取得 pattern 為 [TimePattern.TIME_ZONE] 的 [timeString] 的 time zone
+     */
+    fun getTimeZone(timeString: String?) =
+        timeString?.let { timeStr ->
+            val startIndex = timeStr.indexOf("[")
+            val endIndex = timeStr.indexOf("]")
+            if (startIndex != -1 && endIndex != -1 && startIndex < endIndex) {
+                timeStr.substring(startIndex + 1, endIndex)
+                    .takeIf { it.isNotBlank() }
+            } else {
+                null
+            }?.let { TimeZone.getTimeZone(it) }
+        }
+
+    /**
+     * 取得 thread-safe 的 [SimpleDateFormat]
+     */
+    fun getDateFormatter(
+        pattern: String = TimePattern.SYSTEM_Y_M_D,
+        locale: Locale = Locale.getDefault(),
+        timeZone: TimeZone = TimeZone.getDefault(),
+        context: Context = CosmosDef.Context,
+    ): SimpleDateFormat {
+        val yyyyMMdd =
+            kotlin.runCatching {
+                context.resources.configuration.setLocale(locale)
+                val systemSdf = DateFormat.getDateFormat(context) as? SimpleDateFormat
+                systemSdf?.toLocalizedPattern()
+            }.getOrNull() ?: TimePattern.yyyyMMdd("/")
+        val formatter =
+            SimpleDateFormat(
+                pattern.replace(TimePattern.SYSTEM_Y_M_D, yyyyMMdd),
+                locale,
+            ).apply { this.timeZone = timeZone }
+        val onMainThread = Looper.myLooper() == Looper.getMainLooper()
+        return if (!onMainThread) {
+            formatter.clone() as SimpleDateFormat
+        } else {
+            formatter
+        }
+    }
+}
