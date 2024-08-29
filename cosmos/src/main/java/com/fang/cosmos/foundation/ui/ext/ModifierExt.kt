@@ -17,7 +17,7 @@ fun Modifier.clickableNoRipple(
     enabled: Boolean = true,
     onClickLabel: String? = null,
     role: Role? = null,
-    onClick: Invoke
+    onClick: Invoke,
 ) = then(
     Modifier.clickableRipple(
         interactionSource = interactionSource,
@@ -25,8 +25,8 @@ fun Modifier.clickableNoRipple(
         enabled = enabled,
         onClickLabel = onClickLabel,
         role = role,
-        onClick = onClick
-    )
+        onClick = onClick,
+    ),
 )
 
 fun Modifier.clickableRipple(
@@ -35,7 +35,7 @@ fun Modifier.clickableRipple(
     enabled: Boolean = true,
     onClickLabel: String? = null,
     role: Role? = null,
-    onClick: Invoke
+    onClick: Invoke,
 ) = composed {
     then(
         Modifier.clickable(
@@ -44,19 +44,22 @@ fun Modifier.clickableRipple(
             enabled = enabled,
             onClickLabel = onClickLabel,
             role = role,
-            onClick = onClick
-        )
+            onClick = onClick,
+        ),
     )
 }
 
-fun Modifier.crop(horizontal: Dp = 0.dp, vertical: Dp = 0.dp) =
-    layout { measurable, constraints ->
-        val placeable = measurable.measure(constraints)
-        fun Dp.toPxInt() = toPx().toInt()
-        layout(
-            placeable.width - (horizontal * 2).toPxInt(),
-            placeable.height - (vertical * 2).toPxInt()
-        ) {
-            placeable.placeRelative(-horizontal.toPxInt(), -vertical.toPxInt())
-        }
+fun Modifier.crop(
+    horizontal: Dp = 0.dp,
+    vertical: Dp = 0.dp,
+) = layout { measurable, constraints ->
+    val placeable = measurable.measure(constraints)
+
+    fun Dp.toPxInt() = toPx().toInt()
+    layout(
+        placeable.width - (horizontal * 2).toPxInt(),
+        placeable.height - (vertical * 2).toPxInt(),
+    ) {
+        placeable.placeRelative(-horizontal.toPxInt(), -vertical.toPxInt())
     }
+}

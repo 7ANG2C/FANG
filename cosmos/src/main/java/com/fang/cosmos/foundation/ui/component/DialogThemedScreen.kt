@@ -25,33 +25,36 @@ fun DialogThemedScreen(
     isShow: Boolean,
     overlayColor: Long = 0x40000000,
     onClickOutsideDismiss: Invoke = {},
-    content: @Composable AnimatedVisibilityScope.() -> Unit
+    content: @Composable AnimatedVisibilityScope.() -> Unit,
 ) {
     Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .then(
-                if (isShow) {
-                    Modifier.clickableNoRipple(onClick = onClickOutsideDismiss)
-                } else Modifier
-            )
-            .background(
-                animateColorAsState(
-                    targetValue = if (isShow) Color(overlayColor) else Color.Transparent,
-                    label = "DialogOverlayColor"
-                ).value
-            ),
-        contentAlignment = Alignment.Center
+        modifier =
+            Modifier
+                .fillMaxSize()
+                .then(
+                    if (isShow) {
+                        Modifier.clickableNoRipple(onClick = onClickOutsideDismiss)
+                    } else {
+                        Modifier
+                    },
+                )
+                .background(
+                    animateColorAsState(
+                        targetValue = if (isShow) Color(overlayColor) else Color.Transparent,
+                        label = "DialogOverlayColor",
+                    ).value,
+                ),
+        contentAlignment = Alignment.Center,
     ) {
         AnimatedVisibility(
             visible = isShow,
-            modifier = Modifier.clickableNoRipple {
-                /* intercept */
-            },
+            modifier =
+                Modifier.clickableNoRipple {
+                    // intercept
+                },
             enter = scaleIn(initialScale = 0.85f) + fadeIn(),
             exit = scaleOut(targetScale = 0.9f) + fadeOut(),
-            content = content
+            content = content,
         )
     }
-
 }

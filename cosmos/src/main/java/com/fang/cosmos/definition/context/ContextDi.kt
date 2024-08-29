@@ -12,7 +12,7 @@ import org.koin.core.module.Module
  */
 fun Module.cosmosModuleContext(
     createdAtStart: Boolean = false,
-    override: Definition<Context>? = null
+    override: Definition<Context>? = null,
 ) = singleCosmos<Context>(createdAtStart) {
     override?.invoke(this, it) ?: get()
 }

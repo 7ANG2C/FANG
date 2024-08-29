@@ -1,3 +1,5 @@
+rootProject.name = "FangMono"
+
 pluginManagement {
     repositories {
         google {
@@ -10,6 +12,22 @@ pluginManagement {
         mavenCentral()
         gradlePluginPortal()
     }
+    resolutionStrategy {
+        eachPlugin {
+            if (requested.id.id in setOf("com.android.library", "com.android.application")) {
+                useModule("com.android.tools.build:gradle:${requested.version}")
+            }
+            if (requested.id.id in setOf("org.jetbrains.kotlin.android", "kotlin-parcelize", "org.jetbrains.kotlin.kapt")) {
+                useModule("org.jetbrains.kotlin:kotlin-gradle-plugin:${requested.version}")
+            }
+            if (requested.id.id in setOf("com.diffplug.spotless")) {
+                useModule("com.diffplug.spotless:spotless-plugin-gradle:${requested.version}")
+            }
+            if (requested.id.id in setOf("io.gitlab.arturbosch.detekt")) {
+                useModule("io.gitlab.arturbosch.detekt:detekt-gradle-plugin:${requested.version}")
+            }
+        }
+    }
 }
 @Suppress("UnstableApiUsage")
 dependencyResolutionManagement {
@@ -20,7 +38,6 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "FangMono"
 include(":arrangement")
 include(":cosmos")
 enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")

@@ -11,12 +11,13 @@ import org.koin.core.module.Module
  */
 fun Module.cosmosModuleGson(
     createdAtStart: Boolean = false,
-    override: Definition<Gson>? = null
+    override: Definition<Gson>? = null,
 ) = singleCosmos<Gson>(createdAtStart) { override?.invoke(this, it) ?: createGson() }
 
-private fun createGson() = GsonBuilder()
-    .serializeNulls()
-    .setLenient()
-    .serializeSpecialFloatingPointValues()
-    .enableComplexMapKeySerialization()
-    .create()
+private fun createGson() =
+    GsonBuilder()
+        .serializeNulls()
+        .setLenient()
+        .serializeSpecialFloatingPointValues()
+        .enableComplexMapKeySerialization()
+        .create()

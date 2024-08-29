@@ -13,7 +13,7 @@ import org.koin.mp.KoinPlatform.getKoin
 inline fun <reified T> Module.domainScoped(
     scopeId: String,
     qualifier: Qualifier? = null,
-    noinline definition: Definition<T>
+    noinline definition: Definition<T>,
 ) {
     val scopeQualifier = named(scopeId)
     factory<T>(qualifier) {

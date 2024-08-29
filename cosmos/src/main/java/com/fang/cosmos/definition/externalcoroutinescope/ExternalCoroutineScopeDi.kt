@@ -14,14 +14,15 @@ import org.koin.core.module.Module
  */
 fun Module.cosmosModuleExternalCoroutineScope(
     createdAtStart: Boolean = true,
-    override: Definition<CoroutineScope>? = null
+    override: Definition<CoroutineScope>? = null,
 ) = singleCosmos(createdAtStart) {
     override?.invoke(this, it) ?: createExternalCoroutineScope()
 }
 
 private fun createExternalCoroutineScope(): CoroutineScope {
-    val exceptionHandler = CoroutineExceptionHandler { _, t ->
-        logD("ExternalCoroutineScope", t)
-    }
+    val exceptionHandler =
+        CoroutineExceptionHandler { _, t ->
+            logD("ExternalCoroutineScope", t)
+        }
     return CoroutineScope(SupervisorJob() + Dispatchers.Main + exceptionHandler)
 }

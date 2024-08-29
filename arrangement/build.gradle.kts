@@ -1,3 +1,4 @@
+import com.android.build.gradle.internal.api.BaseVariantOutputImpl
 import java.io.FileInputStream
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -7,65 +8,63 @@ plugins {
     alias(libs.plugins.androidApplication)
     alias(libs.plugins.jetbrainsKotlinAndroid)
     alias(libs.plugins.jetbrainsKotlinParcelize)
+    alias(libs.plugins.compose.compiler)
 }
 
 android {
-    namespace = "com.fang.arrangement"
+    val pkg = "com.fang.arrangement"
+    namespace = pkg
     resourcePrefix = "arr_"
     defaultConfig {
-        applicationId = "com.fang.arrangement"
+        applicationId = pkg
         versionCode = 1
         versionName = "1.0.0"
         vectorDrawables.useSupportLibrary = true
+        ndk { abiFilters.addAll(listOf("armeabi-v7a", "arm64-v8a")) }
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
+    val release = "release"
     signingConfigs {
-        val keystoreProperties = Properties().apply {
-            val keystorePropertiesFile = rootProject.file("publish/keystore.properties")
-            load(FileInputStream(keystorePropertiesFile))
-        }
-        create("release") {
-            keyAlias = keystoreProperties.getProperty("keyAliasArrangement")
-            keyPassword = keystoreProperties.getProperty("keyPasswordArrangement")
-            storeFile = file(keystoreProperties.getProperty("storeFileArrangement"))
-            storePassword = keystoreProperties.getProperty("storePasswordArrangement")
+        val keystoreProperties =
+            Properties().apply {
+                val keystorePropertiesFile = project.file("publish/keystore.properties")
+                load(FileInputStream(keystorePropertiesFile))
+            }
+        create(release) {
+            keyAlias = keystoreProperties.getProperty("keyAlias")
+            keyPassword = keystoreProperties.getProperty("keyPassword")
+            storeFile = file(keystoreProperties.getProperty("storeFile"))
+            storePassword = keystoreProperties.getProperty("storePassword")
         }
     }
     productFlavors {
         applicationVariants.all {
             val dateTime = SimpleDateFormat("MM.dd-HH.mm").format(Date())
             outputs.forEach {
-                (it as? com.android.build.gradle.internal.api.BaseVariantOutputImpl)
-                    ?.outputFileName = "arrangement-$versionName-$dateTime.apk"
+                (it as? BaseVariantOutputImpl)?.outputFileName =
+                    "arrangement-$versionName-$dateTime.apk"
             }
         }
     }
 
     buildTypes {
-        all { isMinifyEnabled = false }
         debug {
             applicationIdSuffix = ".debug"
         }
         release {
+            isMinifyEnabled = true
+            isShrinkResources = true
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
-                "proguard-rules.pro"
+                "proguard-rules.pro",
             )
-            signingConfig = signingConfigs.getByName("release")
+            signingConfig = signingConfigs.getByName(release)
         }
     }
-    buildFeatures {
-        compose = true
-        buildConfig = true
+    composeCompiler {
+        enableStrongSkippingMode = true
     }
-    composeOptions {
-        kotlinCompilerExtensionVersion = libs.versions.composeCompile.get()
-    }
-    packaging {
-        resources {
-            excludes += "/META-INF/{AL2.0,LGPL2.1}"
-        }
-    }
+    packaging { resources { excludes += "/META-INF/{AL2.0,LGPL2.1}" } }
 }
 
 dependencies {
@@ -97,5 +96,3 @@ dependencies {
     androidTestImplementation(platform(libs.androidx.compose.bom))
     androidTestImplementation(libs.androidx.ui.test.junit4)
 }
-
-private val dateTime get() = SimpleDateFormat("MM.dd-HH.mm").format(Date())

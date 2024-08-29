@@ -40,46 +40,52 @@ fun DefaultPullRefresh(
     height: Dp = (screenHeight * 0.075).dp,
     onRefresh: Invoke,
     refreshContent: ComposableInvoke,
-    content: ComposableInvoke
+    content: ComposableInvoke,
 ) {
     CompositionLocalProvider(LocalOverscrollConfiguration provides null) {
-        val pullRefreshState = rememberPullRefreshState(
-            refreshing = isRefreshing, onRefresh = onRefresh
-        )
+        val pullRefreshState =
+            rememberPullRefreshState(
+                refreshing = isRefreshing,
+                onRefresh = onRefresh,
+            )
 
         val isPulling = pullRefreshState.progress > 0
         val loadingHeightDp by animateDpAsState(
-            targetValue = when {
-                isPulling || isRefreshing -> height
-                else -> 0.dp
-            },
+            targetValue =
+                when {
+                    isPulling || isRefreshing -> height
+                    else -> 0.dp
+                },
             animationSpec = spring(stiffness = Spring.StiffnessMediumLow),
-            label = "PullRefresh"
+            label = "PullRefresh",
         )
         val scale by animateFloatAsState(
             targetValue = if (isPulling) .95f else 1f,
-            animationSpec = spring(
-                dampingRatio = Spring.DampingRatioMediumBouncy,
-            ),
-            label = "PullRefreshScale"
+            animationSpec =
+                spring(
+                    dampingRatio = Spring.DampingRatioMediumBouncy,
+                ),
+            label = "PullRefreshScale",
         )
 
         Box(modifier = modifier.pullRefresh(pullRefreshState, !isRefreshing)) {
             Surface(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(height)
-                    .scale(min(loadingHeightDp / height, 1f)),
+                modifier =
+                    Modifier
+                        .fillMaxWidth()
+                        .height(height)
+                        .scale(min(loadingHeightDp / height, 1f)),
                 color = Color.Transparent,
-                content = refreshContent
+                content = refreshContent,
             )
             Surface(
-                modifier = Modifier
-                    .scale(scale)
-                    .offset(x = 0.dp, y = loadingHeightDp)
-                    .fillMaxSize(),
+                modifier =
+                    Modifier
+                        .scale(scale)
+                        .offset(x = 0.dp, y = loadingHeightDp)
+                        .fillMaxSize(),
                 color = Color.Transparent,
-                content = content
+                content = content,
             )
         }
     }

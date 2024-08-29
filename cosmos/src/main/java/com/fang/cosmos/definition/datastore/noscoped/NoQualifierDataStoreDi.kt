@@ -10,11 +10,11 @@ import org.koin.core.module.Module
  */
 fun Module.cosmosModuleNonQualifierDataStore(
     createdAtStart: Boolean = false,
-    override: Definition<NonQualifierDataStore>? = null
+    override: Definition<NonQualifierDataStore>? = null,
 ) {
-    singleCosmos<QualifierAwareDataStore>(createdAtStart, NonQualifierDataStoreQualifier) {
+    singleCosmos<QualifierAwareDataStore>(createdAtStart, NON_QUALIFIER_DATA_STORE_QUALIFIER) {
         override?.invoke(this, it) ?: object : NonQualifierDataStore() {}
     }
 }
 
-internal const val NonQualifierDataStoreQualifier = "NonQualifierDataStore"
+internal const val NON_QUALIFIER_DATA_STORE_QUALIFIER = "NonQualifierDataStore"

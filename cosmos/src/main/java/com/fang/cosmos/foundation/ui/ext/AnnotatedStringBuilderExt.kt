@@ -13,5 +13,5 @@ fun AnnotatedString.Builder.appendStyle(
     fontSize: TextUnit = TextUnit.Unspecified,
     fontWeight: FontWeight? = null,
 ) = withStyle(
-    SpanStyle(color = color, fontSize = fontSize, fontWeight = fontWeight)
+    SpanStyle(color = color, fontSize = fontSize, fontWeight = fontWeight),
 ) { append(text) }

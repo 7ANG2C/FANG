@@ -17,15 +17,16 @@ fun CustomIcon(
     @DrawableRes drawableResId: Int,
     modifier: Modifier = Modifier,
     tint: Color = Color.Unspecified,
-    contentDescription: String = ""
+    contentDescription: String = "",
 ) {
-    val painter = rememberVectorPainter(
-        ImageVector.vectorResource(id = drawableResId)
-    )
+    val painter =
+        rememberVectorPainter(
+            ImageVector.vectorResource(id = drawableResId),
+        )
     Icon(
         painter = painter,
         contentDescription = contentDescription,
         modifier = modifier,
-        tint = tint
+        tint = tint,
     )
 }

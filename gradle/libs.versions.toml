@@ -2,39 +2,54 @@
 # Build
 minSdk = "24"
 compileSdk = "34"
-composeCompile = "1.5.12"
 #plugins
-agp = "8.3.2"
-kotlin = "1.9.23"
+agp = "8.5.2"
+kotlin = "2.0.10"
+apollo3 = "3.8.5"
+spotless = "6.25.0"
+detekt = "1.23.6"
 #libraries
-coreKtx = "1.13.0"
-lifecycleRuntime = "2.7.0"
-activityCompose = "1.9.0"
+recognition = "16.0.1"
+coreKtx = "1.13.1"
+lifecycleRuntime = "2.8.4"
+activityCompose = "1.9.1"
 navigationCompose = "2.7.7"
-datastore = "1.1.0"
-composeBom = "2024.04.01"
-ui = "1.6.6"
+datastore = "1.1.1"
+composeBom = "2024.08.00"
+ui = "1.6.8"
 material3 = "1.2.1"
+jetbrainsPlayServices = "1.8.1"
 retrofit = "2.11.0"
-coilCompose = "2.6.0"
+okhttp = "4.12.0"
+coilCompose = "2.7.0"
 koin = "3.5.6"
+hyperion = "0.9.38"
+chucker = "4.0.0"
+hyperionSimpleItem = "0.6.0"
 #libraries-test
 junit = "4.13.2"
-junitVersion = "1.1.5"
-espressoCore = "3.5.1"
+junitVersion = "1.2.1"
+espressoCore = "3.6.1"
 
 [plugins]
 androidApplication = { id = "com.android.application", version.ref = "agp" }
 androidLibrary = { id = "com.android.library", version.ref = "agp" }
 jetbrainsKotlinAndroid = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
+compose-compiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
 jetbrainsKotlinParcelize = { id = "org.jetbrains.kotlin.plugin.parcelize", version.ref = "kotlin" }
+graphqlApollo3 = { id = "com.apollographql.apollo3", version.ref = "apollo3" }
+spotless = { id = "com.diffplug.spotless", version.ref = "spotless" }
+detekt = { id = "io.gitlab.arturbosch.detekt", version.ref = "detekt" }
 
 [libraries]
+google-mlkit-text-recognition = { module = "com.google.mlkit:text-recognition", version.ref = "recognition" }
+google-mlkit-text-recognition-chinese = { module = "com.google.mlkit:text-recognition-chinese", version.ref = "recognition" }
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
 androidx-lifecycle-runtime-ktx = { group = "androidx.lifecycle", name = "lifecycle-runtime-ktx", version.ref = "lifecycleRuntime" }
 androidx-lifecycle-runtime-compose = { module = "androidx.lifecycle:lifecycle-runtime-compose", version.ref = "lifecycleRuntime" }
 androidx-activity-compose = { group = "androidx.activity", name = "activity-compose", version.ref = "activityCompose" }
 androidx-navigation-compose = { group = "androidx.navigation", name = "navigation-compose", version.ref = "navigationCompose" }
+androidx-datastore = { module = "androidx.datastore:datastore", version.ref = "datastore" }
 androidx-datastore-preferences = { module = "androidx.datastore:datastore-preferences", version.ref = "datastore" }
 androidx-compose-bom = { group = "androidx.compose", name = "compose-bom", version.ref = "composeBom" }
 androidx-ui = { group = "androidx.compose.ui", name = "ui", version.ref = "ui" }
@@ -42,12 +57,23 @@ androidx-ui-graphics = { group = "androidx.compose.ui", name = "ui-graphics", ve
 androidx-ui-tooling = { group = "androidx.compose.ui", name = "ui-tooling", version.ref = "ui" }
 androidx-ui-tooling-preview = { group = "androidx.compose.ui", name = "ui-tooling-preview", version.ref = "ui" }
 androidx-material3 = { group = "androidx.compose.material3", name = "material3", version.ref = "material3" }
+jetbrains-coroutines-play-services = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-play-services", version.ref = "jetbrainsPlayServices" }
 retrofit = { module = "com.squareup.retrofit2:retrofit", version.ref = "retrofit" }
 retrofit-gson = { module = "com.squareup.retrofit2:converter-gson", version.ref = "retrofit" }
+okhttp3-logging-interceptor = { module = "com.squareup.okhttp3:logging-interceptor", version.ref = "okhttp" }
+apollo-runtime = { module = "com.apollographql.apollo3:apollo-runtime", version.ref = "apollo3" }
+apollo-adapters = { module = "com.apollographql.apollo3:apollo-adapters", version.ref = "apollo3" }
 io-coil-compose = { module = "io.coil-kt:coil-compose", version.ref = "coilCompose" }
 io-koin-core = { module = "io.insert-koin:koin-core", version.ref = "koin" }
 io-koin-android = { module = "io.insert-koin:koin-android", version.ref = "koin" }
 io-koin-androidx-compose = { module = "io.insert-koin:koin-androidx-compose", version.ref = "koin" }
+hyperion-core = { module = "com.willowtreeapps.hyperion:hyperion-core", version.ref = "hyperion" }
+hyperion-core-noop = { module = "com.willowtreeapps.hyperion:hyperion-core-no-op", version.ref = "hyperion" }
+hyperion-plugin = { module = "com.willowtreeapps.hyperion:hyperion-plugin", version.ref = "hyperion" }
+hyperion-crash = { module = "com.willowtreeapps.hyperion:hyperion-crash", version.ref = "hyperion" }
+chucker-library = { module = "com.github.chuckerteam.chucker:library", version.ref = "chucker" }
+chucker-library-noop = { module = "com.github.chuckerteam.chucker:library-no-op", version.ref = "chucker" }
+hyperion-simpleItem = { module = "com.github.takahirom:Hyperion-Simple-Item", version.ref = "hyperionSimpleItem" }
 #test
 androidx-ui-test-manifest = { group = "androidx.compose.ui", name = "ui-test-manifest", version.ref = "ui" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }

@@ -11,19 +11,18 @@ import org.koin.dsl.module
  * Default Cosmos koin module definition for DI.
  */
 object CosmosModule {
-
     /**
      * @param override override moduleDeclaration if needed.
      *
      * Call androidContext(YourApplication) first.
      */
-    operator fun invoke(override: ModuleDeclaration? = null) = module {
-        cosmosModuleContext()
-        cosmosModuleExternalCoroutineScope()
-        cosmosModuleGson()
-        cosmosModuleNonQualifierDataStore()
-        // override placed last
-        override?.invoke(this)
-    }
-
+    operator fun invoke(override: ModuleDeclaration? = null) =
+        module {
+            cosmosModuleContext()
+            cosmosModuleExternalCoroutineScope()
+            cosmosModuleGson()
+            cosmosModuleNonQualifierDataStore()
+            // override placed last
+            override?.invoke(this)
+        }
 }

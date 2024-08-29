@@ -11,7 +11,6 @@ import java.util.Locale
 import java.util.TimeZone
 
 object TimeConverter {
-
     /**
      * 將 [timeMillis] format 成具有 [pattern] date string
      */
@@ -19,12 +18,12 @@ object TimeConverter {
         timeMillis: Long?,
         pattern: String = TimePattern.SYSTEM_Y_M_D,
         locale: Locale = Locale.getDefault(),
-        timeZone: TimeZone = TimeZone.getDefault()
+        timeZone: TimeZone = TimeZone.getDefault(),
     ) = runCatching {
         getDateFormatter(
             pattern = pattern,
             locale = locale,
-            timeZone = timeZone
+            timeZone = timeZone,
         ).format(timeMillis)
     }.getOrNull()
 
@@ -35,12 +34,12 @@ object TimeConverter {
         date: Date?,
         pattern: String = TimePattern.SYSTEM_Y_M_D,
         locale: Locale = Locale.getDefault(),
-        timeZone: TimeZone = TimeZone.getDefault()
+        timeZone: TimeZone = TimeZone.getDefault(),
     ) = format(
         timeMillis = date?.time,
         pattern = pattern,
         locale = locale,
-        timeZone = timeZone
+        timeZone = timeZone,
     )
 
     /**
@@ -50,12 +49,12 @@ object TimeConverter {
         calendar: Calendar?,
         pattern: String = TimePattern.SYSTEM_Y_M_D,
         locale: Locale = Locale.getDefault(),
-        timeZone: TimeZone = TimeZone.getDefault()
+        timeZone: TimeZone = TimeZone.getDefault(),
     ) = format(
         date = calendar?.time,
         pattern = pattern,
         locale = locale,
-        timeZone = timeZone
+        timeZone = timeZone,
     )
 
     /**
@@ -65,12 +64,12 @@ object TimeConverter {
         pattern: String,
         timeString: String?,
         locale: Locale = Locale.getDefault(),
-        timeZone: TimeZone = TimeZone.getDefault()
+        timeZone: TimeZone = TimeZone.getDefault(),
     ) = runCatching {
         getDateFormatter(
             pattern = pattern,
             locale = locale,
-            timeZone = timeZone
+            timeZone = timeZone,
         ).parse(requireNotNull(timeString))
     }.getOrNull()
 
@@ -84,32 +83,34 @@ object TimeConverter {
         inputLocale: Locale = Locale.getDefault(),
         inputTimeZone: TimeZone = TimeZone.getDefault(),
         outputLocale: Locale = Locale.getDefault(),
-        outputTimeZone: TimeZone = TimeZone.getDefault()
+        outputTimeZone: TimeZone = TimeZone.getDefault(),
     ) = format(
-        date = parse(
-            pattern = inputPattern,
-            timeString = timeString,
-            locale = inputLocale,
-            timeZone = inputTimeZone
-        ),
+        date =
+            parse(
+                pattern = inputPattern,
+                timeString = timeString,
+                locale = inputLocale,
+                timeZone = inputTimeZone,
+            ),
         pattern = outputPattern,
         locale = outputLocale,
-        timeZone = outputTimeZone
+        timeZone = outputTimeZone,
     )
 
     /**
      * 取得 pattern 為 [TimePattern.TIME_ZONE] 的 [timeString] 的 time zone
      */
-    fun getTimeZone(timeString: String?) = timeString?.let { timeStr ->
-        val startIndex = timeStr.indexOf("[")
-        val endIndex = timeStr.indexOf("]")
-        if (startIndex != -1 && endIndex != -1 && startIndex < endIndex) {
-            timeStr.substring(startIndex + 1, endIndex)
-                .takeIf { it.isNotBlank() }
-        } else {
-            null
-        }?.let { TimeZone.getTimeZone(it) }
-    }
+    fun getTimeZone(timeString: String?) =
+        timeString?.let { timeStr ->
+            val startIndex = timeStr.indexOf("[")
+            val endIndex = timeStr.indexOf("]")
+            if (startIndex != -1 && endIndex != -1 && startIndex < endIndex) {
+                timeStr.substring(startIndex + 1, endIndex)
+                    .takeIf { it.isNotBlank() }
+            } else {
+                null
+            }?.let { TimeZone.getTimeZone(it) }
+        }
 
     /**
      * 取得 thread-safe 的 [SimpleDateFormat]
@@ -118,21 +119,24 @@ object TimeConverter {
         pattern: String = TimePattern.SYSTEM_Y_M_D,
         locale: Locale = Locale.getDefault(),
         timeZone: TimeZone = TimeZone.getDefault(),
-        context: Context = CosmosDef.Context
+        context: Context = CosmosDef.Context,
     ): SimpleDateFormat {
-        val yyyyMMdd = kotlin.runCatching {
-            context.resources.configuration.setLocale(locale)
-            val systemSdf = DateFormat.getDateFormat(context) as? SimpleDateFormat
-            systemSdf?.toLocalizedPattern()
-        }.getOrNull() ?: TimePattern.yyyyMMdd("/")
-        val formatter = SimpleDateFormat(
-            pattern.replace(TimePattern.SYSTEM_Y_M_D, yyyyMMdd),
-            locale
-        ).apply { this.timeZone = timeZone }
+        val yyyyMMdd =
+            kotlin.runCatching {
+                context.resources.configuration.setLocale(locale)
+                val systemSdf = DateFormat.getDateFormat(context) as? SimpleDateFormat
+                systemSdf?.toLocalizedPattern()
+            }.getOrNull() ?: TimePattern.yyyyMMdd("/")
+        val formatter =
+            SimpleDateFormat(
+                pattern.replace(TimePattern.SYSTEM_Y_M_D, yyyyMMdd),
+                locale,
+            ).apply { this.timeZone = timeZone }
         val onMainThread = Looper.myLooper() == Looper.getMainLooper()
         return if (!onMainThread) {
             formatter.clone() as SimpleDateFormat
-        } else formatter
+        } else {
+            formatter
+        }
     }
-
 }

@@ -34,26 +34,30 @@ fun CustomBottomSheet(
     content: ComposableInvoke,
 ) {
     Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .then(
-                if (isShow) {
-                    Modifier.clickableNoRipple(onClick = onDismissRequest)
-                } else Modifier
-            )
-            .background(
-                animateColorAsState(
-                    targetValue = if (isShow) Color(overlayColor) else Color.Transparent,
-                    label = "BottomSheetOverlayColor"
-                ).value
-            ),
-        contentAlignment = Alignment.BottomCenter
+        modifier =
+            Modifier
+                .fillMaxSize()
+                .then(
+                    if (isShow) {
+                        Modifier.clickableNoRipple(onClick = onDismissRequest)
+                    } else {
+                        Modifier
+                    },
+                )
+                .background(
+                    animateColorAsState(
+                        targetValue = if (isShow) Color(overlayColor) else Color.Transparent,
+                        label = "BottomSheetOverlayColor",
+                    ).value,
+                ),
+        contentAlignment = Alignment.BottomCenter,
     ) {
         AnimatedVisibility(
             visible = isShow,
-            modifier = Modifier.clickableNoRipple {
-                /* intercept */
-            },
+            modifier =
+                Modifier.clickableNoRipple {
+                    // intercept
+                },
             enter = slideInVertically(initialOffsetY = { it }) + fadeIn(),
             exit = slideOutVertically(targetOffsetY = { it }) + fadeOut(),
         ) {
@@ -63,5 +67,4 @@ fun CustomBottomSheet(
             }
         }
     }
-
 }

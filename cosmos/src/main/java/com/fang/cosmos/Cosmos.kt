@@ -6,7 +6,6 @@ import androidx.datastore.core.DataStore
  * Cosmos Helper
  */
 internal object Cosmos {
-
     /**
      * Module qualifier.
      * For the purpose of prefix for [DataStore] ..., or other else.

@@ -10,7 +10,7 @@ import org.koin.mp.KoinPlatform.getKoin
  */
 inline fun <reified T : Any> getDefinition(
     qualifier: Qualifier? = null,
-    noinline parameters: ParametersDefinition? = null
+    noinline parameters: ParametersDefinition? = null,
 ) = getKoin().get<T>(qualifier, parameters)
 
 /**
@@ -18,5 +18,5 @@ inline fun <reified T : Any> getDefinition(
  */
 inline fun <reified T : Any> getDefinitionOrNull(
     qualifier: Qualifier? = null,
-    noinline parameters: ParametersDefinition? = null
+    noinline parameters: ParametersDefinition? = null,
 ) = getKoin().getOrNull<T>(qualifier, parameters)

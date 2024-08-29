@@ -11,7 +11,7 @@ import androidx.core.view.WindowCompat
 @Composable
 fun StatusBarColor(
     color: Color,
-    isAppearanceLight: Boolean = isColorLight(color)
+    isAppearanceLight: Boolean = isColorLight(color),
 ) {
     val view = LocalView.current
     if (!view.isInEditMode) {
@@ -27,7 +27,7 @@ fun StatusBarColor(
 @Composable
 fun NavigationBarColor(
     color: Color,
-    isAppearanceLight: Boolean = isColorLight(color)
+    isAppearanceLight: Boolean = isColorLight(color),
 ) {
     val view = LocalView.current
     if (!view.isInEditMode) {

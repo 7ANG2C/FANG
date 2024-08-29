@@ -19,9 +19,10 @@ private fun isImeVisible(): Boolean {
     val view = LocalView.current
     return produceState(initialValue = isKeyboardVisible(view)) {
         val viewTreeObserver = view.viewTreeObserver
-        val listener = ViewTreeObserver.OnGlobalLayoutListener {
-            value = isKeyboardVisible(view)
-        }
+        val listener =
+            ViewTreeObserver.OnGlobalLayoutListener {
+                value = isKeyboardVisible(view)
+            }
         kotlin.runCatching {
             viewTreeObserver.addOnGlobalLayoutListener(listener)
         }

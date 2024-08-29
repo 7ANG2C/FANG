@@ -47,26 +47,28 @@ fun AutoSizedText(
         var shrunkFontSize = targetFontSize
         val calculateIntrinsics = @Composable {
             MultiParagraph(
-                intrinsics = MultiParagraphIntrinsics(
-                    annotatedString = AnnotatedString(text),
-                    style = TextStyle(
-                        color = color,
-                        fontSize = shrunkFontSize,
-                        fontWeight = fontWeight,
-                        textAlign = textAlign,
-                        lineHeight = lineHeight,
-                        fontFamily = fontFamily,
-                        textDecoration = textDecoration,
-                        fontStyle = fontStyle,
-                        letterSpacing = letterSpacing
+                intrinsics =
+                    MultiParagraphIntrinsics(
+                        annotatedString = AnnotatedString(text),
+                        style =
+                            TextStyle(
+                                color = color,
+                                fontSize = shrunkFontSize,
+                                fontWeight = fontWeight,
+                                textAlign = textAlign,
+                                lineHeight = lineHeight,
+                                fontFamily = fontFamily,
+                                textDecoration = textDecoration,
+                                fontStyle = fontStyle,
+                                letterSpacing = letterSpacing,
+                            ),
+                        density = LocalDensity.current,
+                        fontFamilyResolver = LocalFontFamilyResolver.current,
+                        placeholders = listOf(),
                     ),
-                    density = LocalDensity.current,
-                    fontFamilyResolver = LocalFontFamilyResolver.current,
-                    placeholders = listOf()
-                ),
                 constraints = Constraints(maxWidth = constraints.maxWidth),
                 maxLines = Int.MAX_VALUE,
-                ellipsis = false
+                ellipsis = false,
             )
         }
 

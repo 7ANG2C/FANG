@@ -12,6 +12,7 @@ import androidx.datastore.preferences.preferencesDataStore
 import com.fang.cosmos.Cosmos
 import com.fang.cosmos.definition.CosmosDef
 import com.fang.cosmos.foundation.gson.fromJsonTypeToken
+import com.fang.cosmos.foundation.log.logD
 import com.fang.cosmos.foundation.withcontextcatching.withDefaultCoroutine
 import com.google.gson.Gson
 import kotlinx.coroutines.CoroutineScope
@@ -27,8 +28,8 @@ import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.mapLatest
 import kotlinx.coroutines.launch
 
-val Context.psgpDataStore by preferencesDataStore(
-    name = "${Cosmos.QUALIFIER}default_scoped_d_s"
+val Context.cosmosDataStore by preferencesDataStore(
+    name = "${Cosmos.QUALIFIER}default_scoped_d_s",
 )
 
 @OptIn(ExperimentalCoroutinesApi::class)
@@ -37,7 +38,6 @@ abstract class QualifierAwareDataStore(
     val context: Context = CosmosDef.Context,
     coroutineScope: CoroutineScope = CosmosDef.CoroutineScope,
 ) {
-
     abstract val qualifierKeyFlow: Flow<String?>
     private val _qualifierState = MutableStateFlow<String?>(null)
     val qualifierState by lazy { _qualifierState.asStateFlow() }
@@ -51,7 +51,7 @@ abstract class QualifierAwareDataStore(
     }
 
     inline fun <reified T> getDataFlow(key: String) =
-        context.psgpDataStore.data.flatMapLatest { pref ->
+        context.cosmosDataStore.data.flatMapLatest { pref ->
             qualifierState.filterNotNull().mapLatest { qualifier ->
                 val realKey = getKey(key = key, qualifier)
                 when (T::class) {
@@ -61,21 +61,27 @@ abstract class QualifierAwareDataStore(
                     Boolean::class -> pref[booleanPreferencesKey(realKey)] as? T
                     Float::class -> pref[floatPreferencesKey(realKey)] as? T
                     Long::class -> pref[longPreferencesKey(realKey)] as? T
-                    else -> pref[stringPreferencesKey(realKey)]?.let {
-                        gson.fromJsonTypeToken<T>(it).getOrThrow()
-                    }
+                    else ->
+                        pref[stringPreferencesKey(realKey)]?.let {
+                            gson.fromJsonTypeToken<T>(it).getOrThrow()
+                        }
                 }
             }
         }.flowOn(Dispatchers.Default)
 
-    inline fun <reified T> getDataFlowOrDefault(key: String, default: T) =
-        getDataFlow<T>(key).mapLatest { it ?: default }
+    inline fun <reified T> getDataFlowOrDefault(
+        key: String,
+        default: T,
+    ) = getDataFlow<T>(key).mapLatest { it ?: default }
 
-    suspend inline fun <reified T> update(key: String, crossinline transform: (T?) -> T?) {
+    suspend inline fun <reified T> update(
+        key: String,
+        crossinline transform: (T?) -> T?,
+    ) {
         qualifierState.value?.let { q ->
             val realKey = getKey(key = key, q)
             withDefaultCoroutine {
-                context.psgpDataStore.edit { pref ->
+                context.cosmosDataStore.edit { pref ->
                     when (T::class) {
                         Int::class -> {
                             val prefKey = intPreferencesKey(realKey)
@@ -116,10 +122,22 @@ abstract class QualifierAwareDataStore(
                         else -> {
                             val prefKey = stringPreferencesKey(realKey)
                             val old =
-                                pref[prefKey]?.let { gson.fromJsonTypeToken<T>(it).getOrThrow() }
-                            transform(old)?.let {
-                                pref[prefKey] = gson.toJson(it)
-                            } ?: pref.remove(prefKey)
+                                pref[prefKey]?.let {
+                                    gson.fromJsonTypeToken<T>(it).getOrThrow()
+                                }
+
+                            val sdfsdf = transform(old)
+                            logD("wrewe0", sdfsdf, sdfsdf == null)
+                            if (sdfsdf == null) {
+                                logD("wrewe1", "nullnull")
+                                pref.remove(prefKey)
+                            } else {
+                                logD("wrewe1", "123456")
+                                pref[prefKey] = gson.toJson(sdfsdf)
+                            }
+//                            sdfsdf?.let {
+//
+//                            } ?: pref.remove(prefKey)
                         }
                     }
                 }
@@ -127,5 +145,8 @@ abstract class QualifierAwareDataStore(
         }
     }
 
-    fun getKey(key: String, prefix: String) = "$prefix$key"
+    fun getKey(
+        key: String,
+        prefix: String,
+    ) = "$prefix$key"
 }

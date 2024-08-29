@@ -35,35 +35,36 @@ fun LifecycleObserver(
     val currentOnAny by rememberUpdatedState(onAny)
     val currentOnDispose by rememberUpdatedState(onDispose)
     DisposableEffect(lifecycleOwner) {
-        val observer = LifecycleEventObserver { _, event ->
-            when (event) {
-                Lifecycle.Event.ON_CREATE -> {
-                    currentOnCreate()
-                    currentOnAny(LifecycleEvent.ON_CREATE)
+        val observer =
+            LifecycleEventObserver { _, event ->
+                when (event) {
+                    Lifecycle.Event.ON_CREATE -> {
+                        currentOnCreate()
+                        currentOnAny(LifecycleEvent.ON_CREATE)
+                    }
+                    Lifecycle.Event.ON_START -> {
+                        currentOnStart()
+                        currentOnAny(LifecycleEvent.ON_START)
+                    }
+                    Lifecycle.Event.ON_RESUME -> {
+                        currentOnResume()
+                        currentOnAny(LifecycleEvent.ON_RESUME)
+                    }
+                    Lifecycle.Event.ON_PAUSE -> {
+                        currentOnPause()
+                        currentOnAny(LifecycleEvent.ON_PAUSE)
+                    }
+                    Lifecycle.Event.ON_STOP -> {
+                        currentOnStop()
+                        currentOnAny(LifecycleEvent.ON_STOP)
+                    }
+                    Lifecycle.Event.ON_DESTROY -> {
+                        currentOnDestroy()
+                        currentOnAny(LifecycleEvent.ON_DESTROY)
+                    }
+                    else -> {}
                 }
-                Lifecycle.Event.ON_START -> {
-                    currentOnStart()
-                    currentOnAny(LifecycleEvent.ON_START)
-                }
-                Lifecycle.Event.ON_RESUME -> {
-                    currentOnResume()
-                    currentOnAny(LifecycleEvent.ON_RESUME)
-                }
-                Lifecycle.Event.ON_PAUSE -> {
-                    currentOnPause()
-                    currentOnAny(LifecycleEvent.ON_PAUSE)
-                }
-                Lifecycle.Event.ON_STOP -> {
-                    currentOnStop()
-                    currentOnAny(LifecycleEvent.ON_STOP)
-                }
-                Lifecycle.Event.ON_DESTROY -> {
-                    currentOnDestroy()
-                    currentOnAny(LifecycleEvent.ON_DESTROY)
-                }
-                else -> {}
             }
-        }
 
         lifecycleOwner.lifecycle.addObserver(observer)
         onDispose {
@@ -81,5 +82,5 @@ enum class LifecycleEvent {
     ON_PAUSE,
     ON_STOP,
     ON_DESTROY,
-    ON_DISPOSE;
+    ON_DISPOSE,
 }

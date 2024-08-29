@@ -12,7 +12,5 @@ abstract class NonQualifierDataStore(
     context: Context = CosmosDef.Context,
     coroutineScope: CoroutineScope = CosmosDef.CoroutineScope,
 ) : QualifierAwareDataStore(gson, context, coroutineScope) {
-
     override val qualifierKeyFlow = flowOf("")
 }
-

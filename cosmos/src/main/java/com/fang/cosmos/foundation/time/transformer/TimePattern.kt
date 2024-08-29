@@ -1,7 +1,6 @@
 package com.fang.cosmos.foundation.time.transformer
 
 object TimePattern {
-
     /**
      * Use System Date Format Pattern (System only support y/m/d)
      */
@@ -15,5 +14,4 @@ object TimePattern {
     fun yyyyMMdd(separator: String = ""): String {
         return "yyyy${separator}MM${separator}dd"
     }
-
 }
