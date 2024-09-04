@@ -6,18 +6,17 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import kotlin.math.sign
 
 @Composable
-fun VerticalSpacer(space: Dp) {
-    Spacer(modifier = Modifier.height(space))
+fun VerticalSpacer(dp: Dp) {
+    if (dp.value.sign > 0f) {
+        Spacer(modifier = Modifier.height(dp))
+    }
 }
 
 @Composable
-fun VerticalSpacer(spaceDp: Double) {
-    VerticalSpacer(spaceDp.dp)
-}
+fun VerticalSpacer(dpValue: Float) = VerticalSpacer(dpValue.dp)
 
 @Composable
-fun VerticalSpacer(spaceDp: Int) {
-    VerticalSpacer(spaceDp.dp)
-}
+fun VerticalSpacer(dpValue: Int) = VerticalSpacer(dpValue.toFloat())
