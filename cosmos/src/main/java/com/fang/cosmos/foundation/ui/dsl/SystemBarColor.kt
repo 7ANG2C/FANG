@@ -6,14 +6,14 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalView
 import androidx.core.view.WindowCompat
-import com.fang.cosmos.foundation.context.findActivity
+import com.fang.cosmos.foundation.findActivity
 
 @Composable
 fun SystemBarColor(
     status: Color? = null,
-    appearanceLightStatus: Boolean? = status?.let { isColorLight(it) },
+    appearanceLightStatus: Boolean? = status?.let { ColorLuma.isLight(it) },
     navigation: Color? = null,
-    appearanceLightNav: Boolean? = navigation?.let { isColorLight(it) },
+    appearanceLightNav: Boolean? = navigation?.let { ColorLuma.isLight(it) },
 ) {
     val view = LocalView.current
     if (!view.isInEditMode) {

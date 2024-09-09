@@ -1,4 +1,4 @@
-package com.fang.cosmos.foundation.log
+package com.fang.cosmos.foundation
 
 import android.util.Log
 import com.fang.cosmos.BuildConfig

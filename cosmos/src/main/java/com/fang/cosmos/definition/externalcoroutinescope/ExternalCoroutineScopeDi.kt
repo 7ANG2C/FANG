@@ -1,7 +1,7 @@
 package com.fang.cosmos.definition.externalcoroutinescope
 
 import com.fang.cosmos.definition.singleCosmos
-import com.fang.cosmos.foundation.log.logD
+import com.fang.cosmos.foundation.logD
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -19,7 +19,7 @@ fun Module.cosmosModuleExternalCoroutineScope(
     override?.invoke(this, it) ?: createExternalCoroutineScope()
 }
 
-private fun createExternalCoroutineScope(): CoroutineScope {
+fun createExternalCoroutineScope(): CoroutineScope {
     val exceptionHandler =
         CoroutineExceptionHandler { _, t ->
             logD("ExternalCoroutineScope", t)

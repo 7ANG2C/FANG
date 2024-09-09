@@ -4,12 +4,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberUpdatedState
-import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
-import com.fang.cosmos.foundation.typealiaz.Action
-import com.fang.cosmos.foundation.typealiaz.Invoke
+import androidx.lifecycle.compose.LocalLifecycleOwner
+import com.fang.cosmos.foundation.Action
+import com.fang.cosmos.foundation.Invoke
 
 /**
  * composable lifecycle observer

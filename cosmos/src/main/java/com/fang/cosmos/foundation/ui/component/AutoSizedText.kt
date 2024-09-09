@@ -22,7 +22,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.isUnspecified
-import com.fang.cosmos.foundation.typealiaz.Action
+import com.fang.cosmos.foundation.Action
 
 @Composable
 fun AutoSizedText(

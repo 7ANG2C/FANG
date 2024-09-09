@@ -1,4 +1,4 @@
-package com.fang.cosmos.foundation.context
+package com.fang.cosmos.foundation
 
 import android.app.Activity
 import android.content.Context

@@ -18,6 +18,7 @@ private fun createGson() =
     GsonBuilder()
         .serializeNulls()
         .setLenient()
+        .setPrettyPrinting()
         .serializeSpecialFloatingPointValues()
         .enableComplexMapKeySerialization()
         .create()

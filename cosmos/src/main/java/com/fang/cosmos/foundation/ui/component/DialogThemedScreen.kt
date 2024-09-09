@@ -14,7 +14,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import com.fang.cosmos.foundation.typealiaz.Invoke
+import com.fang.cosmos.foundation.Invoke
 import com.fang.cosmos.foundation.ui.ext.clickableNoRipple
 
 /**
