@@ -2,19 +2,21 @@ package com.fang.cosmos.foundation.ui.component
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.AnimatedVisibilityScope
-import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.scaleIn
 import androidx.compose.animation.scaleOut
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.material3.ColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import com.fang.cosmos.foundation.typealiaz.Invoke
+import androidx.compose.ui.platform.LocalFocusManager
+import com.fang.cosmos.foundation.Invoke
+import com.fang.cosmos.foundation.ui.dsl.animateColor
+import com.fang.cosmos.foundation.ui.ext.bg
 import com.fang.cosmos.foundation.ui.ext.clickableNoRipple
 
 /**
@@ -23,27 +25,30 @@ import com.fang.cosmos.foundation.ui.ext.clickableNoRipple
 @Composable
 fun DialogThemedScreen(
     isShow: Boolean,
-    overlayColor: Long = 0x40000000,
-    onClickOutsideDismiss: Invoke = {},
+    overlayColor: @Composable ColorScheme.() -> Color = over@{
+        animateColor("DialogOverlayColor") {
+            if (isShow) this@over.scrim.copy(alpha = 0.3f) else Color.Transparent
+        }
+    },
+    onClickOutsideDismiss: Invoke? = null,
     content: @Composable AnimatedVisibilityScope.() -> Unit,
 ) {
+    val focusManager = LocalFocusManager.current
     Box(
         modifier =
             Modifier
                 .fillMaxSize()
                 .then(
                     if (isShow) {
-                        Modifier.clickableNoRipple(onClick = onClickOutsideDismiss)
+                        Modifier.clickableNoRipple {
+                            focusManager.clearFocus()
+                            onClickOutsideDismiss?.invoke()
+                        }
                     } else {
                         Modifier
                     },
                 )
-                .background(
-                    animateColorAsState(
-                        targetValue = if (isShow) Color(overlayColor) else Color.Transparent,
-                        label = "DialogOverlayColor",
-                    ).value,
-                ),
+                .bg { overlayColor(this) },
         contentAlignment = Alignment.Center,
     ) {
         AnimatedVisibility(
@@ -52,8 +57,10 @@ fun DialogThemedScreen(
                 Modifier.clickableNoRipple {
                     // intercept
                 },
-            enter = scaleIn(initialScale = 0.85f) + fadeIn(),
-            exit = scaleOut(targetScale = 0.9f) + fadeOut(),
+            enter =
+                scaleIn(initialScale = 0.85f) + fadeIn(),
+            exit =
+                scaleOut(targetScale = 0.9f) + fadeOut(),
             content = content,
         )
     }

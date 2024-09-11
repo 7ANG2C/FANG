@@ -21,7 +21,7 @@ import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import com.fang.cosmos.foundation.typealiaz.Invoke
+import com.fang.cosmos.foundation.Invoke
 import com.fang.cosmos.foundation.ui.dsl.ComposableInvoke
 import com.fang.cosmos.foundation.ui.dsl.screenHeight
 import kotlin.math.min

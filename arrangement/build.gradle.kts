@@ -5,6 +5,8 @@ import java.util.Date
 import java.util.Properties
 
 plugins {
+    alias(libs.plugins.googleServices)
+    alias(libs.plugins.firebaseCrashlytics)
     alias(libs.plugins.androidApplication)
     alias(libs.plugins.jetbrainsKotlinAndroid)
     alias(libs.plugins.jetbrainsKotlinParcelize)
@@ -52,6 +54,7 @@ android {
             applicationIdSuffix = ".debug"
         }
         release {
+            isDebuggable = true
             isMinifyEnabled = true
             isShrinkResources = true
             proguardFiles(
@@ -64,11 +67,16 @@ android {
     composeCompiler {
         enableStrongSkippingMode = true
     }
-    packaging { resources { excludes += "/META-INF/{AL2.0,LGPL2.1}" } }
+    packaging { resources { excludes += "/META-INF/{AL2.0,LGPL2.1,INDEX.LIST,DEPENDENCIES}" } }
 }
 
 dependencies {
     implementation(projects.cosmos)
+    implementation(libs.google.auth.oauth2)
+    implementation(libs.google.apis.sheets)
+    implementation(platform(libs.google.firebase.bom))
+    implementation(libs.google.firebase.analytics)
+    implementation(libs.google.firebase.crashlytics)
     // androidx - initial
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)

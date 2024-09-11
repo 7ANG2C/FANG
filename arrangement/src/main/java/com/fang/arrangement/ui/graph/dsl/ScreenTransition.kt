@@ -27,25 +27,29 @@ private val slideAnimSpec: FiniteAnimationSpec<IntOffset> = tween(300)
 private val slideLeft = AnimatedContentTransitionScope.SlideDirection.Left
 private val slideRight = AnimatedContentTransitionScope.SlideDirection.Right
 private val AnimatedContentTransitionScope<NavBackStackEntry>.defaultEnterTransition
-    get() = slideIntoContainer(
-        towards = slideLeft,
-        animationSpec = slideAnimSpec
-    ) + ScreenTransition.fadeIn
+    get() =
+        slideIntoContainer(
+            towards = slideLeft,
+            animationSpec = slideAnimSpec,
+        ) + ScreenTransition.fadeIn
 private val AnimatedContentTransitionScope<NavBackStackEntry>.defaultExitTransition
-    get() = slideOutOfContainer(
-        towards = slideLeft,
-        animationSpec = slideAnimSpec
-    ) + ScreenTransition.fadeOut
+    get() =
+        slideOutOfContainer(
+            towards = slideLeft,
+            animationSpec = slideAnimSpec,
+        ) + ScreenTransition.fadeOut
 private val AnimatedContentTransitionScope<NavBackStackEntry>.defaultPopEnterTransition
-    get() = slideIntoContainer(
-        towards = slideRight,
-        animationSpec = slideAnimSpec
-    ) + ScreenTransition.fadeIn
+    get() =
+        slideIntoContainer(
+            towards = slideRight,
+            animationSpec = slideAnimSpec,
+        ) + ScreenTransition.fadeIn
 private val AnimatedContentTransitionScope<NavBackStackEntry>.defaultPopExitTransition
-    get() = slideOutOfContainer(
-        towards = slideRight,
-        animationSpec = slideAnimSpec
-    ) + ScreenTransition.fadeOut
+    get() =
+        slideOutOfContainer(
+            towards = slideRight,
+            animationSpec = slideAnimSpec,
+        ) + ScreenTransition.fadeOut
 
 /**
  * A to B:
@@ -59,34 +63,42 @@ internal fun NavGraphBuilder.composableTransition(
     route: String,
     arguments: List<NamedNavArgument> = emptyList(),
     deepLinks: List<NavDeepLink> = emptyList(),
-    enterTransition: (@JvmSuppressWildcards
-    AnimatedContentTransitionScope<NavBackStackEntry>.() -> EnterTransition?)? = null,
-    exitTransition: (@JvmSuppressWildcards
-    AnimatedContentTransitionScope<NavBackStackEntry>.() -> ExitTransition?)? = null,
-    popEnterTransition: (@JvmSuppressWildcards
-    AnimatedContentTransitionScope<NavBackStackEntry>.() -> EnterTransition?)? =
+    enterTransition: (
+        AnimatedContentTransitionScope<NavBackStackEntry>.() -> EnterTransition?
+    )? = null,
+    exitTransition: (
+        AnimatedContentTransitionScope<NavBackStackEntry>.() -> ExitTransition?
+    )? = null,
+    popEnterTransition: (
+        AnimatedContentTransitionScope<NavBackStackEntry>.() -> EnterTransition?
+    )? =
         enterTransition,
-    popExitTransition: (@JvmSuppressWildcards
-    AnimatedContentTransitionScope<NavBackStackEntry>.() -> ExitTransition?)? =
+    popExitTransition: (
+        AnimatedContentTransitionScope<NavBackStackEntry>.() -> ExitTransition?
+    )? =
         exitTransition,
-    content: @Composable AnimatedContentScope.(NavBackStackEntry) -> Unit
+    content: @Composable AnimatedContentScope.(NavBackStackEntry) -> Unit,
 ) {
     composable(
         route = route,
         arguments = arguments,
         deepLinks = deepLinks,
-        enterTransition = enterTransition?.let {
-            { it() ?: defaultEnterTransition }
-        } ?: { defaultEnterTransition },
-        exitTransition = exitTransition?.let {
-            { it() ?: defaultExitTransition }
-        } ?: { defaultExitTransition },
-        popEnterTransition = popEnterTransition?.let {
-            { it() ?: defaultPopEnterTransition }
-        } ?: { defaultPopEnterTransition },
-        popExitTransition = popExitTransition?.let {
-            { it() ?: defaultPopExitTransition }
-        } ?: { defaultPopExitTransition },
-        content = content
+        enterTransition =
+            enterTransition?.let {
+                { it() ?: defaultEnterTransition }
+            } ?: { defaultEnterTransition },
+        exitTransition =
+            exitTransition?.let {
+                { it() ?: defaultExitTransition }
+            } ?: { defaultExitTransition },
+        popEnterTransition =
+            popEnterTransition?.let {
+                { it() ?: defaultPopEnterTransition }
+            } ?: { defaultPopEnterTransition },
+        popExitTransition =
+            popExitTransition?.let {
+                { it() ?: defaultPopExitTransition }
+            } ?: { defaultPopExitTransition },
+        content = content,
     )
 }

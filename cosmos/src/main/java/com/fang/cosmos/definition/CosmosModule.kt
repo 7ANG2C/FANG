@@ -1,7 +1,7 @@
 package com.fang.cosmos.definition
 
 import com.fang.cosmos.definition.context.cosmosModuleContext
-import com.fang.cosmos.definition.datastore.noscoped.cosmosModuleNonQualifierDataStore
+import com.fang.cosmos.definition.datastore.cosmosModuleDataStore
 import com.fang.cosmos.definition.externalcoroutinescope.cosmosModuleExternalCoroutineScope
 import com.fang.cosmos.definition.gson.cosmosModuleGson
 import org.koin.dsl.ModuleDeclaration
@@ -21,7 +21,7 @@ object CosmosModule {
             cosmosModuleContext()
             cosmosModuleExternalCoroutineScope()
             cosmosModuleGson()
-            cosmosModuleNonQualifierDataStore()
+            cosmosModuleDataStore()
             // override placed last
             override?.invoke(this)
         }

@@ -1,16 +1,23 @@
 package com.fang.cosmos.foundation.ui.ext
 
 import androidx.compose.foundation.Indication
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.material3.ColorScheme
+import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.RectangleShape
+import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.layout.layout
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import com.fang.cosmos.foundation.typealiaz.Invoke
+import com.fang.cosmos.foundation.Invoke
+import com.fang.cosmos.foundation.ui.dsl.MaterialColor
 
 fun Modifier.clickableNoRipple(
     interactionSource: MutableInteractionSource? = null,
@@ -46,6 +53,15 @@ fun Modifier.clickableRipple(
             role = role,
             onClick = onClick,
         ),
+    )
+}
+
+fun Modifier.bg(
+    shape: Shape = RectangleShape,
+    color: @Composable ColorScheme.() -> Color,
+) = composed {
+    then(
+        Modifier.background(color(MaterialColor), shape),
     )
 }
 

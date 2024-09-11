@@ -4,7 +4,7 @@ import android.content.pm.ActivityInfo
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.ui.platform.LocalContext
-import com.fang.cosmos.foundation.context.findActivity
+import com.fang.cosmos.foundation.findActivity
 
 /**
  * Request screen orientation in composable.
