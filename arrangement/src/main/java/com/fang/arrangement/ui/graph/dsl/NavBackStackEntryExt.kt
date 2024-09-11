@@ -7,7 +7,7 @@ import com.fang.cosmos.foundation.fromJsonTypeToken
 import com.google.gson.Gson
 
 internal val NavBackStackEntry?.currentBtmNavItem
-    get() = BtmNavItem.all.find { it.route in this?.destination?.route.orEmpty() }
+    get() = BtmNavItem.entries.find { it.route in this?.destination?.route.orEmpty() }
 
 internal val NavBackStackEntry?.currentIsBtmNavItem
     get() = currentBtmNavItem != null

@@ -2,9 +2,9 @@ package com.fang.arrangement.ui.graph
 
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.statusBarsPadding
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.Surface
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.navigation.NamedNavArgument
 import androidx.navigation.NavDeepLink
 import androidx.navigation.NavGraphBuilder
@@ -13,17 +13,12 @@ import com.fang.arrangement.ui.graph.dsl.ScreenTransition
 import com.fang.arrangement.ui.graph.dsl.composableTransition
 import com.fang.arrangement.ui.graph.dsl.currentIsBtmNavItem
 import com.fang.arrangement.ui.screen.btmnav.BtmNavItem
-import com.fang.arrangement.ui.screen.btmnav.BtmNavScreen
 import com.fang.arrangement.ui.screen.btmnav.attendance.AttendanceScreen
 import com.fang.arrangement.ui.screen.btmnav.employee.EmployeeScreen
 import com.fang.arrangement.ui.screen.btmnav.loan.LoanScreen
 import com.fang.arrangement.ui.screen.btmnav.site.SiteScreen
 import com.fang.arrangement.ui.screen.btmnav.statistic.StatisticScreen
-import com.fang.arrangement.ui.theme.darkScheme
-import com.fang.arrangement.ui.theme.lightScheme
-import com.fang.cosmos.foundation.ui.component.ColorSchemeScreen
 import com.fang.cosmos.foundation.ui.dsl.ComposableInvoke
-import com.fang.cosmos.foundation.ui.ext.bg
 
 internal const val GRAPH_BTM_NAV_SCREEN = "GRAPH_BTM_NAV_SCREEN"
 
@@ -43,16 +38,6 @@ internal fun NavGraphBuilder.graphBtmNavScreen() {
         }
         composableBtmNav(navItem = BtmNavItem.SITE) {
             SiteScreen(modifier = Modifier.fillMaxSize())
-        }
-        composableBtmNav(navItem = BtmNavItem.MEMO) {
-            ColorSchemeScreen(
-                modifier =
-                    Modifier
-                        .fillMaxSize()
-                        .verticalScroll(rememberScrollState()),
-                dark = darkScheme,
-                light = lightScheme,
-            )
         }
     }
 }
@@ -80,12 +65,12 @@ private fun NavGraphBuilder.composableBtmNav(
             ScreenTransition.fadeOut.takeIf { targetState.currentIsBtmNavItem }
         },
     ) {
-        BtmNavScreen(
+        Surface(
             modifier =
                 Modifier
                     .fillMaxSize()
-                    .statusBarsPadding()
-                    .bg { surfaceContainerLowest },
+                    .statusBarsPadding(),
+            color = Color.Transparent,
             content = content,
         )
     }
