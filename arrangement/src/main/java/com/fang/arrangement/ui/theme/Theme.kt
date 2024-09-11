@@ -11,7 +11,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalContext
 import com.fang.cosmos.foundation.ui.dsl.SystemBarColor
 
-val lightScheme =
+internal val lightScheme =
     lightColorScheme(
         primary = primaryLight,
         onPrimary = onPrimaryLight,
@@ -50,7 +50,7 @@ val lightScheme =
         surfaceContainerHighest = surfaceContainerHighestLight,
     )
 
-val darkScheme =
+internal val darkScheme =
     darkColorScheme(
         primary = primaryDark,
         onPrimary = onPrimaryDark,

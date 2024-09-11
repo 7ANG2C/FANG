@@ -1,7 +1,6 @@
 package com.fang.cosmos.foundation.ui.component
 
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInVertically
@@ -20,6 +19,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.fang.cosmos.foundation.Invoke
 import com.fang.cosmos.foundation.ui.dsl.ComposableInvoke
+import com.fang.cosmos.foundation.ui.dsl.animateColor
 import com.fang.cosmos.foundation.ui.ext.clickableNoRipple
 
 /**
@@ -28,9 +28,9 @@ import com.fang.cosmos.foundation.ui.ext.clickableNoRipple
 @Composable
 fun CustomBottomSheet(
     isShow: Boolean,
-    overlayColor: Long = 0x80000000,
+    overlayColor: Color = Color(0x80000000),
     dividerColor: Color = Color.Unspecified,
-    onDismissRequest: Invoke,
+    onDismiss: Invoke,
     content: ComposableInvoke,
 ) {
     Box(
@@ -39,16 +39,15 @@ fun CustomBottomSheet(
                 .fillMaxSize()
                 .then(
                     if (isShow) {
-                        Modifier.clickableNoRipple(onClick = onDismissRequest)
+                        Modifier.clickableNoRipple(onClick = onDismiss)
                     } else {
                         Modifier
                     },
                 )
                 .background(
-                    animateColorAsState(
-                        targetValue = if (isShow) Color(overlayColor) else Color.Transparent,
-                        label = "BottomSheetOverlayColor",
-                    ).value,
+                    animateColor("BottomSheetOverlayColor") {
+                        if (isShow) overlayColor else Color.Transparent
+                    },
                 ),
         contentAlignment = Alignment.BottomCenter,
     ) {

@@ -22,8 +22,8 @@ internal data class Site(
     @SerializedName(SiteKey.DELETE)
     val delete: Int,
 ) {
-    val isArchive = Bool(archive)
-    val isDelete = Bool(delete)
+    val isArchive get() = Bool(archive)
+    val isDelete get() = Bool(delete)
 }
 
 internal interface SiteKey {
