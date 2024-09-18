@@ -20,7 +20,7 @@ import com.fang.arrangement.ui.graph.dsl.currentBtmNavItem
 import com.fang.arrangement.ui.graph.dsl.currentIsBtmNavItem
 import com.fang.arrangement.ui.graph.graphBtmNavScreen
 import com.fang.arrangement.ui.screen.btmnav.BottomNavBar
-import com.fang.arrangement.ui.shared.component.Loading
+import com.fang.arrangement.ui.shared.component.dialog.Loading
 import com.fang.cosmos.foundation.Invoke
 import com.fang.cosmos.foundation.ui.dsl.ClearFocusWhenImeClosed
 import com.fang.cosmos.foundation.ui.dsl.MaterialColor
