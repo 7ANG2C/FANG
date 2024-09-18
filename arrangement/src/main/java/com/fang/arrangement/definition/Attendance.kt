@@ -8,6 +8,8 @@ internal data class AttendanceAll(
     val id: Long,
     @SerializedName(AttendanceKey.ATTENDANCES)
     val attendances: List<Attendance>,
+    @SerializedName(AttendanceKey.REMARK)
+    val remark: String?,
 )
 
 internal data class Attendance(
@@ -23,6 +25,7 @@ internal interface AttendanceKey {
     companion object {
         const val ID = "millis"
         const val ATTENDANCES = "attendances"
+        const val REMARK = "remark"
         const val SITE_ID = "id"
         const val FULL = "full"
         const val HALF = "half"
@@ -30,9 +33,11 @@ internal interface AttendanceKey {
         fun fold(
             id: String,
             attendances: String,
+            remark: String,
         ) = listOf(
             KeyValue(ID, id),
             KeyValue(ATTENDANCES, attendances),
+            KeyValue(REMARK, remark),
         )
     }
 }

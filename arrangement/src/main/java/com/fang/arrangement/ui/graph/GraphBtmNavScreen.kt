@@ -1,5 +1,7 @@
 package com.fang.arrangement.ui.graph
 
+import androidx.compose.animation.EnterTransition
+import androidx.compose.animation.ExitTransition
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.material3.Surface
@@ -9,9 +11,7 @@ import androidx.navigation.NamedNavArgument
 import androidx.navigation.NavDeepLink
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.navigation
-import com.fang.arrangement.ui.graph.dsl.ScreenTransition
 import com.fang.arrangement.ui.graph.dsl.composableTransition
-import com.fang.arrangement.ui.graph.dsl.currentIsBtmNavItem
 import com.fang.arrangement.ui.screen.btmnav.BtmNavItem
 import com.fang.arrangement.ui.screen.btmnav.attendance.AttendanceScreen
 import com.fang.arrangement.ui.screen.btmnav.employee.EmployeeScreen
@@ -53,16 +53,20 @@ private fun NavGraphBuilder.composableBtmNav(
         arguments = arguments,
         deepLinks = deepLinks,
         enterTransition = {
-            ScreenTransition.fadeIn.takeIf { initialState.currentIsBtmNavItem }
+//            ScreenTransition.fadeIn.takeIf { initialState.currentIsBtmNavItem }
+            EnterTransition.None
         },
         exitTransition = {
-            ScreenTransition.fadeOut.takeIf { targetState.currentIsBtmNavItem }
+//            ScreenTransition.fadeOut.takeIf { targetState.currentIsBtmNavItem }
+            ExitTransition.None
         },
         popEnterTransition = {
-            ScreenTransition.fadeIn.takeIf { initialState.currentIsBtmNavItem }
+//            ScreenTransition.fadeIn.takeIf { initialState.currentIsBtmNavItem }
+            EnterTransition.None
         },
         popExitTransition = {
-            ScreenTransition.fadeOut.takeIf { targetState.currentIsBtmNavItem }
+//            ScreenTransition.fadeOut.takeIf { targetState.currentIsBtmNavItem }
+            ExitTransition.None
         },
     ) {
         Surface(
