@@ -51,7 +51,10 @@ internal fun ArrangementScreen(
         NavHost(
             navController = navController,
             startDestination = GRAPH_BTM_NAV_SCREEN,
-            modifier = Modifier.fillMaxWidth().weight(1f),
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .weight(1f),
             route = "ROOT",
         ) {
             graphBtmNavScreen()

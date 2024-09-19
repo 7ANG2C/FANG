@@ -2,9 +2,7 @@ package com.fang.arrangement.ui.shared.component.dialog
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
@@ -20,7 +18,7 @@ import androidx.compose.ui.unit.dp
 import com.fang.arrangement.ui.shared.dsl.ContentText
 import com.fang.cosmos.foundation.ui.component.AlignText
 import com.fang.cosmos.foundation.ui.component.DialogThemedScreen
-import com.fang.cosmos.foundation.ui.dsl.MaterialTypography
+import com.fang.cosmos.foundation.ui.component.VerticalSpacer
 import com.fang.cosmos.foundation.ui.dsl.screenHeightDp
 import com.fang.cosmos.foundation.ui.ext.color
 
@@ -36,8 +34,7 @@ internal fun Dialog(
                 .fillMaxWidth(widthFraction)
                 .dialogBg(),
     ) {
-        Spacer(modifier = Modifier.height(20.dp))
-        val contentTextStyle = MaterialTypography.bodyMedium
+        VerticalSpacer(20)
         Column(
             modifier =
                 Modifier
@@ -51,10 +48,10 @@ internal fun Dialog(
             AlignText(
                 text = textState,
                 modifier = Modifier.fillMaxWidth(),
-                style = contentTextStyle.color(ContentText.color),
+                style = ContentText.style.color(ContentText.color),
             )
         }
-        Spacer(modifier = Modifier.height(16.dp))
-        options(contentTextStyle)
+        VerticalSpacer(16)
+        options(ContentText.style)
     }
 }

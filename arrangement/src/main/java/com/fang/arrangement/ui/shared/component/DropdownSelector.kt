@@ -43,7 +43,9 @@ internal fun <T> DropdownSelector(
         expandedState.value = false
     },
     modifier =
-        modifier.crop(vertical = 8.dp).clip(RoundedCornerShape(8.dp)),
+        modifier
+            .crop(vertical = 8.dp)
+            .clip(RoundedCornerShape(8.dp)),
     offset = offset,
     scrollState = scrollState,
     properties = properties,
@@ -52,7 +54,8 @@ internal fun <T> DropdownSelector(
     items.forEachIndexed { i, item ->
         Column(
             modifier =
-                Modifier.fillMaxWidth()
+                Modifier
+                    .fillMaxWidth()
                     .clickRipple {
                         if (selected != item) onSelected(item)
                         expandedState.value = false
@@ -62,7 +65,8 @@ internal fun <T> DropdownSelector(
         }
         if (i != items.size - 1) {
             HorizontalDivider(
-                Modifier.fillMaxWidth()
+                Modifier
+                    .fillMaxWidth()
                     .padding(horizontal = 16.dp),
             )
         }

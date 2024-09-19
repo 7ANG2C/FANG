@@ -11,6 +11,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.PlatformTextStyle
 import androidx.compose.ui.unit.dp
 import com.fang.arrangement.R
@@ -46,11 +47,9 @@ internal fun BaseField(
 ) {
     Column(modifier) {
         val hintColor = MaterialColor.outline
-        Text(
+        FieldLabelText(
             text = title,
-            style =
-                MaterialTypography.labelLarge.color(hintColor)
-                    .copy(platformStyle = PlatformTextStyle(includeFontPadding = false)),
+            color = hintColor,
         )
         Row(
             modifier = Modifier.fillMaxWidth(),
@@ -75,4 +74,19 @@ internal fun BaseField(
             color = hintColor.copy(alpha = 0.95f),
         )
     }
+}
+
+@Composable
+internal fun FieldLabelText(
+    text: String,
+    modifier: Modifier = Modifier,
+    color: Color = MaterialColor.outline,
+) {
+    Text(
+        text = text,
+        modifier = modifier,
+        style =
+            MaterialTypography.labelLarge.color(color)
+                .copy(platformStyle = PlatformTextStyle(includeFontPadding = false)),
+    )
 }

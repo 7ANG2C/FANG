@@ -13,7 +13,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.fang.arrangement.ui.screen.btmnav.statistic.employee.EmployeeStatisticScreen
+import com.fang.arrangement.ui.screen.btmnav.statistic.employeeattendance.EmployeeAttendanceScreen
 import com.fang.arrangement.ui.screen.btmnav.statistic.salary.SalaryScreen
 import com.fang.cosmos.foundation.ui.ext.stateValue
 import org.koin.androidx.compose.koinViewModel
@@ -55,7 +55,7 @@ internal fun StatisticScreen(
         ) {
             when (Statistic.entries[it]) {
                 Statistic.SALARY -> SalaryScreen(Modifier.fillMaxSize())
-                Statistic.EMPLOYEE -> EmployeeStatisticScreen(Modifier.fillMaxSize())
+                Statistic.EMPLOYEE -> EmployeeAttendanceScreen(Modifier.fillMaxSize())
             }
         }
     }

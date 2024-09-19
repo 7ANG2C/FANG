@@ -110,7 +110,7 @@ internal class EmployeeViewModel(
     fun addSalary(edit: SalaryEdit) {
         if (edit.allFilled) {
             _editBundle.update { old ->
-                val new = old?.edit?.salaries.orEmpty() + edit
+                val new = listOf(edit) + old?.edit?.salaries.orEmpty()
                 old?.copy(
                     edit =
                         old.edit.copy(

@@ -1,8 +1,11 @@
 package com.fang.arrangement.ui.screen.btmnav.employee
 
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.input.TextFieldLineLimits
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -12,22 +15,25 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.unit.dp
 import com.fang.arrangement.foundation.orDash
-import com.fang.arrangement.ui.shared.component.AddableRow
 import com.fang.arrangement.ui.shared.component.ArrangementList
 import com.fang.arrangement.ui.shared.component.DateSelector
 import com.fang.arrangement.ui.shared.component.FieldLabelText
-import com.fang.arrangement.ui.shared.component.RemovableRow
 import com.fang.arrangement.ui.shared.component.dialog.EditDialog
 import com.fang.arrangement.ui.shared.component.dialog.ErrorDialog
 import com.fang.arrangement.ui.shared.component.dialog.Loading
 import com.fang.arrangement.ui.shared.component.dialog.TwoOptionDialog
+import com.fang.arrangement.ui.shared.component.fieldrow.AddableRow
+import com.fang.arrangement.ui.shared.component.fieldrow.Average2Row
+import com.fang.arrangement.ui.shared.component.fieldrow.RemovableRow
 import com.fang.arrangement.ui.shared.component.inputfield.NumberInputField
 import com.fang.arrangement.ui.shared.component.inputfield.StringInputField
 import com.fang.arrangement.ui.shared.dsl.ContentText
 import com.fang.arrangement.ui.shared.dsl.HighlightText
 import com.fang.cosmos.foundation.NumberFormat
 import com.fang.cosmos.foundation.time.transformer.TimeConverter
+import com.fang.cosmos.foundation.ui.component.VerticalSpacer
 import com.fang.cosmos.foundation.ui.ext.stateValue
 import org.koin.androidx.compose.koinViewModel
 
@@ -134,42 +140,12 @@ private fun EmployeeEditDialog(
             onClear = true,
             onValueChange = viewModel::editName,
         )
+        // 薪資記錄
         Column(modifier = Modifier.fillMaxWidth()) {
             FieldLabelText(text = "薪資記錄")
             val focusManager = LocalFocusManager.current
             AddableRow(
                 modifier = Modifier.fillMaxWidth(),
-                first = {
-                    NumberInputField(
-                        modifier = Modifier.fillMaxWidth(),
-                        titleText = "日薪",
-                        text = salaryEdit.salary.orEmpty(),
-                        imeAction = ImeAction.Done,
-                        lineLimits = TextFieldLineLimits.SingleLine,
-                        onClear = true,
-                        onValueChange = viewModel::editSalary,
-                    )
-                },
-                second = {
-                    DateSelector(
-                        modifier = Modifier.fillMaxWidth(),
-                        titleText = "生效日",
-                        onClear = {
-                            viewModel.editSalaryMillis(null)
-                        },
-                        original = salaryEdit.millis,
-                        isSelectableMillis = { millis ->
-                            millis !in edit?.salaries.orEmpty().mapNotNull { it.millis } &&
-                                if (edit?.expire != null) {
-                                    millis < edit.expire
-                                } else {
-                                    true
-                                }
-                        },
-                    ) {
-                        viewModel.editSalaryMillis(it)
-                    }
-                },
                 onAdd =
                     if (salaryEdit.allFilled) {
                         {
@@ -179,19 +155,73 @@ private fun EmployeeEditDialog(
                     } else {
                         null
                     },
+                decorationAdd = { inner ->
+                    Column(
+                        modifier =
+                            Modifier
+                                .fillMaxHeight()
+                                .padding(start = 4.dp),
+                        verticalArrangement = Arrangement.Bottom,
+                    ) {
+                        inner()
+                        VerticalSpacer(2.8f)
+                    }
+                },
+                content = {
+                    Average2Row(modifier = Modifier.fillMaxWidth(), first = {
+                        NumberInputField(
+                            modifier = Modifier.fillMaxWidth(),
+                            titleText = "日薪",
+                            text = salaryEdit.salary.orEmpty(),
+                            imeAction = ImeAction.Done,
+                            lineLimits = TextFieldLineLimits.SingleLine,
+                            onClear = true,
+                            onValueChange = viewModel::editSalary,
+                        )
+                    }) {
+                        DateSelector(
+                            modifier = Modifier.fillMaxWidth(),
+                            titleText = "生效日",
+                            onClear = {
+                                viewModel.editSalaryMillis(null)
+                            },
+                            original = salaryEdit.millis,
+                            isSelectableMillis = { millis ->
+                                millis !in edit?.salaries.orEmpty().mapNotNull { it.millis } &&
+                                    if (edit?.expire != null) {
+                                        millis < edit.expire
+                                    } else {
+                                        true
+                                    }
+                            },
+                            onConfirm = viewModel::editSalaryMillis,
+                        )
+                    }
+                },
             )
-            edit?.salaries?.forEach { salary ->
+            if (!edit?.salaries.isNullOrEmpty()) VerticalSpacer(2)
+            edit?.salaries?.takeIf { it.isNotEmpty() }?.forEach { salary ->
                 RemovableRow(
-                    modifier = Modifier.fillMaxWidth(),
-                    first = NumberFormat(salary.salary),
-                    second = TimeConverter.format(salary.millis).orDash,
+                    modifier =
+                        Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 2.dp),
+                    content = {
+                        Column(Modifier.fillMaxWidth()) {
+                            Average2Row(modifier = Modifier.fillMaxWidth(), first = {
+                                ContentText(text = NumberFormat(salary.salary))
+                            }) {
+                                ContentText(text = TimeConverter.format(salary.millis).orDash)
+                            }
+                        }
+                    },
                 ) {
                     showDeleteDialog = salary
                 }
             }
         }
+        // 離職生效日
         if (editBundle?.isInsert == false) {
-            // 離職生效日
             DateSelector(
                 modifier = Modifier.fillMaxWidth(),
                 titleText = "離職生效日",

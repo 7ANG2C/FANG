@@ -17,7 +17,9 @@ internal data class Employee(
     val delete: Int,
 ) {
     val isExpire get() = expiredMillis != null
+    val notExpire get() = !isExpire
     val isDelete get() = Bool(delete)
+    val notDelete get() = !isDelete
 }
 
 internal data class Salary(

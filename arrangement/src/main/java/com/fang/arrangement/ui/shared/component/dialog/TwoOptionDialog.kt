@@ -17,7 +17,8 @@ internal fun TwoOptionDialog(
 ) = Dialog(text = text, widthFraction = widthFraction) {
     ButtonSets(
         modifier =
-            Modifier.fillMaxWidth()
+            Modifier
+                .fillMaxWidth()
                 .padding(horizontal = 20.dp)
                 .padding(top = 4.dp, bottom = 16.dp),
         onNegative = onNegative,

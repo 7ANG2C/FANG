@@ -1,11 +1,10 @@
 package com.fang.arrangement.ui.shared.component.dialog
 
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
@@ -19,6 +18,7 @@ import androidx.compose.ui.unit.dp
 import com.fang.arrangement.ui.shared.component.button.composition.ButtonSets
 import com.fang.cosmos.foundation.Invoke
 import com.fang.cosmos.foundation.ui.component.DialogThemedScreen
+import com.fang.cosmos.foundation.ui.component.VerticalSpacer
 import com.fang.cosmos.foundation.ui.dsl.screenHeightDp
 
 @Composable
@@ -27,7 +27,7 @@ internal fun EditDialog(
     onDelete: Invoke?,
     onCancel: Invoke,
     onConfirm: Invoke?,
-    content: @Composable BoxScope.() -> Unit,
+    content: @Composable ColumnScope.() -> Unit,
 ) {
     var showDeleteDialog by rememberSaveable {
         mutableStateOf(false)
@@ -39,15 +39,20 @@ internal fun EditDialog(
                     .fillMaxWidth(DialogShared.EDIT_WIDTH_FRACTION)
                     .dialogBg(),
         ) {
-            Spacer(modifier = Modifier.height(20.dp))
+            VerticalSpacer(20)
             Box(
                 modifier =
                     Modifier
                         .fillMaxWidth()
                         .padding(horizontal = DialogShared.editHPaddingDp)
                         .heightIn(min = 0.dp, max = screenHeightDp * 0.84f),
-                content = content,
-            )
+            ) {
+                Column(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalArrangement = Arrangement.spacedBy(8.dp),
+                    content = content,
+                )
+            }
             val focusManager = LocalFocusManager.current
             ButtonSets(
                 modifier =

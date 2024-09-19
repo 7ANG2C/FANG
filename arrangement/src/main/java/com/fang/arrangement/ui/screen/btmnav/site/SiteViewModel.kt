@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.fang.arrangement.definition.Site
 import com.fang.arrangement.definition.SiteKey
 import com.fang.arrangement.definition.sheet.SheetRepository
+import com.fang.arrangement.definition.sheet.sheetAttendance
 import com.fang.arrangement.definition.sheet.sheetSite
 import com.fang.arrangement.foundation.Bool
 import com.fang.cosmos.definition.workstate.WorkState
@@ -13,6 +14,7 @@ import com.fang.cosmos.foundation.takeIfNotBlank
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
@@ -26,6 +28,9 @@ import kotlinx.coroutines.launch
 internal class SiteViewModel(
     private val sheetRepository: SheetRepository,
 ) : ViewModel(), WorkState by WorkStateImpl() {
+    private val _attMap = MutableStateFlow(mapOf<Long, Double>())
+    val attMap = _attMap.asStateFlow()
+
     private val _sites = MutableStateFlow(emptyList<Site>())
     val sites = _sites.asStateFlow()
 
@@ -36,16 +41,29 @@ internal class SiteViewModel(
         viewModelScope.launch {
             sheetRepository.workSheet
                 .mapLatest { workSheets ->
-                    workSheets?.sheetSite()?.values
-                        ?.filterNot { it.isDelete }
-                        ?.sortedWith(
-                            compareBy<Site> { it.archive }
-                                .thenByDescending { it.id },
-                        )
+                    val (attMapDeferred, sitesDeferred) =
+                        async {
+                            workSheets?.sheetAttendance()?.values?.flatMap {
+                                it.attendances
+                            }?.groupBy { it.siteId }?.mapValues { (_, value) ->
+                                value.sumOf { it.fulls.size + it.halfs.size * 0.5 }
+                            }.orEmpty()
+                        } to
+                            async {
+                                workSheets?.sheetSite()?.values
+                                    ?.filterNot { it.isDelete }
+                                    ?.sortedWith(
+                                        compareBy<Site> { it.archive }
+                                            .thenByDescending { it.id },
+                                    )
+                            }
+                    val (attMap, sites) = attMapDeferred.await() to sitesDeferred.await()
+                    sites?.let { attMap to it }
                 }
                 .filterNotNull()
                 .flowOn(Dispatchers.Default)
-                .collectLatest { sites ->
+                .collectLatest { (attMap, sites) ->
+                    _attMap.value = attMap
                     _sites.value = sites
                 }
         }

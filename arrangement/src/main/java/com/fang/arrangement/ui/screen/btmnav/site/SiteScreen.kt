@@ -2,17 +2,23 @@ package com.fang.arrangement.ui.screen.btmnav.site
 
 import android.content.Intent
 import android.net.Uri
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.input.TextFieldLineLimits
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.unit.dp
 import com.fang.arrangement.R
 import com.fang.arrangement.foundation.orDash
+import com.fang.arrangement.ui.shared.component.ArrText
 import com.fang.arrangement.ui.shared.component.ArrangementList
 import com.fang.arrangement.ui.shared.component.DateSelector
 import com.fang.arrangement.ui.shared.component.dialog.EditDialog
@@ -20,6 +26,7 @@ import com.fang.arrangement.ui.shared.component.dialog.ErrorDialog
 import com.fang.arrangement.ui.shared.component.dialog.Loading
 import com.fang.arrangement.ui.shared.component.inputfield.NumberInputField
 import com.fang.arrangement.ui.shared.component.inputfield.StringInputField
+import com.fang.arrangement.ui.shared.dsl.AttendanceNumFormat
 import com.fang.arrangement.ui.shared.dsl.ContentText
 import com.fang.arrangement.ui.shared.dsl.HighlightText
 import com.fang.cosmos.foundation.Invoke
@@ -27,8 +34,12 @@ import com.fang.cosmos.foundation.NumberFormat
 import com.fang.cosmos.foundation.takeIfNotBlank
 import com.fang.cosmos.foundation.time.transformer.TimeConverter
 import com.fang.cosmos.foundation.ui.component.CustomIcon
+import com.fang.cosmos.foundation.ui.component.HorizontalSpacer
+import com.fang.cosmos.foundation.ui.dsl.MaterialShape
 import com.fang.cosmos.foundation.ui.dsl.animateColor
+import com.fang.cosmos.foundation.ui.ext.bg
 import com.fang.cosmos.foundation.ui.ext.clickableNoRipple
+import com.fang.cosmos.foundation.ui.ext.color
 import com.fang.cosmos.foundation.ui.ext.stateValue
 import org.koin.androidx.compose.koinViewModel
 
@@ -47,7 +58,32 @@ internal fun SiteScreen(
             onAdd = viewModel::onInsert,
         ) { item ->
             val archive = item.isArchive
-            HighlightText(text = item.name, isAlpha = archive)
+            val allAtt = viewModel.attMap.stateValue()[item.id]?.takeIf { it > 0.0 }
+            Box {
+                allAtt?.let {
+                    Box(contentAlignment = Alignment.Center) {
+                        AttAllChip(it, false)
+                        ArrText(text = item.name.firstOrNull()?.toString().orDash) {
+                            HighlightText.style.color(Color.Transparent)
+                        }
+                    }
+                }
+                Row(modifier = Modifier.fillMaxWidth()) {
+                    allAtt?.let {
+                        AttAllChip(it, true)
+                        HorizontalSpacer(6)
+                    }
+                    HighlightText(text = item.name, isAlpha = archive)
+                }
+            }
+
+            // 總價
+            item.income?.let {
+                ContentText(
+                    text = "總價：${NumberFormat(it)}",
+                    isAlpha = archive,
+                )
+            }
             // 開工、竣工
             val start = TimeConverter.format(item.startMillis)
             val end = TimeConverter.format(item.endMillis)
@@ -64,13 +100,6 @@ internal fun SiteScreen(
                         isAlpha = archive,
                     )
                 }
-            }
-            // 總價
-            item.income?.let {
-                ContentText(
-                    text = "總價：${NumberFormat(it)}",
-                    isAlpha = archive,
-                )
             }
             // 地址
             item.address.takeIfNotBlank?.let {
@@ -189,6 +218,31 @@ private fun SiteEditDialog(
             onClear = true,
             onValueChange = viewModel::editIncome,
         )
+    }
+}
+
+@Composable
+private fun AttAllChip(
+    attAll: Double?,
+    isPlaceHolder: Boolean,
+) {
+    Box(
+        modifier =
+            Modifier
+                .bg(MaterialShape.extraSmall) { HighlightText.color.copy(alpha = 0.1f) }
+                .padding(horizontal = 4.dp),
+        contentAlignment = Alignment.Center,
+    ) {
+        ArrText(text = "000.0") {
+            HighlightText.style.color(Color.Transparent)
+        }
+        if (isPlaceHolder) {
+            ArrText(text = AttendanceNumFormat(attAll)) {
+                HighlightText.style.color(Color.Transparent)
+            }
+        } else {
+            HighlightText(text = AttendanceNumFormat(attAll))
+        }
     }
 }
 
