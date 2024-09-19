@@ -3,7 +3,7 @@ package com.fang.cosmos.foundation
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 
-fun Gson.json(any: Any?): Result<String?> = runCatching { toJson(any).replace("\\s+".toRegex(), "") }
+fun Gson.json(any: Any?): Result<String?> = runCatching { toJson(any) }
 
 inline fun <reified T> Gson.fromJson(json: String): Result<T?> = runCatching { fromJson(json, T::class.java) }
 

@@ -120,7 +120,7 @@ internal class SiteViewModel(
     }
 
     fun insert(edit: SiteEdit) {
-        if (edit.valid) {
+        if (edit.savable) {
             execute {
                 sheetRepository.insert<Site>(
                     keyValues =
@@ -140,10 +140,10 @@ internal class SiteViewModel(
     }
 
     fun update(editBundle: SiteEditBundle) {
+        val id = editBundle.current?.id?.toString()
         val edit = editBundle.edit
-        if (edit.valid && editBundle.anyDiff) {
+        if (id != null && edit.savable && editBundle.anyDiff) {
             execute {
-                val id = edit.id.toString()
                 sheetRepository.update<Site>(
                     key = SiteKey.ID,
                     value = id,

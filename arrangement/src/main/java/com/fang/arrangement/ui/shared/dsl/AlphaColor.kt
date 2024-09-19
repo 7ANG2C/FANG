@@ -16,7 +16,7 @@ internal fun alphaColor(
     alpha: Float = AlphaColor.DEFAULT,
     isAlpha: Boolean = true,
 ) = animateColor(label = "AlphaColor") {
-    color.copy(alpha = if (isAlpha) 1f else alpha)
+    color.copy(alpha = if (isAlpha) alpha else 1f)
 }
 
 @Composable

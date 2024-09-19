@@ -6,7 +6,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.ImeAction
 import com.fang.cosmos.foundation.Action
-import com.fang.cosmos.foundation.Invoke
 
 @Composable
 internal fun StringInputField(
@@ -15,7 +14,7 @@ internal fun StringInputField(
     text: String?,
     imeAction: ImeAction = ImeAction.Unspecified,
     lineLimits: TextFieldLineLimits = TextFieldLineLimits.Default,
-    onClear: Invoke? = null,
+    onClear: Boolean = false,
     onValueChange: Action<String>,
 ) = BaseInputField(
     modifier = modifier,

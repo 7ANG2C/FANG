@@ -7,7 +7,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import com.fang.cosmos.foundation.Action
-import com.fang.cosmos.foundation.Invoke
 
 @Composable
 internal fun NumberInputField(
@@ -16,7 +15,7 @@ internal fun NumberInputField(
     text: String?,
     imeAction: ImeAction = ImeAction.Unspecified,
     lineLimits: TextFieldLineLimits = TextFieldLineLimits.Default,
-    onClear: Invoke? = null,
+    onClear: Boolean = false,
     onValueChange: Action<String>,
 ) = BaseInputField(
     modifier = modifier,

@@ -11,5 +11,5 @@ internal data class SiteEdit(
     val endMillis: Long?,
     val archive: Boolean,
 ) {
-    val valid get() = name.takeIfNotBlank != null
+    val savable get() = name.takeIfNotBlank != null
 }

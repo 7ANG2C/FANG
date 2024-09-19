@@ -6,7 +6,7 @@ import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.text.input.InputTransformation
 import androidx.compose.foundation.text.input.TextFieldLineLimits
-import androidx.compose.foundation.text.input.delete
+import androidx.compose.foundation.text.input.clearText
 import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -17,7 +17,6 @@ import androidx.compose.ui.text.input.KeyboardType
 import com.fang.arrangement.ui.shared.component.BaseField
 import com.fang.arrangement.ui.shared.dsl.ContentText
 import com.fang.cosmos.foundation.Action
-import com.fang.cosmos.foundation.Invoke
 import com.fang.cosmos.foundation.ui.ext.color
 
 @Composable
@@ -29,11 +28,12 @@ internal fun BaseInputField(
     keyboardType: KeyboardType = KeyboardType.Unspecified,
     imeAction: ImeAction = ImeAction.Unspecified,
     lineLimits: TextFieldLineLimits = TextFieldLineLimits.Default,
-    onClear: Invoke? = null,
+    onClear: Boolean = false,
     onValueChange: Action<String>,
 ) = Box(modifier = modifier) {
     val focusManager = LocalFocusManager.current
     val textFieldState = rememberTextFieldState(text.orEmpty())
+    if (text.isNullOrEmpty()) textFieldState.clearText()
     BasicTextField(
         state = textFieldState,
         inputTransformation = inputTransformation,
@@ -43,23 +43,17 @@ internal fun BaseInputField(
                 keyboardType = keyboardType,
                 imeAction = imeAction,
             ),
-        onKeyboardAction = {
-            focusManager.clearFocus()
-        },
+        onKeyboardAction = { focusManager.clearFocus() },
         lineLimits = lineLimits,
         cursorBrush = SolidColor(ContentText.color),
-        outputTransformation = { onValueChange(toString()) },
+        outputTransformation = {
+            onValueChange(toString())
+        },
         decorator = { innerTextField ->
             BaseField(
                 modifier = Modifier.fillMaxWidth(),
                 title = titleText,
-                onClear =
-                    onClear?.let {
-                        {
-                            textFieldState.edit { delete(0, length) }
-                            it()
-                        }
-                    },
+                onClear = { textFieldState.clearText() }.takeIf { onClear },
             ) {
                 innerTextField()
             }

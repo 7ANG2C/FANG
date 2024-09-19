@@ -2,7 +2,6 @@ package com.fang.arrangement.ui.screen.btmnav.site
 
 import android.content.Intent
 import android.net.Uri
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -12,7 +11,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.ImeAction
-import androidx.compose.ui.unit.dp
 import com.fang.arrangement.R
 import com.fang.arrangement.foundation.orDash
 import com.fang.arrangement.ui.shared.component.ArrangementList
@@ -48,11 +46,8 @@ internal fun SiteScreen(
             onSelect = viewModel::onUpdate,
             onAdd = viewModel::onInsert,
         ) { item ->
-            val notArchive = !item.isArchive
-            HighlightText(
-                text = item.name,
-                isAlpha = notArchive,
-            )
+            val archive = item.isArchive
+            HighlightText(text = item.name, isAlpha = archive)
             // 開工、竣工
             val start = TimeConverter.format(item.startMillis)
             val end = TimeConverter.format(item.endMillis)
@@ -61,12 +56,12 @@ internal fun SiteScreen(
                     ContentText(
                         text = "開工：${start.orDash}",
                         modifier = Modifier.weight(1f),
-                        isAlpha = notArchive,
+                        isAlpha = archive,
                     )
                     ContentText(
                         text = "竣工：${end.orDash}",
                         modifier = Modifier.weight(1f),
-                        isAlpha = notArchive,
+                        isAlpha = archive,
                     )
                 }
             }
@@ -74,7 +69,7 @@ internal fun SiteScreen(
             item.income?.let {
                 ContentText(
                     text = "總價：${NumberFormat(it)}",
-                    isAlpha = notArchive,
+                    isAlpha = archive,
                 )
             }
             // 地址
@@ -92,7 +87,7 @@ internal fun SiteScreen(
                                     ).setPackage("com.google.android.apps.maps"),
                                 )
                             },
-                    isAlpha = notArchive,
+                    isAlpha = archive,
                 )
             }
         }
@@ -115,7 +110,7 @@ private fun SiteEditDialog(
     EditDialog(
         isShow = edit != null,
         onConfirm =
-            if (edit?.valid == true) {
+            if (edit?.savable == true) {
                 if (editBundle.isInsert) {
                     { viewModel.insert(edit) }
                 } else {
@@ -132,77 +127,68 @@ private fun SiteEditDialog(
             },
         onCancel = viewModel::clearEdit,
     ) {
-        Column(
-            modifier = Modifier.fillMaxWidth(),
-            verticalArrangement = Arrangement.spacedBy(8.dp),
-        ) {
-            // 封存
-            if (editBundle?.isInsert == false) {
-                Archive(
-                    modifier = Modifier.fillMaxWidth(),
-                    archive = edit?.archive == true,
-                    click = viewModel::toggleArchive,
-                )
-            }
-            // 工地
-            StringInputField(
+        // 封存
+        if (editBundle?.isInsert == false) {
+            Archive(
                 modifier = Modifier.fillMaxWidth(),
-                titleText = "工地",
-                text = edit?.name.takeIfNotBlank.orEmpty(),
-                lineLimits = TextFieldLineLimits.MultiLine(maxHeightInLines = 2),
-                onClear = { viewModel.editName(null) },
-                onValueChange = viewModel::editName,
-            )
-            // 地址
-            StringInputField(
-                modifier = Modifier.fillMaxWidth(),
-                titleText = "地址",
-                text = edit?.address.takeIfNotBlank.orEmpty(),
-                lineLimits = TextFieldLineLimits.MultiLine(maxHeightInLines = 3),
-                onClear = {
-                    viewModel.editAddress(null)
-                },
-                onValueChange = viewModel::editAddress,
-            )
-            // 開工
-            DateSelector(
-                modifier = Modifier.fillMaxWidth(),
-                titleText = "開工日",
-                onClear = {
-                    viewModel.editStartMillis(null)
-                },
-                original = edit?.startMillis,
-                isSelectableMillis = { millis ->
-                    edit?.endMillis?.let { millis <= it } ?: true
-                },
-                onConfirm = viewModel::editStartMillis,
-            )
-            // 竣工
-            DateSelector(
-                modifier = Modifier.fillMaxWidth(),
-                titleText = "竣工日",
-                onClear = {
-                    viewModel.editEndMillis(null)
-                },
-                original = edit?.endMillis,
-                isSelectableMillis = { millis ->
-                    edit?.startMillis?.let { millis >= it } ?: true
-                },
-                onConfirm = viewModel::editEndMillis,
-            )
-            // 總價
-            NumberInputField(
-                modifier = Modifier.fillMaxWidth(),
-                titleText = "總價",
-                text = edit?.income.takeIfNotBlank.orEmpty(),
-                imeAction = ImeAction.Done,
-                lineLimits = TextFieldLineLimits.SingleLine,
-                onClear = {
-                    viewModel.editIncome(null)
-                },
-                onValueChange = viewModel::editIncome,
+                archive = edit?.archive == true,
+                click = viewModel::toggleArchive,
             )
         }
+        // 工地
+        StringInputField(
+            modifier = Modifier.fillMaxWidth(),
+            titleText = "工地",
+            text = edit?.name.takeIfNotBlank.orEmpty(),
+            lineLimits = TextFieldLineLimits.MultiLine(maxHeightInLines = 2),
+            onClear = true,
+            onValueChange = viewModel::editName,
+        )
+        // 地址
+        StringInputField(
+            modifier = Modifier.fillMaxWidth(),
+            titleText = "地址",
+            text = edit?.address.takeIfNotBlank.orEmpty(),
+            lineLimits = TextFieldLineLimits.MultiLine(maxHeightInLines = 3),
+            onClear = true,
+            onValueChange = viewModel::editAddress,
+        )
+        // 開工
+        DateSelector(
+            modifier = Modifier.fillMaxWidth(),
+            titleText = "開工日",
+            onClear = {
+                viewModel.editStartMillis(null)
+            },
+            original = edit?.startMillis,
+            isSelectableMillis = { millis ->
+                edit?.endMillis?.let { millis <= it } ?: true
+            },
+            onConfirm = viewModel::editStartMillis,
+        )
+        // 竣工
+        DateSelector(
+            modifier = Modifier.fillMaxWidth(),
+            titleText = "竣工日",
+            onClear = {
+                viewModel.editEndMillis(null)
+            },
+            original = edit?.endMillis,
+            isSelectableMillis = { millis ->
+                edit?.startMillis?.let { millis >= it } ?: true
+            },
+            onConfirm = viewModel::editEndMillis,
+        )
+        // 總價
+        NumberInputField(
+            modifier = Modifier.fillMaxWidth(),
+            titleText = "總價",
+            text = edit?.income.takeIfNotBlank.orEmpty(),
+            imeAction = ImeAction.Done,
+            lineLimits = TextFieldLineLimits.SingleLine,
+            onClear = true,
+            onValueChange = viewModel::editIncome,
+        )
     }
 }
 

@@ -20,6 +20,7 @@ import com.fang.arrangement.ui.graph.dsl.currentBtmNavItem
 import com.fang.arrangement.ui.graph.dsl.currentIsBtmNavItem
 import com.fang.arrangement.ui.graph.graphBtmNavScreen
 import com.fang.arrangement.ui.screen.btmnav.BottomNavBar
+import com.fang.arrangement.ui.screen.btmnav.BtmNavItem
 import com.fang.arrangement.ui.shared.component.dialog.Loading
 import com.fang.cosmos.foundation.Invoke
 import com.fang.cosmos.foundation.ui.dsl.ClearFocusWhenImeClosed
@@ -69,7 +70,7 @@ internal fun ArrangementScreen(
                         saveState = true
                     }
                     launchSingleTop = true
-                    restoreState = true
+                    restoreState = page != BtmNavItem.STATISTIC
                 }
             }
         }
