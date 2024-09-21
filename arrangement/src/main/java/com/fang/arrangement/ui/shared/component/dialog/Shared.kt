@@ -17,7 +17,5 @@ internal interface DialogShared {
 
 internal fun Modifier.dialogBg() =
     composed {
-        then(
-            Modifier.bg(MaterialShape.large) { surfaceBright },
-        )
+        then(Modifier.bg(MaterialShape.large) { surfaceContainerHigh })
     }

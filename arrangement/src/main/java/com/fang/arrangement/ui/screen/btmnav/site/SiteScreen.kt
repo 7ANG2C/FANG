@@ -7,37 +7,36 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.text.input.TextFieldLineLimits
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.ImeAction
-import androidx.compose.ui.unit.dp
-import com.fang.arrangement.R
+import androidx.compose.ui.text.style.TextDecoration
 import com.fang.arrangement.foundation.orDash
 import com.fang.arrangement.ui.shared.component.ArrText
 import com.fang.arrangement.ui.shared.component.ArrangementList
 import com.fang.arrangement.ui.shared.component.DateSelector
+import com.fang.arrangement.ui.shared.component.chip.ArchivedTag
+import com.fang.arrangement.ui.shared.component.chip.AttendanceChip
+import com.fang.arrangement.ui.shared.component.chip.UnarchivedTag
 import com.fang.arrangement.ui.shared.component.dialog.EditDialog
 import com.fang.arrangement.ui.shared.component.dialog.ErrorDialog
 import com.fang.arrangement.ui.shared.component.dialog.Loading
+import com.fang.arrangement.ui.shared.component.fieldrow.Average2Row
 import com.fang.arrangement.ui.shared.component.inputfield.NumberInputField
 import com.fang.arrangement.ui.shared.component.inputfield.StringInputField
-import com.fang.arrangement.ui.shared.dsl.AttendanceNumFormat
+import com.fang.arrangement.ui.shared.dsl.AlphaColor
 import com.fang.arrangement.ui.shared.dsl.ContentText
 import com.fang.arrangement.ui.shared.dsl.HighlightText
+import com.fang.arrangement.ui.shared.dsl.alphaColor
 import com.fang.cosmos.foundation.Invoke
 import com.fang.cosmos.foundation.NumberFormat
 import com.fang.cosmos.foundation.takeIfNotBlank
 import com.fang.cosmos.foundation.time.transformer.TimeConverter
-import com.fang.cosmos.foundation.ui.component.CustomIcon
 import com.fang.cosmos.foundation.ui.component.HorizontalSpacer
-import com.fang.cosmos.foundation.ui.dsl.MaterialShape
-import com.fang.cosmos.foundation.ui.dsl.animateColor
-import com.fang.cosmos.foundation.ui.ext.bg
 import com.fang.cosmos.foundation.ui.ext.clickableNoRipple
 import com.fang.cosmos.foundation.ui.ext.color
 import com.fang.cosmos.foundation.ui.ext.stateValue
@@ -58,11 +57,12 @@ internal fun SiteScreen(
             onAdd = viewModel::onInsert,
         ) { item ->
             val archive = item.isArchive
-            val allAtt = viewModel.attMap.stateValue()[item.id]?.takeIf { it > 0.0 }
+            val allAtt = viewModel.attendanceMap.stateValue()[item.id]?.takeIf { it > 0.0 }
+            // 工地名
             Box {
                 allAtt?.let {
                     Box(contentAlignment = Alignment.Center) {
-                        AttAllChip(it, false)
+                        AttAllChip(it, fill = true, false)
                         ArrText(text = item.name.firstOrNull()?.toString().orDash) {
                             HighlightText.style.color(Color.Transparent)
                         }
@@ -70,13 +70,19 @@ internal fun SiteScreen(
                 }
                 Row(modifier = Modifier.fillMaxWidth()) {
                     allAtt?.let {
-                        AttAllChip(it, true)
+                        AttAllChip(it, fill = true, true)
                         HorizontalSpacer(6)
                     }
-                    HighlightText(text = item.name, isAlpha = archive)
+                    HighlightText(text = item.name, Modifier.weight(1f), isAlpha = archive)
+                    if (archive) {
+                        HorizontalSpacer(8)
+                        Box(contentAlignment = Alignment.CenterEnd) {
+                            AttAllChip(1.0, fill = false, true)
+                            ArchivedTag(Modifier.alpha(AlphaColor.DEFAULT))
+                        }
+                    }
                 }
             }
-
             // 總價
             item.income?.let {
                 ContentText(
@@ -104,8 +110,8 @@ internal fun SiteScreen(
             // 地址
             item.address.takeIfNotBlank?.let {
                 val context = LocalContext.current
-                ContentText(
-                    text = "$it ↗",
+                ArrText(
+                    text = it,
                     modifier =
                         Modifier
                             .clickableNoRipple {
@@ -116,8 +122,15 @@ internal fun SiteScreen(
                                     ).setPackage("com.google.android.apps.maps"),
                                 )
                             },
-                    isAlpha = archive,
-                )
+                ) {
+                    val color =
+                        alphaColor(
+                            color = Color(0xFF2191F3),
+                            isAlpha = archive,
+                        )
+                    ContentText.style.color(color)
+                        .copy(textDecoration = TextDecoration.Underline)
+                }
             }
         }
     }
@@ -169,7 +182,8 @@ private fun SiteEditDialog(
             modifier = Modifier.fillMaxWidth(),
             titleText = "工地",
             text = edit?.name.takeIfNotBlank.orEmpty(),
-            lineLimits = TextFieldLineLimits.MultiLine(maxHeightInLines = 2),
+            imeAction = ImeAction.Next,
+            lines = 2,
             onClear = true,
             onValueChange = viewModel::editName,
         )
@@ -178,43 +192,48 @@ private fun SiteEditDialog(
             modifier = Modifier.fillMaxWidth(),
             titleText = "地址",
             text = edit?.address.takeIfNotBlank.orEmpty(),
-            lineLimits = TextFieldLineLimits.MultiLine(maxHeightInLines = 3),
+            lines = 3,
             onClear = true,
             onValueChange = viewModel::editAddress,
         )
-        // 開工
-        DateSelector(
+        // 開工、竣工
+        Average2Row(
             modifier = Modifier.fillMaxWidth(),
-            titleText = "開工日",
-            onClear = {
-                viewModel.editStartMillis(null)
+            first = {
+                DateSelector(
+                    modifier = Modifier.fillMaxWidth(),
+                    titleText = "開工",
+                    onClear = {
+                        viewModel.editStartMillis(null)
+                    },
+                    original = edit?.startMillis,
+                    isSelectableMillis = { millis ->
+                        edit?.endMillis?.let { millis <= it } ?: true
+                    },
+                    onConfirm = viewModel::editStartMillis,
+                )
             },
-            original = edit?.startMillis,
-            isSelectableMillis = { millis ->
-                edit?.endMillis?.let { millis <= it } ?: true
-            },
-            onConfirm = viewModel::editStartMillis,
-        )
-        // 竣工
-        DateSelector(
-            modifier = Modifier.fillMaxWidth(),
-            titleText = "竣工日",
-            onClear = {
-                viewModel.editEndMillis(null)
-            },
-            original = edit?.endMillis,
-            isSelectableMillis = { millis ->
-                edit?.startMillis?.let { millis >= it } ?: true
-            },
-            onConfirm = viewModel::editEndMillis,
-        )
+        ) {
+            DateSelector(
+                modifier = Modifier.fillMaxWidth(),
+                titleText = "竣工",
+                onClear = {
+                    viewModel.editEndMillis(null)
+                },
+                original = edit?.endMillis,
+                isSelectableMillis = { millis ->
+                    edit?.startMillis?.let { millis >= it } ?: true
+                },
+                onConfirm = viewModel::editEndMillis,
+            )
+        }
+
         // 總價
         NumberInputField(
             modifier = Modifier.fillMaxWidth(),
             titleText = "總價",
             text = edit?.income.takeIfNotBlank.orEmpty(),
             imeAction = ImeAction.Done,
-            lineLimits = TextFieldLineLimits.SingleLine,
             onClear = true,
             onValueChange = viewModel::editIncome,
         )
@@ -224,27 +243,23 @@ private fun SiteEditDialog(
 @Composable
 private fun AttAllChip(
     attAll: Double?,
-    isPlaceHolder: Boolean,
-) {
-    Box(
-        modifier =
-            Modifier
-                .bg(MaterialShape.extraSmall) { HighlightText.color.copy(alpha = 0.1f) }
-                .padding(horizontal = 4.dp),
-        contentAlignment = Alignment.Center,
-    ) {
-        ArrText(text = "000.0") {
-            HighlightText.style.color(Color.Transparent)
-        }
-        if (isPlaceHolder) {
-            ArrText(text = AttendanceNumFormat(attAll)) {
-                HighlightText.style.color(Color.Transparent)
-            }
-        } else {
-            HighlightText(text = AttendanceNumFormat(attAll))
-        }
-    }
-}
+    fill: Boolean = true,
+    placeHolder: Boolean,
+) = AttendanceChip(
+    attendance = attAll,
+    fill = fill,
+    bgColor = {
+        HighlightText.color.copy(
+            alpha = if (placeHolder) 0f else 0.2f,
+        )
+    },
+    textStyle = {
+        HighlightText.style.color(
+            if (placeHolder) Color.Transparent else HighlightText.color,
+        )
+    },
+    placeHolder = placeHolder,
+)
 
 @Composable
 private fun Archive(
@@ -254,14 +269,18 @@ private fun Archive(
 ) {
     Row(modifier) {
         Spacer(modifier = Modifier.weight(1f))
-        CustomIcon(
-            drawableResId = if (archive) R.drawable.arr_r24_save else R.drawable.arr_red24_save,
+        Box(
             modifier =
-                Modifier.clickableNoRipple(onClick = click),
-            tint =
-                animateColor(label = "Archive") {
-                    primary.copy(alpha = if (archive) 1f else 0.45f)
-                },
-        )
+                Modifier
+                    .clickableNoRipple(onClick = click),
+        ) {
+            if (archive) {
+                ArchivedTag(Modifier)
+            } else {
+                UnarchivedTag(
+                    Modifier,
+                )
+            }
+        }
     }
 }

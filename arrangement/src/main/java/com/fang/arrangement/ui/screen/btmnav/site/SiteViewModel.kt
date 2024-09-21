@@ -28,43 +28,44 @@ import kotlinx.coroutines.launch
 internal class SiteViewModel(
     private val sheetRepository: SheetRepository,
 ) : ViewModel(), WorkState by WorkStateImpl() {
-    private val _attMap = MutableStateFlow(mapOf<Long, Double>())
-    val attMap = _attMap.asStateFlow()
-
     private val _sites = MutableStateFlow(emptyList<Site>())
     val sites = _sites.asStateFlow()
+
+    private val _attendanceMap = MutableStateFlow(mapOf<Long, Double>())
+    val attendanceMap = _attendanceMap.asStateFlow()
 
     private val _editBundle = MutableStateFlow<SiteEditBundle?>(null)
     val editBundle = _editBundle.asStateFlow()
 
     init {
         viewModelScope.launch {
-            sheetRepository.workSheet
+            sheetRepository.workSheets
                 .mapLatest { workSheets ->
-                    val (attMapDeferred, sitesDeferred) =
+                    val (sitesDeferred, attMapDeferred) =
                         async {
-                            workSheets?.sheetAttendance()?.values?.flatMap {
-                                it.attendances
-                            }?.groupBy { it.siteId }?.mapValues { (_, value) ->
-                                value.sumOf { it.fulls.size + it.halfs.size * 0.5 }
-                            }.orEmpty()
+                            workSheets?.sheetSite()?.values
+                                ?.filterNot { it.isDelete }
+                                ?.sortedWith(
+                                    compareBy<Site> { it.archive }
+                                        .thenByDescending { it.id },
+                                )
                         } to
                             async {
-                                workSheets?.sheetSite()?.values
-                                    ?.filterNot { it.isDelete }
-                                    ?.sortedWith(
-                                        compareBy<Site> { it.archive }
-                                            .thenByDescending { it.id },
-                                    )
+                                workSheets?.sheetAttendance()?.values?.flatMap {
+                                    it.attendances
+                                }?.groupBy { it.siteId }?.mapValues { (_, atts) ->
+                                    atts.sumOf { it.total }
+                                }.orEmpty()
                             }
-                    val (attMap, sites) = attMapDeferred.await() to sitesDeferred.await()
+
+                    val (sites, attMap) = sitesDeferred.await() to attMapDeferred.await()
                     sites?.let { attMap to it }
                 }
                 .filterNotNull()
                 .flowOn(Dispatchers.Default)
                 .collectLatest { (attMap, sites) ->
-                    _attMap.value = attMap
                     _sites.value = sites
+                    _attendanceMap.value = attMap
                 }
         }
     }

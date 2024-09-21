@@ -5,13 +5,13 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.text.input.InputTransformation
+import androidx.compose.foundation.text.input.TextFieldBuffer
 import androidx.compose.foundation.text.input.TextFieldLineLimits
 import androidx.compose.foundation.text.input.clearText
 import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.SolidColor
-import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import com.fang.arrangement.ui.shared.component.BaseField
@@ -29,9 +29,9 @@ internal fun BaseInputField(
     imeAction: ImeAction = ImeAction.Unspecified,
     lineLimits: TextFieldLineLimits = TextFieldLineLimits.Default,
     onClear: Boolean = false,
+    transformOutput: (TextFieldBuffer.(String) -> Unit)? = null,
     onValueChange: Action<String>,
 ) = Box(modifier = modifier) {
-    val focusManager = LocalFocusManager.current
     val textFieldState = rememberTextFieldState(text.orEmpty())
     if (text.isNullOrEmpty()) textFieldState.clearText()
     BasicTextField(
@@ -43,11 +43,11 @@ internal fun BaseInputField(
                 keyboardType = keyboardType,
                 imeAction = imeAction,
             ),
-        onKeyboardAction = { focusManager.clearFocus() },
         lineLimits = lineLimits,
         cursorBrush = SolidColor(ContentText.color),
         outputTransformation = {
             onValueChange(toString())
+            transformOutput?.invoke(this, toString())
         },
         decorator = { innerTextField ->
             BaseField(

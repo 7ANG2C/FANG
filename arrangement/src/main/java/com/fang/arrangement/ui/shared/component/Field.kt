@@ -63,7 +63,7 @@ internal fun BaseField(
                         Modifier
                             .clickableNoRipple(onClick = onClear)
                             .padding(4.dp),
-                    tint = hintColor,
+                    tint = hintColor.copy(alpha = 0.82f),
                 )
             }
         }
@@ -71,7 +71,7 @@ internal fun BaseField(
         HorizontalDivider(
             modifier = Modifier.fillMaxWidth(),
             thickness = 1.dp,
-            color = hintColor.copy(alpha = 0.95f),
+            color = hintColor.copy(alpha = 0.72f),
         )
     }
 }

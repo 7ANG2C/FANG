@@ -47,7 +47,7 @@ internal class LoanViewModel(
 
     init {
         viewModelScope.launch {
-            sheetRepository.workSheet
+            sheetRepository.workSheets
                 .mapLatest { workSheets ->
                     val employees =
                         workSheets?.sheetEmployee()?.values.orEmpty()
@@ -61,11 +61,16 @@ internal class LoanViewModel(
                             val records = loan.records
                             MLoan(
                                 id = loan.id,
-                                employeeId = loan.employeeId,
                                 employee =
                                     employees.find {
                                         it.id == loan.employeeId
-                                    },
+                                    } ?: Employee(
+                                        id = loan.employeeId,
+                                        name = "",
+                                        salaries = emptyList(),
+                                        expiredMillis = null,
+                                        delete = 1,
+                                    ),
                                 loan = loan.loan,
                                 millis = loan.millis,
                                 records = records,
@@ -76,7 +81,7 @@ internal class LoanViewModel(
                             compareBy<MLoan> { it.isClear }
                                 .thenByDescending { it.millis }
                                 .thenByDescending { it.loan }
-                                .thenByDescending { it.employee?.id ?: 0 },
+                                .thenByDescending { it.employee.id },
                         )?.let {
                             LoanBundle(employees, it)
                         }
@@ -181,14 +186,7 @@ internal class LoanViewModel(
             old?.copy(
                 edit =
                     old.edit.copy(
-                        records =
-                            old.edit.records.mapNotNull { d ->
-                                if (d.millis == millis) {
-                                    null
-                                } else {
-                                    d
-                                }
-                            },
+                        records = old.edit.records.filterNot { it.millis == millis },
                     ),
             )
         }

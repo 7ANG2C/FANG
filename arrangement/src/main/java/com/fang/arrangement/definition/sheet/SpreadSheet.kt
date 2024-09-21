@@ -15,7 +15,7 @@ internal interface SpreadSheet {
 
         operator fun invoke(vararg request: Request) = request.toList()
 
-        operator fun invoke(vararg name: String) = all.mapNotNull { if (it.name in name) it else null }
+        operator fun invoke(vararg name: String) = all.filter { it.name in name }
     }
 
     data class Request(val name: String, val clazz: Class<out Any>)

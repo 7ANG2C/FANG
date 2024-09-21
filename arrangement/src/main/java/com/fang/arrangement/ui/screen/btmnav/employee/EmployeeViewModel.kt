@@ -40,7 +40,7 @@ internal class EmployeeViewModel(
 
     init {
         viewModelScope.launch {
-            sheetRepository.workSheet
+            sheetRepository.workSheets
                 .mapLatest { workSheets ->
                     workSheets?.sheetEmployee()?.values
                         ?.filterNot { it.isDelete }

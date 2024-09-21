@@ -23,7 +23,9 @@ internal data class Site(
     val delete: Int,
 ) {
     val isArchive get() = Bool(archive)
+    val notArchive get() = !isArchive
     val isDelete get() = Bool(delete)
+    val notDelete get() = !isDelete
 }
 
 internal interface SiteKey {

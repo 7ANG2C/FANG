@@ -23,7 +23,7 @@ internal class ArrangementViewModel(
     init {
         viewModelScope.launch {
             repository
-                .workSheet
+                .workSheets
                 .distinctUntilChangedBy { it != null }
                 .flowOn(Dispatchers.Default)
                 .collectLatest {

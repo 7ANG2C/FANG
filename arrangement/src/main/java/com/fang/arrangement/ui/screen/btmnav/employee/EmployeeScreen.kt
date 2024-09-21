@@ -6,13 +6,15 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.text.input.TextFieldLineLimits
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.draw.scale
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
@@ -20,6 +22,7 @@ import com.fang.arrangement.foundation.orDash
 import com.fang.arrangement.ui.shared.component.ArrangementList
 import com.fang.arrangement.ui.shared.component.DateSelector
 import com.fang.arrangement.ui.shared.component.FieldLabelText
+import com.fang.arrangement.ui.shared.component.chip.ExpiredTag
 import com.fang.arrangement.ui.shared.component.dialog.EditDialog
 import com.fang.arrangement.ui.shared.component.dialog.ErrorDialog
 import com.fang.arrangement.ui.shared.component.dialog.Loading
@@ -29,10 +32,12 @@ import com.fang.arrangement.ui.shared.component.fieldrow.Average2Row
 import com.fang.arrangement.ui.shared.component.fieldrow.RemovableRow
 import com.fang.arrangement.ui.shared.component.inputfield.NumberInputField
 import com.fang.arrangement.ui.shared.component.inputfield.StringInputField
+import com.fang.arrangement.ui.shared.dsl.AlphaColor
 import com.fang.arrangement.ui.shared.dsl.ContentText
 import com.fang.arrangement.ui.shared.dsl.HighlightText
 import com.fang.cosmos.foundation.NumberFormat
 import com.fang.cosmos.foundation.time.transformer.TimeConverter
+import com.fang.cosmos.foundation.ui.component.HorizontalSpacer
 import com.fang.cosmos.foundation.ui.component.VerticalSpacer
 import com.fang.cosmos.foundation.ui.ext.stateValue
 import org.koin.androidx.compose.koinViewModel
@@ -53,11 +58,17 @@ internal fun EmployeeScreen(
         ) { item ->
             val expire = item.isExpire
             Row(modifier = Modifier.fillMaxWidth()) {
-                HighlightText(
-                    text = item.name.orDash,
-                    modifier = Modifier.weight(1f),
-                    isAlpha = expire,
-                )
+                Row(Modifier.weight(1f), verticalAlignment = Alignment.CenterVertically) {
+                    HighlightText(
+                        text = item.name.orDash,
+                        modifier = Modifier.weight(1f, false),
+                        isAlpha = expire,
+                    )
+                    if (expire) {
+                        HorizontalSpacer(5.2f)
+                        ExpiredTag(Modifier.scale(0.92f).alpha(AlphaColor.DEFAULT))
+                    }
+                }
                 item.expiredMillis?.let {
                     ContentText(
                         text = "離職日：${TimeConverter.format(it)}",
@@ -136,7 +147,7 @@ private fun EmployeeEditDialog(
             modifier = Modifier.fillMaxWidth(),
             titleText = "姓名",
             text = edit?.name.orEmpty(),
-            lineLimits = TextFieldLineLimits.MultiLine(maxHeightInLines = 2),
+            lines = 1,
             onClear = true,
             onValueChange = viewModel::editName,
         )
@@ -174,7 +185,6 @@ private fun EmployeeEditDialog(
                             titleText = "日薪",
                             text = salaryEdit.salary.orEmpty(),
                             imeAction = ImeAction.Done,
-                            lineLimits = TextFieldLineLimits.SingleLine,
                             onClear = true,
                             onValueChange = viewModel::editSalary,
                         )

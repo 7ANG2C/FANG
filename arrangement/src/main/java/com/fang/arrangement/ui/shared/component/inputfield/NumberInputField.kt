@@ -2,6 +2,7 @@ package com.fang.arrangement.ui.shared.component.inputfield
 
 import androidx.compose.foundation.text.input.TextFieldLineLimits
 import androidx.compose.foundation.text.input.delete
+import androidx.compose.foundation.text.input.insert
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.ImeAction
@@ -14,7 +15,6 @@ internal fun NumberInputField(
     titleText: String,
     text: String?,
     imeAction: ImeAction = ImeAction.Unspecified,
-    lineLimits: TextFieldLineLimits = TextFieldLineLimits.Default,
     onClear: Boolean = false,
     onValueChange: Action<String>,
 ) = BaseInputField(
@@ -23,15 +23,25 @@ internal fun NumberInputField(
     text = text,
     inputTransformation = {
         val input = toString()
-        if (input == "0" || input == " ") {
-            delete(0, length)
+        if (input == "0") {
+            revertAllChanges()
         } else {
-            replace(0, length, input.filter { it.isDigit() })
+            input.forEachIndexed { i, c ->
+                if (!c.isDigit()) delete(i, i + 1)
+            }
         }
     },
     keyboardType = KeyboardType.Number,
     imeAction = imeAction,
-    lineLimits = lineLimits,
+    lineLimits = TextFieldLineLimits.SingleLine,
     onClear = onClear,
+    transformOutput = {
+        val insert = 3
+        var commaInsertIndex = it.length - insert
+        while (commaInsertIndex > 0) {
+            insert(commaInsertIndex, ",")
+            commaInsertIndex -= insert
+        }
+    },
     onValueChange = onValueChange,
 )

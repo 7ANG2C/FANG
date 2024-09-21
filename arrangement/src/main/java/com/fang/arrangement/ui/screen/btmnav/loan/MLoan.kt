@@ -5,8 +5,7 @@ import com.fang.arrangement.definition.Record
 
 internal data class MLoan(
     val id: Long,
-    val employeeId: Long,
-    val employee: Employee?,
+    val employee: Employee,
     val loan: Int,
     val millis: Long,
     val records: List<Record>,

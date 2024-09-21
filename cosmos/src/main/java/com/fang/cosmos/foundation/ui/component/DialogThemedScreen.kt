@@ -27,7 +27,7 @@ fun DialogThemedScreen(
     isShow: Boolean,
     overlayColor: @Composable ColorScheme.() -> Color = over@{
         animateColor("DialogOverlayColor") {
-            if (isShow) this@over.scrim.copy(alpha = 0.3f) else Color.Transparent
+            if (isShow) this@over.scrim.copy(alpha = 0.42f) else Color.Transparent
         }
     },
     onClickOutsideDismiss: Invoke? = null,

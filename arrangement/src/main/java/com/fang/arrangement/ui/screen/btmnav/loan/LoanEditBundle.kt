@@ -1,5 +1,6 @@
 package com.fang.arrangement.ui.screen.btmnav.loan
 
+import com.fang.cosmos.foundation.mapNoNull
 import com.fang.cosmos.foundation.takeIfNotBlank
 
 internal data class LoanEditBundle(
@@ -16,11 +17,9 @@ internal data class LoanEditBundle(
                 current?.records.orEmpty()
                     .map { it.millis to it.loan to it.remark?.trim().takeIfNotBlank }
                     .toString() !=
-                edit.records.mapNotNull {
-                    if (it.millis != null && it.loan != null) {
-                        it.millis to it.loan to it.remark?.trim().takeIfNotBlank
-                    } else {
-                        null
-                    }
+                edit.records.mapNoNull({
+                    it.millis != null && it.loan != null
+                }) {
+                    it.millis to it.loan to it.remark?.trim().takeIfNotBlank
                 }.toString()
 }

@@ -10,6 +10,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.unit.dp
 import com.fang.arrangement.R
 import com.fang.arrangement.ui.shared.component.ArrText
@@ -28,10 +29,14 @@ fun RemovableRow(
 ) {
     Row(modifier = modifier.height(IntrinsicSize.Max)) {
         Row(modifier = Modifier.weight(1f), content = content)
+        val focusManager = LocalFocusManager.current
         Box(
             modifier =
                 Modifier
-                    .clickableNoRipple(onClick = onRemove)
+                    .clickableNoRipple {
+                        focusManager.clearFocus()
+                        onRemove()
+                    }
                     .padding(start = 4.dp),
         ) {
             ArrText(text = "1") {

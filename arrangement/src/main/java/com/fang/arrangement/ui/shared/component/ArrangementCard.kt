@@ -27,7 +27,7 @@ internal fun ArrangementCard(
         modifier =
             Modifier
                 .fillMaxWidth()
-                .padding(12.dp),
+                .padding(horizontal = 12.dp, vertical = 8.dp),
         verticalArrangement = Arrangement.spacedBy(2.8.dp),
         content = content,
     )

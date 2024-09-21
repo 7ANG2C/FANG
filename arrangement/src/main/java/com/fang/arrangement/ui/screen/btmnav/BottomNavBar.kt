@@ -40,6 +40,7 @@ internal fun BottomNavBar(
                                 BtmNavItem.STATISTIC -> R.drawable.arr_r24_insert_chart
                                 BtmNavItem.EMPLOYEE -> R.drawable.arr_r24_person
                                 BtmNavItem.SITE -> R.drawable.arr_r24_location_on
+                                BtmNavItem.C -> R.drawable.arr_r24_location_on
                             },
                         tint = contentColor,
                     )

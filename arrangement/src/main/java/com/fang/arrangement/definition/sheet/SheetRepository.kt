@@ -89,8 +89,8 @@ internal class SheetRepository(
     private val refreshProperty = MutableStateFlow<Long?>(null)
     private val refreshSheet = MutableStateFlow<Type.Sheet?>(null)
 
-    private val _workSheet = MutableStateFlow<List<WorkSheet>?>(null)
-    val workSheet = _workSheet.asStateFlow()
+    private val _workSheets = MutableStateFlow<List<WorkSheet>?>(null)
+    val workSheets = _workSheets.asStateFlow()
 
     init {
         refreshProperty()
@@ -165,7 +165,7 @@ internal class SheetRepository(
                 .filterNotNull()
                 .flowOn(Dispatchers.Default)
                 .collectLatest {
-                    _workSheet.value = it
+                    _workSheets.value = it
                 }
         }
     }
@@ -229,7 +229,13 @@ internal class SheetRepository(
                                                     value?.toString().takeIfNotBlank
                                                 val pair =
                                                     if (key != null && validValue != null) {
-                                                        "$key:$validValue,"
+                                                        val t =
+                                                            if (validValue.startsWith("[")) {
+                                                                validValue
+                                                            } else {
+                                                                "\"$validValue\""
+                                                            }
+                                                        "\"$key\":$t,"
                                                     } else {
                                                         ""
                                                     }
@@ -267,7 +273,7 @@ internal class SheetRepository(
     private suspend inline fun <reified T> editSheet(
         keyValue: KeyValue?,
         vararg requests: Request.(Sheet<T>, Int) -> Request,
-    ) = workSheet.value.orEmpty().sheet<T>()?.let { sheet ->
+    ) = workSheets.value.orEmpty().sheet<T>()?.let { sheet ->
         val response: suspend (Int) -> Result<BatchUpdateSpreadsheetResponse> = { rowIndex: Int ->
             ioCatching {
                 service.batchUpdate(

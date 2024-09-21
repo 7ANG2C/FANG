@@ -19,7 +19,9 @@ internal data class Attendance(
     val fulls: List<Long>,
     @SerializedName(AttendanceKey.HALF)
     val halfs: List<Long>,
-)
+) {
+    val total get() = fulls.size + halfs.size * 0.5
+}
 
 internal interface AttendanceKey {
     companion object {

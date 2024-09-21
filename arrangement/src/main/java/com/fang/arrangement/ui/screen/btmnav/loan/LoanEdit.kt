@@ -10,9 +10,10 @@ internal data class LoanEdit(
     val records: List<RecordEdit>,
     val remark: String?,
 ) {
-    val savable get() =
-        employee != null && loan != null && millis != null &&
-            loan.toIntOrNull()?.let { loan ->
-                records.sumOf { it.loan?.toIntOrNull() ?: 0 } <= loan
-            } ?: false
+    val savable
+        get() =
+            employee != null && loan != null && millis != null &&
+                loan.toIntOrNull()?.let { loan ->
+                    records.sumOf { it.loan?.toIntOrNull() ?: 0 } <= loan
+                } ?: false
 }
