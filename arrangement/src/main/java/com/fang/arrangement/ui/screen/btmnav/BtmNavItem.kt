@@ -6,5 +6,4 @@ internal enum class BtmNavItem(val route: String, val display: String) {
     STATISTIC(route = "StAt_IsTiC", display = "統計"),
     EMPLOYEE(route = "Em_PloYee", display = "員工"),
     SITE(route = "Si_Te", display = "工地"),
-    C(route = "Sid_Te", display = "工地"),
 }

@@ -18,9 +18,6 @@ import com.fang.arrangement.ui.screen.btmnav.employee.EmployeeScreen
 import com.fang.arrangement.ui.screen.btmnav.loan.LoanScreen
 import com.fang.arrangement.ui.screen.btmnav.site.SiteScreen
 import com.fang.arrangement.ui.screen.btmnav.statistic.StatisticScreen
-import com.fang.arrangement.ui.theme.darkScheme
-import com.fang.arrangement.ui.theme.lightScheme
-import com.fang.cosmos.foundation.ui.component.ColorSchemeScreen
 import com.fang.cosmos.foundation.ui.dsl.ComposableInvoke
 
 internal const val GRAPH_BTM_NAV_SCREEN = "GRAPH_BTM_NAV_SCREEN"
@@ -41,9 +38,6 @@ internal fun NavGraphBuilder.graphBtmNavScreen() {
         }
         composableBtmNav(navItem = BtmNavItem.SITE) {
             SiteScreen(modifier = Modifier.fillMaxSize())
-        }
-        composableBtmNav(navItem = BtmNavItem.C) {
-            ColorSchemeScreen(modifier = Modifier.fillMaxSize(), dark = darkScheme, light = lightScheme)
         }
     }
 }
