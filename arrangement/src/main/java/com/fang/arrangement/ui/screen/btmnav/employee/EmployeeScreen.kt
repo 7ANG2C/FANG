@@ -1,235 +1,263 @@
 package com.fang.arrangement.ui.screen.btmnav.employee
 
-import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.itemsIndexed
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.KeyboardActions
-import androidx.compose.foundation.text2.BasicTextField2
-import androidx.compose.foundation.text2.input.TextFieldLineLimits
-import androidx.compose.material3.Button
-import androidx.compose.material3.HorizontalDivider
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.mutableLongStateOf
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.draw.scale
 import androidx.compose.ui.platform.LocalFocusManager
-import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
-import com.fang.arrangement.R
-import com.fang.cosmos.foundation.ui.component.CustomIcon
-import com.fang.cosmos.foundation.ui.component.DialogThemedScreen
-import com.fang.cosmos.foundation.ui.component.spacer.HorizontalSpacer
-import com.fang.cosmos.foundation.ui.component.spacer.VerticalSpacer
+import com.fang.arrangement.foundation.orDash
+import com.fang.arrangement.ui.shared.component.ArrangementList
+import com.fang.arrangement.ui.shared.component.DateSelector
+import com.fang.arrangement.ui.shared.component.FieldLabelText
+import com.fang.arrangement.ui.shared.component.chip.ExpiredTag
+import com.fang.arrangement.ui.shared.component.dialog.EditDialog
+import com.fang.arrangement.ui.shared.component.dialog.ErrorDialog
+import com.fang.arrangement.ui.shared.component.dialog.Loading
+import com.fang.arrangement.ui.shared.component.dialog.TwoOptionDialog
+import com.fang.arrangement.ui.shared.component.fieldrow.AddableRow
+import com.fang.arrangement.ui.shared.component.fieldrow.Average2Row
+import com.fang.arrangement.ui.shared.component.fieldrow.RemovableRow
+import com.fang.arrangement.ui.shared.component.inputfield.NumberInputField
+import com.fang.arrangement.ui.shared.component.inputfield.StringInputField
+import com.fang.arrangement.ui.shared.dsl.AlphaColor
+import com.fang.arrangement.ui.shared.dsl.ContentText
+import com.fang.arrangement.ui.shared.dsl.HighlightText
+import com.fang.cosmos.foundation.NumberFormat
+import com.fang.cosmos.foundation.time.transformer.TimeConverter
+import com.fang.cosmos.foundation.ui.component.HorizontalSpacer
+import com.fang.cosmos.foundation.ui.component.VerticalSpacer
 import com.fang.cosmos.foundation.ui.ext.stateValue
-import com.fang.cosmos.foundation.ui.ext.textDp
-import java.text.SimpleDateFormat
-import java.util.Locale
 import org.koin.androidx.compose.koinViewModel
-
-private val sdf = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.TAIWAN)
 
 @Composable
 internal fun EmployeeScreen(
     modifier: Modifier,
-    viewModel: EmployeeViewModel = koinViewModel()
+    viewModel: EmployeeViewModel = koinViewModel(),
 ) {
-    val idState = rememberSaveable {
-        mutableLongStateOf(-1L)
-    }
-    val showEditeFieldState = rememberSaveable {
-        mutableStateOf(false)
-    }
-    val showDeleteDialogState = rememberSaveable {
-        mutableLongStateOf(-1L)
-    }
-    Column(modifier = modifier) {
-        Button(
-            onClick = {
-                idState.longValue = -1L
-                showEditeFieldState.value = true
-            },
-            modifier = Modifier
-                .padding(8.dp)
-                .align(Alignment.End)
-        ) { Text(text = "＋新增員工", fontSize = 16.textDp) }
-        val items = viewModel.sites.stateValue()
-        LazyColumn(modifier = Modifier.fillMaxSize()) {
-            itemsIndexed(
-                items = items,
-                key = { _, item -> item.id },
-                contentType = { _, item -> item.name }
-            ) { i, item ->
-                Row(
-                    modifier = Modifier
-                        .padding(12.dp)
-                        .fillMaxWidth()
-                        .padding(horizontal = 10.dp, vertical = 6.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Column(Modifier.weight(1f)) {
-                        Text(text = "工　　地：${item.name}", fontSize = 14.textDp)
-                        Text(text = "建立時間：${sdf.format(item.id)}", fontSize = 14.textDp)
-                    }
-                    Box(
-                        modifier = Modifier
-                            .size(32.dp)
-                            .clickable {
-                                idState.longValue = item.id
-                                showEditeFieldState.value = true
-                            },
-                        contentAlignment = Alignment.Center
-                    ) {
-                        CustomIcon(
-                            drawableResId = R.drawable.arr_baseline_edit_24,
-                            tint = Color(0xFF43484D)
-                        )
-                    }
-                    Box(
-                        modifier = Modifier
-                            .size(32.dp)
-                            .clickable {
-                                showDeleteDialogState.longValue = item.id
-                            },
-                        contentAlignment = Alignment.Center
-                    ) {
-                        CustomIcon(
-                            drawableResId = R.drawable.arr_baseline_delete_forever_24,
-                            tint = Color(0xFFC75454)
-                        )
+    Column(modifier) {
+        ArrangementList(
+            modifier = Modifier.weight(1f, false),
+            items = viewModel.employees.stateValue(),
+            key = { it.id },
+            contentType = { it },
+            onSelect = viewModel::onUpdate,
+            onAdd = viewModel::onInsert,
+        ) { item ->
+            val expire = item.isExpire
+            Row(modifier = Modifier.fillMaxWidth()) {
+                Row(Modifier.weight(1f), verticalAlignment = Alignment.CenterVertically) {
+                    HighlightText(
+                        text = item.name.orDash,
+                        modifier = Modifier.weight(1f, false),
+                        isAlpha = expire,
+                    )
+                    if (expire) {
+                        HorizontalSpacer(5.2f)
+                        ExpiredTag(Modifier.scale(0.92f).alpha(AlphaColor.DEFAULT))
                     }
                 }
-                if (i != items.lastIndex) {
-                    HorizontalDivider(
-                        modifier = Modifier.padding(horizontal = 22.dp),
-                        color = Color.LightGray
+                item.expiredMillis?.let {
+                    ContentText(
+                        text = "離職日：${TimeConverter.format(it)}",
+                        modifier = Modifier.weight(1f),
+                        isAlpha = expire,
                     )
                 }
             }
-        }
-    }
-    BuildingSiteEditField(
-        viewModel = viewModel,
-        id = idState.longValue,
-        showEditeFieldState = showEditeFieldState,
-    )
-    DeleteConfirmDialog(
-        viewModel = viewModel,
-        showDeleteDialogState = showDeleteDialogState
-    )
-}
-
-
-@OptIn(ExperimentalFoundationApi::class)
-@Composable
-private fun BuildingSiteEditField(
-    viewModel: EmployeeViewModel,
-    id: Long,
-    showEditeFieldState: MutableState<Boolean>,
-) {
-    val inputName = rememberSaveable {
-        mutableStateOf("")
-    }
-    DialogThemedScreen(isShow = showEditeFieldState.value) {
-        Column(
-            modifier = Modifier
-                .padding(horizontal = 28.dp)
-                .fillMaxWidth()
-                .clip(RoundedCornerShape(16.dp))
-                .background(Color.White)
-                .padding(16.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            val focusManager = LocalFocusManager.current
-            val text = if (id > 0) "編輯" else "新增"
-            Text(text = "${text}工地名稱", fontSize = 14.textDp)
-            BasicTextField2(
-                value = inputName.value,
-                onValueChange = { inputName.value = it },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(top = 8.dp, bottom = 4.dp),
-                textStyle = TextStyle(
-                    fontSize = 16.textDp,
-                ),
-                keyboardActions = KeyboardActions { focusManager.clearFocus() },
-                lineLimits = TextFieldLineLimits.SingleLine,
-            )
-            HorizontalDivider(color = Color.DarkGray)
-            VerticalSpacer(spaceDp = 12)
-            Row {
-                Button(
-                    onClick = {
-                        inputName.value = ""
-                        showEditeFieldState.value = false
-                    }
-                ) { Text(text = "取消", fontSize = 14.textDp) }
-                HorizontalSpacer(spaceDp = 16)
-                Button(onClick = {
-                    if (inputName.value.isNotBlank()) {
-                        if (id > 0) {
-                            viewModel.edit(id, inputName.value)
-                            showEditeFieldState.value = false
-                            inputName.value = ""
-                        } else {
-                            viewModel.add(inputName.value)
-                            showEditeFieldState.value = false
-                            inputName.value = ""
+            if (item.salaries.isNotEmpty()) {
+                Column(modifier = Modifier.fillMaxWidth()) {
+                    item.salaries.forEach { salary ->
+                        Row(modifier = Modifier.fillMaxWidth()) {
+                            ContentText(
+                                text = "日薪：${NumberFormat(salary.salary)}",
+                                modifier = Modifier.weight(1f),
+                                isAlpha = expire,
+                            )
+                            ContentText(
+                                text = "生效日：${TimeConverter.format(salary.millis)}",
+                                modifier = Modifier.weight(1f),
+                                isAlpha = expire,
+                            )
                         }
                     }
-                }) { Text(text = "確定", fontSize = 14.textDp) }
+                }
             }
         }
     }
+    EmployeeEditDialog(
+        editBundle = viewModel.editBundle.stateValue(),
+        salaryEdit = viewModel.salaryEdit.stateValue(),
+        viewModel = viewModel,
+    )
+    ErrorDialog(viewModel)
+    Loading(viewModel)
 }
 
 @Composable
-private fun DeleteConfirmDialog(
+private fun EmployeeEditDialog(
+    editBundle: EmployeeEditBundle?,
+    salaryEdit: SalaryEdit,
     viewModel: EmployeeViewModel,
-    showDeleteDialogState: MutableState<Long>
 ) {
-    val id = showDeleteDialogState.value
-    DialogThemedScreen(isShow = id > 0) {
-        Column(
-            modifier = Modifier
-                .padding(horizontal = 28.dp)
-                .fillMaxWidth()
-                .clip(RoundedCornerShape(16.dp))
-                .background(Color.White)
-                .padding(16.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            Text(text = "確認刪除嗎?\n刪除後將無法復原", fontSize = 18.textDp)
-            VerticalSpacer(spaceDp = 16)
-            Row {
-                Button(onClick = {
-                    showDeleteDialogState.value = -1L
-                }) {
-                    Text(text = "取消", fontSize = 14.textDp)
+    val current = editBundle?.current
+    val edit = editBundle?.edit
+    var showDeleteDialog by remember {
+        mutableStateOf<SalaryEdit?>(null)
+    }
+    EditDialog(
+        isShow = editBundle != null,
+        onDelete =
+            if (current != null) {
+                { viewModel.delete(current) }
+            } else {
+                null
+            },
+        onCancel = {
+            viewModel.clearSalary()
+            viewModel.clearEdit()
+        },
+        onConfirm =
+            if (edit?.savable == true && salaryEdit.allBlank) {
+                if (editBundle.isInsert) {
+                    { viewModel.insert(edit) }
+                } else {
+                    {
+                        viewModel.update(editBundle)
+                    }.takeIf { editBundle.anyDiff }
                 }
-                HorizontalSpacer(spaceDp = 16)
-                Button(onClick = {
-                    viewModel.delete(id)
-                    showDeleteDialogState.value = -1L
-                }) {
-                    Text(text = "刪除", fontSize = 14.textDp)
+            } else {
+                null
+            },
+    ) {
+        // 姓名
+        StringInputField(
+            modifier = Modifier.fillMaxWidth(),
+            titleText = "姓名",
+            text = edit?.name.orEmpty(),
+            lines = 1,
+            onClear = true,
+            onValueChange = viewModel::editName,
+        )
+        // 薪資記錄
+        Column(modifier = Modifier.fillMaxWidth()) {
+            FieldLabelText(text = "薪資記錄")
+            val focusManager = LocalFocusManager.current
+            AddableRow(
+                modifier = Modifier.fillMaxWidth(),
+                onAdd =
+                    if (salaryEdit.allFilled) {
+                        {
+                            focusManager.clearFocus()
+                            viewModel.addSalary(salaryEdit)
+                        }
+                    } else {
+                        null
+                    },
+                decorationAdd = { inner ->
+                    Column(
+                        modifier =
+                            Modifier
+                                .fillMaxHeight()
+                                .padding(start = 4.dp),
+                        verticalArrangement = Arrangement.Bottom,
+                    ) {
+                        inner()
+                        VerticalSpacer(2.8f)
+                    }
+                },
+                content = {
+                    Average2Row(modifier = Modifier.fillMaxWidth(), first = {
+                        NumberInputField(
+                            modifier = Modifier.fillMaxWidth(),
+                            titleText = "日薪",
+                            text = salaryEdit.salary.orEmpty(),
+                            imeAction = ImeAction.Done,
+                            onClear = true,
+                            onValueChange = viewModel::editSalary,
+                        )
+                    }) {
+                        DateSelector(
+                            modifier = Modifier.fillMaxWidth(),
+                            titleText = "生效日",
+                            onClear = {
+                                viewModel.editSalaryMillis(null)
+                            },
+                            original = salaryEdit.millis,
+                            isSelectableMillis = { millis ->
+                                millis !in edit?.salaries.orEmpty().mapNotNull { it.millis } &&
+                                    if (edit?.expire != null) {
+                                        millis < edit.expire
+                                    } else {
+                                        true
+                                    }
+                            },
+                            onConfirm = viewModel::editSalaryMillis,
+                        )
+                    }
+                },
+            )
+            if (!edit?.salaries.isNullOrEmpty()) VerticalSpacer(2)
+            edit?.salaries?.takeIf { it.isNotEmpty() }?.forEach { salary ->
+                RemovableRow(
+                    modifier =
+                        Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 2.dp),
+                    content = {
+                        Column(Modifier.fillMaxWidth()) {
+                            Average2Row(modifier = Modifier.fillMaxWidth(), first = {
+                                ContentText(text = NumberFormat(salary.salary))
+                            }) {
+                                ContentText(text = TimeConverter.format(salary.millis).orDash)
+                            }
+                        }
+                    },
+                ) {
+                    showDeleteDialog = salary
                 }
             }
         }
+        // 離職生效日
+        if (editBundle?.isInsert == false) {
+            DateSelector(
+                modifier = Modifier.fillMaxWidth(),
+                titleText = "離職生效日",
+                onClear = {
+                    viewModel.editExpire(null)
+                },
+                original = edit?.expire,
+                isSelectableMillis = { millis ->
+                    edit?.salaries?.firstOrNull()?.millis?.let {
+                        millis > it
+                    } ?: true
+                },
+                onConfirm = viewModel::editExpire,
+            )
+        }
     }
+    val salary = "日　薪：${NumberFormat(showDeleteDialog?.salary)}"
+    val millis = "生效日：${TimeConverter.format(showDeleteDialog?.millis)}"
+    TwoOptionDialog(
+        text = "是否確定移除\n\n$salary\n$millis".takeIf { showDeleteDialog != null },
+        onNegative = { showDeleteDialog = null },
+        onPositive = {
+            showDeleteDialog?.millis?.let {
+                viewModel.removeSalary(it)
+            }
+            showDeleteDialog = null
+        },
+    )
 }

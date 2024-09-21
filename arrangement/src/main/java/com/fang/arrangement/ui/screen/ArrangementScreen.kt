@@ -20,7 +20,8 @@ import com.fang.arrangement.ui.graph.dsl.currentBtmNavItem
 import com.fang.arrangement.ui.graph.dsl.currentIsBtmNavItem
 import com.fang.arrangement.ui.graph.graphBtmNavScreen
 import com.fang.arrangement.ui.screen.btmnav.BottomNavBar
-import com.fang.arrangement.ui.shared.component.Loading
+import com.fang.arrangement.ui.screen.btmnav.BtmNavItem
+import com.fang.arrangement.ui.shared.component.dialog.Loading
 import com.fang.cosmos.foundation.Invoke
 import com.fang.cosmos.foundation.ui.dsl.ClearFocusWhenImeClosed
 import com.fang.cosmos.foundation.ui.dsl.MaterialColor
@@ -50,7 +51,10 @@ internal fun ArrangementScreen(
         NavHost(
             navController = navController,
             startDestination = GRAPH_BTM_NAV_SCREEN,
-            modifier = Modifier.fillMaxWidth().weight(1f),
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .weight(1f),
             route = "ROOT",
         ) {
             graphBtmNavScreen()
@@ -69,7 +73,7 @@ internal fun ArrangementScreen(
                         saveState = true
                     }
                     launchSingleTop = true
-                    restoreState = true
+                    restoreState = page != BtmNavItem.STATISTIC
                 }
             }
         }

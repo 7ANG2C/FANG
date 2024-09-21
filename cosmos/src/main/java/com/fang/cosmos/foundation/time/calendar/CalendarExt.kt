@@ -7,7 +7,7 @@ val Calendar.year get() = get(Calendar.YEAR)
 val Calendar.month get() = get(Calendar.MONTH)
 val Calendar.dayOfMonth get() = get(Calendar.DAY_OF_MONTH)
 val Calendar.dayOfWeek get() = get(Calendar.DAY_OF_WEEK)
-val Calendar.toDayStart
+val Calendar.midnight
     get() =
         copy.apply {
             set(Calendar.HOUR_OF_DAY, 0)

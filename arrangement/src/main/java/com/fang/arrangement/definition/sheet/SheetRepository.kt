@@ -2,8 +2,8 @@ package com.fang.arrangement.definition.sheet
 
 import android.content.Context
 import com.fang.arrangement.definition.foundation.KeyValue
-import com.fang.arrangement.ui.shared.retry
 import com.fang.cosmos.foundation.fromJsonTypeList
+import com.fang.cosmos.foundation.retry
 import com.fang.cosmos.foundation.retryExponentialWhen
 import com.fang.cosmos.foundation.takeIfNotBlank
 import com.fang.cosmos.foundation.throttleLatest
@@ -36,6 +36,7 @@ import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.flow.mapLatest
 import kotlinx.coroutines.flow.merge
 import kotlinx.coroutines.flow.scan
 import kotlinx.coroutines.launch
@@ -56,7 +57,7 @@ internal class SheetRepository(
         val clazz: Class<out Any>,
     )
 
-    companion object {
+    private companion object {
         const val SPREAD_SHEET_ID = "1hYhuc7IYnVkjx6qK7WePQiTF7Jw9ZUwC-pU8DMVcNdI"
     }
 
@@ -88,8 +89,8 @@ internal class SheetRepository(
     private val refreshProperty = MutableStateFlow<Long?>(null)
     private val refreshSheet = MutableStateFlow<Type.Sheet?>(null)
 
-    private val _workSheet = MutableStateFlow<List<WorkSheet>?>(null)
-    val workSheet = _workSheet.asStateFlow()
+    private val _workSheets = MutableStateFlow<List<WorkSheet>?>(null)
+    val workSheets = _workSheets.asStateFlow()
 
     init {
         refreshProperty()
@@ -155,26 +156,27 @@ internal class SheetRepository(
                             }
                     }
                 }
-                .filterNotNull()
-                .flowOn(Dispatchers.Default)
-                .collectLatest { sheets ->
-                    sheets.takeIf {
+                .mapLatest { sheets ->
+                    sheets?.takeIf {
                         val sheet = it.firstOrNull()
                         sheet?.id != invalidSheetId && !sheet?.keys.isNullOrEmpty()
-                    }?.let { _workSheet.value = it }
+                    }
+                }
+                .filterNotNull()
+                .flowOn(Dispatchers.Default)
+                .collectLatest {
+                    _workSheets.value = it
                 }
         }
     }
 
     suspend inline fun <reified T> insert(keyValues: List<KeyValue>) =
         editSheet<T>(
-            null,
+            keyValue = null,
             { sheet, _ ->
                 setInsertDimension(InsertDimensionRequest().setRange(range(sheet, 1)))
             },
-            { sheet, _ ->
-                paste(keyValues, sheet, 1)
-            },
+            { sheet, _ -> paste(keyValues, sheet, 1) },
         )
 
     suspend inline fun <reified T> update(
@@ -182,17 +184,15 @@ internal class SheetRepository(
         value: String,
         keyValues: List<KeyValue>,
     ) = editSheet<T>(
-        KeyValue(key, value),
-        { sheet, index ->
-            paste(keyValues, sheet, index)
-        },
+        keyValue = KeyValue(key, value),
+        { sheet, index -> paste(keyValues, sheet, index) },
     )
 
     suspend inline fun <reified T> delete(
         key: String,
         value: String,
     ) = editSheet<T>(
-        KeyValue(key, value),
+        keyValue = KeyValue(key, value),
         { sheet, index ->
             setDeleteDimension(DeleteDimensionRequest().setRange(range(sheet, index)))
         },
@@ -229,7 +229,13 @@ internal class SheetRepository(
                                                     value?.toString().takeIfNotBlank
                                                 val pair =
                                                     if (key != null && validValue != null) {
-                                                        "$key:$validValue,"
+                                                        val t =
+                                                            if (validValue.startsWith("[")) {
+                                                                validValue
+                                                            } else {
+                                                                "\"$validValue\""
+                                                            }
+                                                        "\"$key\":$t,"
                                                     } else {
                                                         ""
                                                     }
@@ -267,15 +273,13 @@ internal class SheetRepository(
     private suspend inline fun <reified T> editSheet(
         keyValue: KeyValue?,
         vararg requests: Request.(Sheet<T>, Int) -> Request,
-    ) = workSheet.value.orEmpty().sheet<T>()?.let { sheet ->
+    ) = workSheets.value.orEmpty().sheet<T>()?.let { sheet ->
         val response: suspend (Int) -> Result<BatchUpdateSpreadsheetResponse> = { rowIndex: Int ->
             ioCatching {
                 service.batchUpdate(
                     SPREAD_SHEET_ID,
                     BatchUpdateSpreadsheetRequest().setRequests(
-                        requests.map {
-                            it.invoke(Request(), sheet, rowIndex)
-                        },
+                        requests.map { it.invoke(Request(), sheet, rowIndex) },
                     ),
                 ).execute()
             }.onSuccess {
@@ -310,11 +314,11 @@ internal class SheetRepository(
     } ?: Result.failure(NoSheetException(T::class.java))
 
     private fun <T> range(
-        s: Sheet<T>,
+        sheet: Sheet<T>,
         index: Int,
     ) = DimensionRange()
         .setDimension("ROWS")
-        .setSheetId(s.id)
+        .setSheetId(sheet.id)
         .setStartIndex(index)
         .setEndIndex(index + 1)
 

@@ -16,7 +16,10 @@ internal data class Employee(
     @SerializedName(EmployeeKey.DELETE)
     val delete: Int,
 ) {
-    val isDelete = Bool(delete)
+    val isExpire get() = expiredMillis != null
+    val notExpire get() = !isExpire
+    val isDelete get() = Bool(delete)
+    val notDelete get() = !isDelete
 }
 
 internal data class Salary(

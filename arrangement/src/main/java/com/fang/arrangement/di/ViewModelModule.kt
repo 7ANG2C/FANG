@@ -1,19 +1,26 @@
 package com.fang.arrangement.di
 
-import com.fang.arrangement.ui.screen.btmnav.building.SiteViewModel
+import com.fang.arrangement.ui.screen.ArrangementViewModel
+import com.fang.arrangement.ui.screen.btmnav.attendance.AttendanceViewModel
 import com.fang.arrangement.ui.screen.btmnav.employee.EmployeeViewModel
 import com.fang.arrangement.ui.screen.btmnav.loan.LoanViewModel
-import com.fang.arrangement.ui.screen.btmnav.schedule.ScheduleViewModel
+import com.fang.arrangement.ui.screen.btmnav.site.SiteViewModel
 import com.fang.arrangement.ui.screen.btmnav.statistic.StatisticViewModel
+import com.fang.arrangement.ui.screen.btmnav.statistic.employeeattendance.EmployeeAttendanceViewModel
+import com.fang.arrangement.ui.screen.btmnav.statistic.salary.SalaryViewModel
 import org.koin.androidx.viewmodel.dsl.viewModelOf
 import org.koin.dsl.module
 
 internal object ViewModelModule {
-    operator fun invoke() = module {
-        viewModelOf(::ScheduleViewModel)
-        viewModelOf(::StatisticViewModel)
-        viewModelOf(::SiteViewModel)
-        viewModelOf(::LoanViewModel)
-        viewModelOf(::EmployeeViewModel)
-    }
+    operator fun invoke() =
+        module {
+            viewModelOf(::ArrangementViewModel)
+            viewModelOf(::AttendanceViewModel)
+            viewModelOf(::LoanViewModel)
+            viewModelOf(::StatisticViewModel)
+            viewModelOf(::SalaryViewModel)
+            viewModelOf(::EmployeeAttendanceViewModel)
+            viewModelOf(::EmployeeViewModel)
+            viewModelOf(::SiteViewModel)
+        }
 }

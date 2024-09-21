@@ -4,6 +4,7 @@ import com.fang.cosmos.definition.context.cosmosModuleContext
 import com.fang.cosmos.definition.datastore.cosmosModuleDataStore
 import com.fang.cosmos.definition.externalcoroutinescope.cosmosModuleExternalCoroutineScope
 import com.fang.cosmos.definition.gson.cosmosModuleGson
+import com.fang.cosmos.definition.networkavailability.cosmosModuleNetworkAvailability
 import org.koin.dsl.ModuleDeclaration
 import org.koin.dsl.module
 
@@ -20,6 +21,7 @@ object CosmosModule {
         module {
             cosmosModuleContext()
             cosmosModuleExternalCoroutineScope()
+            cosmosModuleNetworkAvailability()
             cosmosModuleGson()
             cosmosModuleDataStore()
             // override placed last
