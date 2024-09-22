@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <style name="arr_Theme.Arrangement" parent="Theme.AppCompat.DayNight.NoActionBar" />
+
+    <style name="arr_SplashTheme" parent="arr_Theme.Arrangement">
+        <item name="android:windowBackground">@drawable/arr_splash</item>
+    </style>
+</resources>
