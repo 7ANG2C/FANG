@@ -145,8 +145,8 @@ internal class SiteViewModel(
                     keyValues =
                         SiteKey.fold(
                             id = System.currentTimeMillis().toString(),
-                            name = edit.name.orEmpty().trim(),
-                            address = edit.address.orEmpty().trim(),
+                            name = "\"${edit.name.orEmpty().trim()}\"",
+                            address = "\"${edit.address.orEmpty().trim()}\"",
                             income = edit.income.orEmpty(),
                             startMillis = edit.startMillis?.toString().orEmpty(),
                             endMillis = edit.endMillis?.toString().orEmpty(),
@@ -169,8 +169,8 @@ internal class SiteViewModel(
                     keyValues =
                         SiteKey.fold(
                             id = id,
-                            name = edit.name.orEmpty().trim(),
-                            address = edit.address.orEmpty().trim(),
+                            name = "\"${edit.name.orEmpty().trim()}\"",
+                            address = "\"${edit.address.orEmpty().trim()}\"",
                             income = edit.income.orEmpty(),
                             startMillis = edit.startMillis?.toString().orEmpty(),
                             endMillis = edit.endMillis?.toString().orEmpty(),
@@ -191,8 +191,8 @@ internal class SiteViewModel(
                 keyValues =
                     SiteKey.fold(
                         id = id,
-                        name = current.name,
-                        address = current.address.orEmpty(),
+                        name = "\"${current.name}\"",
+                        address = "\"${current.address.orEmpty()}\"",
                         income = current.income?.toString().orEmpty(),
                         startMillis = current.startMillis?.toString().orEmpty(),
                         endMillis = current.endMillis?.toString().orEmpty(),

@@ -128,12 +128,8 @@ internal class EmployeeViewModel(
                 edit =
                     old.edit.copy(
                         salaries =
-                            old.edit.salaries.mapNotNull {
-                                if (it.millis == millis) {
-                                    null
-                                } else {
-                                    it
-                                }
+                            old.edit.salaries.filter {
+                                it.millis != millis
                             },
                     ),
             )
@@ -161,7 +157,7 @@ internal class EmployeeViewModel(
                     keyValues =
                         EmployeeKey.fold(
                             id = System.currentTimeMillis().toString(),
-                            name = edit.name.orEmpty().trim(),
+                            name = "\"${edit.name.orEmpty().trim()}\"",
                             salaries = gson.json(edit.salaries).getOrNull()?.noBreathing ?: "[]",
                             expire = edit.expire?.toString().orEmpty(),
                             delete = Bool.FALSE.toString(),
@@ -182,7 +178,7 @@ internal class EmployeeViewModel(
                     keyValues =
                         EmployeeKey.fold(
                             id = id,
-                            name = edit.name.orEmpty().trim(),
+                            name = "\"${edit.name.orEmpty().trim()}\"",
                             salaries = gson.json(edit.salaries).getOrNull()?.noBreathing ?: "[]",
                             expire = edit.expire?.toString().orEmpty(),
                             delete = Bool.FALSE.toString(),
@@ -201,7 +197,7 @@ internal class EmployeeViewModel(
                 keyValues =
                     EmployeeKey.fold(
                         id = id,
-                        name = current.name,
+                        name = "\"${current.name}\"",
                         salaries = gson.json(current.salaries).getOrNull()?.noBreathing ?: "[]",
                         expire = current.expiredMillis?.toString().orEmpty(),
                         delete = Bool.TRUE.toString(),

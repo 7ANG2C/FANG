@@ -218,8 +218,8 @@ internal class LoanViewModel(
                             employeeId = edit.employee?.id?.toString().orEmpty(),
                             loan = edit.loan.orEmpty(),
                             millis = edit.millis?.toString().orEmpty(),
-                            records = gson.json(edit.records).getOrNull()?.noBreathing ?: "[]",
-                            remark = edit.remark.takeIfNotBlank.orEmpty().trim(),
+                            records = "[]",
+                            remark = "\"${edit.remark.takeIfNotBlank.orEmpty().trim()}\"",
                         ),
                 )
             }
@@ -241,7 +241,7 @@ internal class LoanViewModel(
                             loan = edit.loan.orEmpty(),
                             millis = edit.millis?.toString().orEmpty(),
                             records = gson.json(edit.records).getOrNull()?.noBreathing ?: "[]",
-                            remark = edit.remark.takeIfNotBlank.orEmpty().trim(),
+                            remark = "\"${edit.remark.takeIfNotBlank.orEmpty().trim()}\"",
                         ),
                 )
             }

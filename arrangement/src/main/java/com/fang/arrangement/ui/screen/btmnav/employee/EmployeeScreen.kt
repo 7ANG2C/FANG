@@ -35,8 +35,8 @@ import com.fang.arrangement.ui.shared.component.inputfield.StringInputField
 import com.fang.arrangement.ui.shared.dsl.AlphaColor
 import com.fang.arrangement.ui.shared.dsl.ContentText
 import com.fang.arrangement.ui.shared.dsl.HighlightText
+import com.fang.arrangement.ui.shared.dsl.YMDDayOfWeek
 import com.fang.cosmos.foundation.NumberFormat
-import com.fang.cosmos.foundation.time.transformer.TimeConverter
 import com.fang.cosmos.foundation.ui.component.HorizontalSpacer
 import com.fang.cosmos.foundation.ui.component.VerticalSpacer
 import com.fang.cosmos.foundation.ui.ext.stateValue
@@ -66,12 +66,16 @@ internal fun EmployeeScreen(
                     )
                     if (expire) {
                         HorizontalSpacer(5.2f)
-                        ExpiredTag(Modifier.scale(0.92f).alpha(AlphaColor.DEFAULT))
+                        ExpiredTag(
+                            Modifier
+                                .scale(0.92f)
+                                .alpha(AlphaColor.DEFAULT),
+                        )
                     }
                 }
                 item.expiredMillis?.let {
                     ContentText(
-                        text = "離職日：${TimeConverter.format(it)}",
+                        text = "離職：${YMDDayOfWeek(item.id)}",
                         modifier = Modifier.weight(1f),
                         isAlpha = expire,
                     )
@@ -87,7 +91,7 @@ internal fun EmployeeScreen(
                                 isAlpha = expire,
                             )
                             ContentText(
-                                text = "生效日：${TimeConverter.format(salary.millis)}",
+                                text = "生效：${YMDDayOfWeek(salary.millis)}",
                                 modifier = Modifier.weight(1f),
                                 isAlpha = expire,
                             )
@@ -221,7 +225,9 @@ private fun EmployeeEditDialog(
                             Average2Row(modifier = Modifier.fillMaxWidth(), first = {
                                 ContentText(text = NumberFormat(salary.salary))
                             }) {
-                                ContentText(text = TimeConverter.format(salary.millis).orDash)
+                                ContentText(
+                                    text = YMDDayOfWeek(salary.millis).orDash,
+                                )
                             }
                         }
                     },
@@ -249,7 +255,7 @@ private fun EmployeeEditDialog(
         }
     }
     val salary = "日　薪：${NumberFormat(showDeleteDialog?.salary)}"
-    val millis = "生效日：${TimeConverter.format(showDeleteDialog?.millis)}"
+    val millis = "生效日：${YMDDayOfWeek(showDeleteDialog?.millis)}"
     TwoOptionDialog(
         text = "是否確定移除\n\n$salary\n$millis".takeIf { showDeleteDialog != null },
         onNegative = { showDeleteDialog = null },

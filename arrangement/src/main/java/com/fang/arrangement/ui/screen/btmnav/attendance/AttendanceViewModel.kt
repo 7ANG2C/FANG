@@ -173,7 +173,7 @@ internal class AttendanceViewModel(
                             (newSites + current)
                                 .sortedWith(
                                     compareByDescending<MAttendance> {
-                                        it.fulls.size + it.halfs.size * 0.5
+                                        (it.fulls.size + it.halfs.size * 0.5) > 0
                                     }
                                         .thenByDescending { it.site == null }
                                         .thenByDescending { it.site?.isDelete == true }
@@ -288,7 +288,7 @@ internal class AttendanceViewModel(
                                         )
                                     },
                                 ).getOrNull()?.noBreathing ?: "[]",
-                            remark = edit.remark.orEmpty().trim(),
+                            remark = "\"${edit.remark.orEmpty().trim()}\"",
                         ),
                 )
             }
@@ -318,7 +318,7 @@ internal class AttendanceViewModel(
                                         )
                                     },
                                 ).getOrNull()?.noBreathing ?: "[]",
-                            remark = edit.remark.orEmpty().trim(),
+                            remark = "\"${edit.remark.orEmpty().trim()}\"",
                         ),
                 )
             }

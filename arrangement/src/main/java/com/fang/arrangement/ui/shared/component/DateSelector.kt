@@ -16,9 +16,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.DialogProperties
 import com.fang.arrangement.ui.shared.component.button.component.NegativeButton
 import com.fang.arrangement.ui.shared.component.button.component.PositiveButton
+import com.fang.arrangement.ui.shared.dsl.YMDDayOfWeek
 import com.fang.cosmos.foundation.Action
 import com.fang.cosmos.foundation.Invoke
-import com.fang.cosmos.foundation.time.transformer.TimeConverter
 import com.fang.cosmos.foundation.ui.ext.clickableNoRipple
 
 @Composable
@@ -42,9 +42,7 @@ internal fun DateSelector(
         },
         titleText = titleText,
         text =
-            original?.let {
-                TimeConverter.format(it)
-            }.orEmpty(),
+            original?.let { YMDDayOfWeek(it) }.orEmpty(),
         onClear = onClear,
     )
     DatePicker(
