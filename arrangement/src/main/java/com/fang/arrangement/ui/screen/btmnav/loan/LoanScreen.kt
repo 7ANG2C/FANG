@@ -55,10 +55,10 @@ import com.fang.arrangement.ui.shared.dsl.ContentText
 import com.fang.arrangement.ui.shared.dsl.EmployeeTag
 import com.fang.arrangement.ui.shared.dsl.HighlightText
 import com.fang.arrangement.ui.shared.dsl.Remark
+import com.fang.arrangement.ui.shared.dsl.YMDDayOfWeek
 import com.fang.arrangement.ui.shared.dsl.alphaColor
 import com.fang.cosmos.foundation.NumberFormat
 import com.fang.cosmos.foundation.takeIfNotBlank
-import com.fang.cosmos.foundation.time.transformer.TimeConverter
 import com.fang.cosmos.foundation.ui.component.HorizontalSpacer
 import com.fang.cosmos.foundation.ui.component.VerticalSpacer
 import com.fang.cosmos.foundation.ui.dsl.MaterialColor
@@ -114,7 +114,7 @@ internal fun LoanScreen(
             }
             Row {
                 HighlightText(
-                    text = "借日：${TimeConverter.format(item.millis)}",
+                    text = "借日：${YMDDayOfWeek(item.millis)}",
                     modifier = Modifier.weight(1f),
                     isAlpha = isClear,
                 )
@@ -132,7 +132,7 @@ internal fun LoanScreen(
                     val style =
                         HighlightText.style.color(
                             HighlightText.color.copy(alpha = alpha),
-                        ).fontSize(12.8.sp)
+                        ).fontSize(12.8.sp).copy(lineHeight = 13.2.sp)
                     Box(contentAlignment = Alignment.CenterStart) {
                         ArrText(
                             text = "註",
@@ -161,7 +161,7 @@ internal fun LoanScreen(
                         Column {
                             Row {
                                 ContentText(
-                                    text = "還日：${TimeConverter.format(record.millis)}",
+                                    text = "還日：${YMDDayOfWeek(record.millis)}",
                                     modifier = Modifier.weight(1f),
                                     isAlpha = isClear,
                                 )
@@ -464,7 +464,7 @@ private fun LoanEditDialog(
                                         ContentText(text = NumberFormat(record.loan))
                                     },
                                 ) {
-                                    ContentText(text = TimeConverter.format(record.millis).orDash)
+                                    ContentText(text = YMDDayOfWeek(record.millis).orDash)
                                 }
                                 record.remark?.let {
                                     Row {
@@ -498,7 +498,7 @@ private fun LoanEditDialog(
         }
     }
     val salary = "金　額：${NumberFormat(showDeleteDialog?.loan)}"
-    val millis = "生效日：${TimeConverter.format(showDeleteDialog?.millis)}"
+    val millis = "生效日：${YMDDayOfWeek(showDeleteDialog?.millis)}"
     TwoOptionDialog(
         text = "是否確定移除\n\n$salary\n$millis".takeIf { showDeleteDialog != null },
         onNegative = { showDeleteDialog = null },

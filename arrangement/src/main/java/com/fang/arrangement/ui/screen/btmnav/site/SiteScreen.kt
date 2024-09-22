@@ -31,11 +31,11 @@ import com.fang.arrangement.ui.shared.component.inputfield.StringInputField
 import com.fang.arrangement.ui.shared.dsl.AlphaColor
 import com.fang.arrangement.ui.shared.dsl.ContentText
 import com.fang.arrangement.ui.shared.dsl.HighlightText
+import com.fang.arrangement.ui.shared.dsl.YMDDayOfWeek
 import com.fang.arrangement.ui.shared.dsl.alphaColor
 import com.fang.cosmos.foundation.Invoke
 import com.fang.cosmos.foundation.NumberFormat
 import com.fang.cosmos.foundation.takeIfNotBlank
-import com.fang.cosmos.foundation.time.transformer.TimeConverter
 import com.fang.cosmos.foundation.ui.component.HorizontalSpacer
 import com.fang.cosmos.foundation.ui.ext.clickableNoRipple
 import com.fang.cosmos.foundation.ui.ext.color
@@ -91,8 +91,8 @@ internal fun SiteScreen(
                 )
             }
             // 開工、竣工
-            val start = TimeConverter.format(item.startMillis)
-            val end = TimeConverter.format(item.endMillis)
+            val start = YMDDayOfWeek(item.startMillis)
+            val end = YMDDayOfWeek(item.endMillis)
             if (start != null || end != null) {
                 Row(modifier = Modifier.fillMaxWidth()) {
                     ContentText(

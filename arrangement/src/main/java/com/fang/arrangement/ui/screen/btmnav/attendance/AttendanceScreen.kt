@@ -52,11 +52,11 @@ import com.fang.arrangement.ui.shared.dsl.ContentText
 import com.fang.arrangement.ui.shared.dsl.EmployeeTag
 import com.fang.arrangement.ui.shared.dsl.HighlightText
 import com.fang.arrangement.ui.shared.dsl.Remark
+import com.fang.arrangement.ui.shared.dsl.YMDDayOfWeek
 import com.fang.arrangement.ui.shared.dsl.employeeState
 import com.fang.arrangement.ui.shared.ext.clickRipple
 import com.fang.cosmos.foundation.mapNoNull
 import com.fang.cosmos.foundation.takeIfNotBlank
-import com.fang.cosmos.foundation.time.transformer.TimeConverter
 import com.fang.cosmos.foundation.ui.component.CustomBottomSheet
 import com.fang.cosmos.foundation.ui.component.CustomIcon
 import com.fang.cosmos.foundation.ui.component.HorizontalSpacer
@@ -98,7 +98,7 @@ internal fun AttendanceScreen(
                         placeHolder = false,
                     )
                     HorizontalSpacer(8)
-                    HighlightText(text = TimeConverter.format(item.id).orDash)
+                    HighlightText(text = YMDDayOfWeek(item.id).orDash)
                     Spacer(modifier = Modifier.weight(1f))
                     CustomIcon(
                         drawableResId = R.drawable.arr_r24_keyboard_double_arrow_down,
@@ -235,7 +235,7 @@ internal fun AttendanceScreen(
                                         }
                                         HorizontalSpacer(8)
                                         FlowRow {
-                                            mAtt.fulls.forEachIndexed { i, item ->
+                                            mAtt.halfs.forEachIndexed { i, item ->
                                                 Row {
                                                     ArrText(
                                                         text =
@@ -255,7 +255,7 @@ internal fun AttendanceScreen(
                                                             )
                                                         }
                                                     }
-                                                    if (i != mAtt.fulls.lastIndex) {
+                                                    if (i != mAtt.halfs.lastIndex) {
                                                         ArrText(text = "・") { style }
                                                     }
                                                 }
