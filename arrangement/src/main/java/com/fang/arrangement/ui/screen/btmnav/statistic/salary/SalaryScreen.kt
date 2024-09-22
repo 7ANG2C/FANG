@@ -25,6 +25,7 @@ import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.fang.arrangement.R
 import com.fang.arrangement.foundation.DASH
 import com.fang.arrangement.ui.shared.component.ArrText
 import com.fang.arrangement.ui.shared.component.EmptyScreen
@@ -34,15 +35,18 @@ import com.fang.arrangement.ui.shared.dsl.EmployeeTag
 import com.fang.arrangement.ui.shared.dsl.HighlightText
 import com.fang.arrangement.ui.shared.ext.clickRipple
 import com.fang.cosmos.foundation.NumberFormat
+import com.fang.cosmos.foundation.ui.component.CustomIcon
 import com.fang.cosmos.foundation.ui.component.HorizontalSpacer
 import com.fang.cosmos.foundation.ui.component.VerticalSpacer
 import com.fang.cosmos.foundation.ui.dsl.MaterialColor
 import com.fang.cosmos.foundation.ui.dsl.MaterialTypography
 import com.fang.cosmos.foundation.ui.ext.bg
+import com.fang.cosmos.foundation.ui.ext.clickableNoRipple
 import com.fang.cosmos.foundation.ui.ext.color
 import com.fang.cosmos.foundation.ui.ext.fontSize
 import com.fang.cosmos.foundation.ui.ext.stateValue
 import org.koin.androidx.compose.koinViewModel
+import java.math.BigDecimal
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
@@ -54,7 +58,11 @@ internal fun SalaryScreen(
     if (yearSalaries.isEmpty()) {
         EmptyScreen(modifier = modifier)
     } else {
-        Column(modifier.padding(horizontal = 16.dp).padding(top = 12.dp)) {
+        Column(
+            modifier
+                .padding(horizontal = 16.dp)
+                .padding(top = 12.dp),
+        ) {
             // 總計
             yearSalaries.sumOf { it.attendance }.takeIf { it > 0 }?.let { attendance ->
                 Row(
@@ -73,12 +81,21 @@ internal fun SalaryScreen(
                             MaterialTypography.titleLarge.color(primary)
                         }
                         val salary =
-                            yearSalaries.mapNotNull { it.salary }.takeIf { it.isNotEmpty() }
-                                ?.sum()
+                            yearSalaries.mapNotNull { s ->
+                                s.salary ?.let { BigDecimal.valueOf(it) }
+                            }.takeIf { it.isNotEmpty() }?.sumOf { it }
                         ArrText(text = NumberFormat(salary, 0, invalidText = DASH)) {
                             MaterialTypography.titleLarge.color(primary)
                         }
                     }
+                    Spacer(modifier = Modifier.weight(1f))
+                    CustomIcon(
+                        drawableResId = R.drawable.arr_r24_picture_as_pdf,
+                        modifier =
+                            Modifier.clickableNoRipple {
+                            },
+                        tint = MaterialColor.primary,
+                    )
                 }
             }
             VerticalSpacer(10)
@@ -90,7 +107,11 @@ internal fun SalaryScreen(
             ) {
                 yearSalaries.forEach { year ->
                     stickyHeader {
-                        Column(Modifier.fillMaxWidth().bg { surfaceContainerLowest }) {
+                        Column(
+                            Modifier
+                                .fillMaxWidth()
+                                .bg { surfaceContainerLowest },
+                        ) {
                             VerticalSpacer(2)
                             Row(
                                 modifier = Modifier.fillMaxWidth(),

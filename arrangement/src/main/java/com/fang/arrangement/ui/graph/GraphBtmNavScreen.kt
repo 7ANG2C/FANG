@@ -15,7 +15,7 @@ import com.fang.arrangement.ui.graph.dsl.composableTransition
 import com.fang.arrangement.ui.screen.btmnav.BtmNavItem
 import com.fang.arrangement.ui.screen.btmnav.attendance.AttendanceScreen
 import com.fang.arrangement.ui.screen.btmnav.employee.EmployeeScreen
-import com.fang.arrangement.ui.screen.btmnav.loan.LoanScreen
+import com.fang.arrangement.ui.screen.btmnav.money.MoneyScreen
 import com.fang.arrangement.ui.screen.btmnav.site.SiteScreen
 import com.fang.arrangement.ui.screen.btmnav.statistic.StatisticScreen
 import com.fang.cosmos.foundation.ui.dsl.ComposableInvoke
@@ -27,8 +27,8 @@ internal fun NavGraphBuilder.graphBtmNavScreen() {
         composableBtmNav(navItem = BtmNavItem.ATTENDANCE) {
             AttendanceScreen(modifier = Modifier.fillMaxSize())
         }
-        composableBtmNav(navItem = BtmNavItem.LOAN) {
-            LoanScreen(modifier = Modifier.fillMaxSize())
+        composableBtmNav(navItem = BtmNavItem.MONEY) {
+            MoneyScreen(modifier = Modifier.fillMaxSize())
         }
         composableBtmNav(navItem = BtmNavItem.STATISTIC) {
             StatisticScreen(modifier = Modifier.fillMaxSize())

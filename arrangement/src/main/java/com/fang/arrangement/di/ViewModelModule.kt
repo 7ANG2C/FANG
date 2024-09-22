@@ -3,7 +3,9 @@ package com.fang.arrangement.di
 import com.fang.arrangement.ui.screen.ArrangementViewModel
 import com.fang.arrangement.ui.screen.btmnav.attendance.AttendanceViewModel
 import com.fang.arrangement.ui.screen.btmnav.employee.EmployeeViewModel
-import com.fang.arrangement.ui.screen.btmnav.loan.LoanViewModel
+import com.fang.arrangement.ui.screen.btmnav.money.MoneyViewModel
+import com.fang.arrangement.ui.screen.btmnav.money.fundhero.FundHeroViewModel
+import com.fang.arrangement.ui.screen.btmnav.money.loan.LoanViewModel
 import com.fang.arrangement.ui.screen.btmnav.site.SiteViewModel
 import com.fang.arrangement.ui.screen.btmnav.statistic.StatisticViewModel
 import com.fang.arrangement.ui.screen.btmnav.statistic.employeeattendance.EmployeeAttendanceViewModel
@@ -16,7 +18,9 @@ internal object ViewModelModule {
         module {
             viewModelOf(::ArrangementViewModel)
             viewModelOf(::AttendanceViewModel)
+            viewModelOf(::MoneyViewModel)
             viewModelOf(::LoanViewModel)
+            viewModelOf(::FundHeroViewModel)
             viewModelOf(::StatisticViewModel)
             viewModelOf(::SalaryViewModel)
             viewModelOf(::EmployeeAttendanceViewModel)
