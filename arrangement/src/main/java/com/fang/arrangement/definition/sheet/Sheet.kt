@@ -2,7 +2,7 @@ package com.fang.arrangement.definition.sheet
 
 import com.fang.arrangement.definition.AttendanceAll
 import com.fang.arrangement.definition.Employee
-import com.fang.arrangement.definition.FundHero
+import com.fang.arrangement.definition.Fund
 import com.fang.arrangement.definition.Loan
 import com.fang.arrangement.definition.Site
 import com.fang.cosmos.foundation.withcontextcatching.withDefaultCoroutine
@@ -19,7 +19,7 @@ internal fun List<WorkSheet>.sheetAttendance() = sheet<AttendanceAll>()
 
 internal fun List<WorkSheet>.sheetLoan() = sheet<Loan>()
 
-internal fun List<WorkSheet>.sheetFundHero() = sheet<FundHero>()
+internal fun List<WorkSheet>.sheetFund() = sheet<Fund>()
 
 internal fun List<WorkSheet>.sheetEmployee() = sheet<Employee>()
 

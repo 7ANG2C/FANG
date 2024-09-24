@@ -3,36 +3,31 @@ package com.fang.arrangement.definition
 import com.fang.arrangement.definition.foundation.KeyValue
 import com.google.gson.annotations.SerializedName
 
-internal data class FundHero(
-    @SerializedName(FundHeroKey.ID)
+internal data class Fund(
+    @SerializedName(FundKey.ID)
     val id: Long,
-    @SerializedName(FundHeroKey.EMPLOYEE)
-    val employeeId: Long,
-    @SerializedName(FundHeroKey.FUND)
+    @SerializedName(FundKey.FUND)
     val fund: Int,
-    @SerializedName(FundHeroKey.MILLIS)
+    @SerializedName(FundKey.MILLIS)
     val millis: Long,
-    @SerializedName(FundHeroKey.REMARK)
+    @SerializedName(FundKey.REMARK)
     val remark: String?,
 )
 
-internal interface FundHeroKey {
+internal interface FundKey {
     companion object {
         const val ID = "id"
-        const val EMPLOYEE = "employee"
         const val FUND = "fund"
         const val MILLIS = "millis"
         const val REMARK = "remark"
 
         fun fold(
             id: String,
-            employeeId: String,
             fund: String,
             millis: String,
             remark: String,
         ) = listOf(
             KeyValue(ID, id),
-            KeyValue(EMPLOYEE, employeeId),
             KeyValue(FUND, fund),
             KeyValue(MILLIS, millis),
             KeyValue(REMARK, remark),

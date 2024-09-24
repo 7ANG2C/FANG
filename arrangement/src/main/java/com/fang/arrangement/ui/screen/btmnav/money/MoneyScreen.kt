@@ -13,7 +13,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.fang.arrangement.ui.screen.btmnav.money.fundhero.FundHeroScreen
+import com.fang.arrangement.ui.screen.btmnav.money.fund.FundScreen
 import com.fang.arrangement.ui.screen.btmnav.money.loan.LoanScreen
 import com.fang.cosmos.foundation.ui.ext.stateValue
 import org.koin.androidx.compose.koinViewModel
@@ -55,7 +55,7 @@ internal fun MoneyScreen(
         ) {
             when (Money.entries[it]) {
                 Money.LOAN -> LoanScreen(Modifier.fillMaxSize())
-                Money.FUND_HERO -> FundHeroScreen(Modifier.fillMaxSize())
+                Money.FUND -> FundScreen(Modifier.fillMaxSize())
             }
         }
     }
