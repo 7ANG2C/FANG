@@ -1,4 +1,4 @@
-package com.fang.arrangement.ui.screen.btmnav.loan
+package com.fang.arrangement.ui.screen.btmnav.money.loan
 
 import com.fang.arrangement.definition.Employee
 
