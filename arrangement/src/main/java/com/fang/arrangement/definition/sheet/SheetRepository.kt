@@ -58,7 +58,13 @@ internal class SheetRepository(
     )
 
     private companion object {
-        const val SPREAD_SHEET_ID = "1hYhuc7IYnVkjx6qK7WePQiTF7Jw9ZUwC-pU8DMVcNdI"
+        const val MAIN = true
+        val SPREAD_SHEET_ID =
+            if (MAIN) {
+                "1hYhuc7IYnVkjx6qK7WePQiTF7Jw9ZUwC-pU8DMVcNdI"
+            } else {
+                "1Z7uSrOTASCKYvEydJ_QTClgwaOPvq_xuRqxKGKzrc34"
+            }
     }
 
     private val service by lazy {

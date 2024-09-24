@@ -1,4 +1,4 @@
-package com.fang.arrangement.ui.screen.btmnav.loan
+package com.fang.arrangement.ui.screen.btmnav.money.loan
 
 import com.fang.cosmos.foundation.mapNoNull
 import com.fang.cosmos.foundation.takeIfNotBlank

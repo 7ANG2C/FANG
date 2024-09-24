@@ -98,6 +98,7 @@ internal class AttendanceViewModel(
                                                         { it.employee?.isExpire == true },
                                                     ).thenByDescending { it.employee?.id },
                                                 ),
+                                            remark = att.remark.takeIfNotBlank,
                                         )
                                     }
                                         .sortedWith(
@@ -138,6 +139,7 @@ internal class AttendanceViewModel(
                                     site = site,
                                     fulls = emptyList(),
                                     halfs = emptyList(),
+                                    remark = null,
                                 )
                             },
                         remark = null,
@@ -161,6 +163,7 @@ internal class AttendanceViewModel(
                     site = site,
                     fulls = emptyList(),
                     halfs = emptyList(),
+                    remark = null,
                 )
             }
         _editBundle.value =
@@ -235,6 +238,12 @@ internal class AttendanceViewModel(
         }
     }
 
+    fun editSingleSiteRemark(remark: String?) {
+        _mAttEdit.update { old ->
+            old.copy(remark = remark.takeIfNotBlank?.take(Remark.L30))
+        }
+    }
+
     fun doneSingleSite(mAtt: MAttendance) {
         _editBundle.update { old ->
             old?.copy(
@@ -259,7 +268,7 @@ internal class AttendanceViewModel(
             it?.copy(
                 edit =
                     it.edit.copy(
-                        remark = string.takeIfNotBlank?.take(Remark.LENGTH),
+                        remark = string.takeIfNotBlank?.take(Remark.L50),
                     ),
             )
         }
@@ -285,6 +294,7 @@ internal class AttendanceViewModel(
                                             siteId = siteEdit.siteId,
                                             fulls = siteEdit.fulls.map { it.id },
                                             halfs = siteEdit.halfs.map { it.id },
+                                            remark = siteEdit.remark.orEmpty().trim(),
                                         )
                                     },
                                 ).getOrNull()?.noBreathing ?: "[]",
@@ -315,6 +325,7 @@ internal class AttendanceViewModel(
                                             siteId = siteEdit.siteId,
                                             fulls = siteEdit.fulls.map { it.id },
                                             halfs = siteEdit.halfs.map { it.id },
+                                            remark = siteEdit.remark.orEmpty().trim(),
                                         )
                                     },
                                 ).getOrNull()?.noBreathing ?: "[]",

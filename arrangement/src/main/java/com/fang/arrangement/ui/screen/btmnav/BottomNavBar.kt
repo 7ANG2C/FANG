@@ -36,7 +36,7 @@ internal fun BottomNavBar(
                         drawableResId =
                             when (nav) {
                                 BtmNavItem.ATTENDANCE -> R.drawable.arr_r24_sunny
-                                BtmNavItem.LOAN -> R.drawable.arr_r24_attach_money
+                                BtmNavItem.MONEY -> R.drawable.arr_r24_attach_money
                                 BtmNavItem.STATISTIC -> R.drawable.arr_r24_insert_chart
                                 BtmNavItem.EMPLOYEE -> R.drawable.arr_r24_person
                                 BtmNavItem.SITE -> R.drawable.arr_r24_location_on

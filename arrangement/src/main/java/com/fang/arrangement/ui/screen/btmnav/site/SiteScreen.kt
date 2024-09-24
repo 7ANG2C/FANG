@@ -57,7 +57,8 @@ internal fun SiteScreen(
             onAdd = viewModel::onInsert,
         ) { item ->
             val archive = item.isArchive
-            val allAtt = viewModel.attendanceMap.stateValue()[item.id]?.takeIf { it > 0.0 }
+            val attendanceMap = viewModel.attendanceMap.stateValue()[item.id]
+            val allAtt = attendanceMap?.att
             // 工地名
             Box {
                 allAtt?.let {
@@ -79,6 +80,14 @@ internal fun SiteScreen(
                         Box(contentAlignment = Alignment.CenterEnd) {
                             AttAllChip(1.0, fill = false, true)
                             ArchivedTag(Modifier.alpha(AlphaColor.DEFAULT))
+                        }
+                    }
+                    Spacer(modifier = Modifier.weight(1f))
+                    attendanceMap?.salary?.let {
+                        HorizontalSpacer(6)
+                        Box(contentAlignment = Alignment.CenterEnd) {
+                            AttAllChip(1.0, fill = false, true)
+                            HighlightText(text = "$${NumberFormat(it, 0)}")
                         }
                     }
                 }

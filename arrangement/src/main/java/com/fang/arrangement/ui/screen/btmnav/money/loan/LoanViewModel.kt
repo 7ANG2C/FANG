@@ -1,4 +1,4 @@
-package com.fang.arrangement.ui.screen.btmnav.loan
+package com.fang.arrangement.ui.screen.btmnav.money.loan
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -32,10 +32,6 @@ internal class LoanViewModel(
     private val sheetRepository: SheetRepository,
     private val gson: Gson,
 ) : ViewModel(), WorkState by WorkStateImpl() {
-    companion object {
-        const val R_REMARK = 30
-    }
-
     private val _bundle = MutableStateFlow(LoanBundle(emptyList(), emptyList()))
     val bundle = _bundle.asStateFlow()
 
@@ -165,7 +161,7 @@ internal class LoanViewModel(
 
     fun editRecordRemark(remark: String?) {
         _recordEdit.update {
-            it.copy(remark = remark.takeIfNotBlank?.take(R_REMARK))
+            it.copy(remark = remark.takeIfNotBlank?.take(Remark.L30))
         }
     }
 
@@ -199,7 +195,7 @@ internal class LoanViewModel(
     fun editRemark(remark: String?) {
         _editBundle.update {
             it?.copy(
-                edit = it.edit.copy(remark = remark.takeIfNotBlank?.take(Remark.LENGTH)),
+                edit = it.edit.copy(remark = remark.takeIfNotBlank?.take(Remark.L50)),
             )
         }
     }

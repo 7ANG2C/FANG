@@ -6,6 +6,7 @@ import com.fang.arrangement.definition.Site
 import com.fang.arrangement.definition.SiteKey
 import com.fang.arrangement.definition.sheet.SheetRepository
 import com.fang.arrangement.definition.sheet.sheetAttendance
+import com.fang.arrangement.definition.sheet.sheetEmployee
 import com.fang.arrangement.definition.sheet.sheetSite
 import com.fang.arrangement.foundation.Bool
 import com.fang.cosmos.definition.workstate.WorkState
@@ -31,7 +32,7 @@ internal class SiteViewModel(
     private val _sites = MutableStateFlow(emptyList<Site>())
     val sites = _sites.asStateFlow()
 
-    private val _attendanceMap = MutableStateFlow(mapOf<Long, Double>())
+    private val _attendanceMap = MutableStateFlow(mapOf<Long, SiteMoney>())
     val attendanceMap = _attendanceMap.asStateFlow()
 
     private val _editBundle = MutableStateFlow<SiteEditBundle?>(null)
@@ -42,7 +43,7 @@ internal class SiteViewModel(
             sheetRepository.workSheets
                 .mapLatest { workSheets ->
                     val (sitesDeferred, attMapDeferred) =
-                        async {
+                        async(Dispatchers.Default) {
                             workSheets?.sheetSite()?.values
                                 ?.filterNot { it.isDelete }
                                 ?.sortedWith(
@@ -50,11 +51,31 @@ internal class SiteViewModel(
                                         .thenByDescending { it.id },
                                 )
                         } to
-                            async {
-                                workSheets?.sheetAttendance()?.values?.flatMap {
-                                    it.attendances
-                                }?.groupBy { it.siteId }?.mapValues { (_, atts) ->
-                                    atts.sumOf { it.total }
+                            async(Dispatchers.Default) {
+                                val employees = workSheets?.sheetEmployee()?.values
+                                workSheets?.sheetAttendance()?.values?.flatMap { all ->
+                                    all.attendances.map { all.id to it }
+                                }?.groupBy { it.second.siteId }?.mapValues { (_, atts) ->
+                                    val full =
+                                        atts.sumOf { p ->
+                                            p.second.fulls.sumOf { eId ->
+                                                employees?.find { it.id == eId }?.salaries?.find { s ->
+                                                    p.first >= s.millis
+                                                }?.salary ?: 0
+                                            }
+                                        }.toDouble()
+                                    val half =
+                                        atts.sumOf { p ->
+                                            p.second.halfs.sumOf { eId ->
+                                                employees?.find { it.id == eId }?.salaries?.find { s ->
+                                                    p.first >= s.millis
+                                                }?.salary ?: 0
+                                            }
+                                        } * 0.5
+                                    SiteMoney(
+                                        att = atts.sumOf { it.second.total }.takeIf { it > 0.0 },
+                                        (full + half).takeIf { it > 0.0 },
+                                    )
                                 }.orEmpty()
                             }
 
