@@ -294,9 +294,9 @@ internal class PDFViewModel(
                                     ),
                                 )
                                 newLine(20f)
-                                targets("員工維度", pdfEmployees)
+                                targets("員工", pdfEmployees)
                                 newLine(20f)
-                                targets("工地維度", pdfSites)
+                                targets("工地", pdfSites)
                                 newLine(20f)
                                 draws(
                                     listOfNotNull(
