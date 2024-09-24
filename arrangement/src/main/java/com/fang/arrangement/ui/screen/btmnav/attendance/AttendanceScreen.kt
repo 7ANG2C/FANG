@@ -19,6 +19,7 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -27,6 +28,8 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -43,7 +46,6 @@ import com.fang.arrangement.ui.shared.component.chip.AttendanceChip
 import com.fang.arrangement.ui.shared.component.chip.DeletedTag
 import com.fang.arrangement.ui.shared.component.chip.FullChip
 import com.fang.arrangement.ui.shared.component.chip.HalfChip
-import com.fang.arrangement.ui.shared.component.chip.RemarkTag
 import com.fang.arrangement.ui.shared.component.dialog.EditDialog
 import com.fang.arrangement.ui.shared.component.dialog.ErrorDialog
 import com.fang.arrangement.ui.shared.component.dialog.Loading
@@ -56,7 +58,6 @@ import com.fang.arrangement.ui.shared.dsl.YMDDayOfWeek
 import com.fang.arrangement.ui.shared.dsl.employeeState
 import com.fang.arrangement.ui.shared.ext.clickRipple
 import com.fang.cosmos.foundation.mapNoNull
-import com.fang.cosmos.foundation.takeIfNotBlank
 import com.fang.cosmos.foundation.ui.component.CustomBottomSheet
 import com.fang.cosmos.foundation.ui.component.CustomIcon
 import com.fang.cosmos.foundation.ui.component.HorizontalSpacer
@@ -114,24 +115,24 @@ internal fun AttendanceScreen(
                         tint = ContentText.color,
                     )
                 }
-                item.remark?.let {
-                    VerticalSpacer(2.8f)
-                    Row {
-                        val style = TextStyle(fontSize = 14.8.sp, fontWeight = FontWeight.W400)
-                        val color = HighlightText.color.copy(alpha = 0.8f)
-                        Box(contentAlignment = Alignment.CenterStart) {
-                            ArrText(
-                                text = "註",
-                            ) { style.color(Color.Transparent) }
-                            RemarkTag(
-                                modifier = Modifier.scale(0.88f),
-                                tint = color,
-                            )
-                        }
-                        HorizontalSpacer(4)
-                        ArrText(text = it) { style.color(color) }
-                    }
-                }
+//                item.remark?.let {
+//                    VerticalSpacer(2.8f)
+//                    Row {
+//                        val style = TextStyle(fontSize = 14.8.sp, fontWeight = FontWeight.W400)
+//                        val color = HighlightText.color.copy(alpha = 0.8f)
+//                        Box(contentAlignment = Alignment.CenterStart) {
+//                            ArrText(
+//                                text = "註",
+//                            ) { style.color(Color.Transparent) }
+//                            RemarkTag(
+//                                modifier = Modifier.scale(0.88f),
+//                                tint = color,
+//                            )
+//                        }
+//                        HorizontalSpacer(4)
+//                        ArrText(text = it) { style.color(color) }
+//                    }
+//                }
                 AnimatedVisibility(visible = isExpand) {
                     Column {
                         VerticalSpacer(4f)
@@ -179,17 +180,37 @@ internal fun AttendanceScreen(
                                                 alpha = 0.92f,
                                             ),
                                     )
+                                var attW by remember { mutableStateOf(0.dp) }
+                                var tagW by remember { mutableStateOf(0.dp) }
+                                val density = LocalDensity.current
                                 if (mAtt.fulls.isNotEmpty()) {
                                     VerticalSpacer(4)
                                     Row {
                                         Box(contentAlignment = Alignment.CenterEnd) {
                                             ArrText(
                                                 text = "000.0",
-                                                Modifier.padding(horizontal = 4.dp),
+                                                Modifier
+                                                    .padding(horizontal = 4.dp)
+                                                    .onGloballyPositioned {
+                                                        attW =
+                                                            with(density) {
+                                                                it.size.width.toDp()
+                                                            }
+                                                    },
                                             ) {
                                                 ContentText.style.color(Color.Transparent)
                                             }
-                                            FullChip(modifier = Modifier.scale(0.88f))
+                                            FullChip(
+                                                modifier =
+                                                    Modifier
+                                                        .scale(0.88f)
+                                                        .onGloballyPositioned {
+                                                            tagW =
+                                                                with(density) {
+                                                                    it.size.width.toDp()
+                                                                }
+                                                        },
+                                            )
                                         }
                                         HorizontalSpacer(8)
                                         FlowRow {
@@ -227,11 +248,28 @@ internal fun AttendanceScreen(
                                         Box(contentAlignment = Alignment.CenterEnd) {
                                             ArrText(
                                                 text = "000.0",
-                                                Modifier.padding(horizontal = 4.dp),
+                                                Modifier
+                                                    .padding(horizontal = 4.dp)
+                                                    .onGloballyPositioned {
+                                                        attW =
+                                                            with(density) {
+                                                                it.size.width.toDp()
+                                                            }
+                                                    },
                                             ) {
                                                 ContentText.style.color(Color.Transparent)
                                             }
-                                            HalfChip(modifier = Modifier.scale(0.88f))
+                                            HalfChip(
+                                                modifier =
+                                                    Modifier
+                                                        .scale(0.88f)
+                                                        .onGloballyPositioned {
+                                                            tagW =
+                                                                with(density) {
+                                                                    it.size.width.toDp()
+                                                                }
+                                                        },
+                                            )
                                         }
                                         HorizontalSpacer(8)
                                         FlowRow {
@@ -261,6 +299,15 @@ internal fun AttendanceScreen(
                                                 }
                                             }
                                         }
+                                    }
+                                }
+                                mAtt.remark?.let {
+                                    VerticalSpacer(1.8f)
+                                    Row {
+                                        (attW + 8.dp - tagW).takeIf { it > 0.dp }?.let {
+                                            HorizontalSpacer(it)
+                                        }
+                                        ArrText(text = it) { style }
                                     }
                                 }
                             }
@@ -401,16 +448,29 @@ internal fun AttendanceScreen(
                         }
                     }
                 }
-                ButtonSets(
+                Column(
                     modifier =
                         Modifier
                             .fillMaxWidth()
-                            .padding(horizontal = 20.dp, vertical = 14.dp),
-                    onNegative = {
-                        viewModel.clearSingleSite()
-                    },
+                            .padding(horizontal = 20.dp),
                 ) {
-                    viewModel.doneSingleSite(this@with)
+                    StringInputField(
+                        modifier = Modifier.fillMaxWidth(),
+                        titleText = "備註 (${remark.orEmpty().length}/${Remark.L30})",
+                        text = remark.orEmpty(),
+                        lines = 2,
+                        onClear = true,
+                        onValueChange = viewModel::editSingleSiteRemark,
+                    )
+                    ButtonSets(
+                        modifier =
+                            Modifier
+                                .fillMaxWidth()
+                                .padding(vertical = 14.dp),
+                        onNegative = viewModel::clearSingleSite,
+                    ) {
+                        viewModel.doneSingleSite(this@with)
+                    }
                 }
             }
         }
@@ -474,15 +534,15 @@ private fun AttEditDialog(
             )
         }
         // 備註
-        val remark = edit?.remark.takeIfNotBlank.orEmpty()
-        StringInputField(
-            modifier = Modifier.fillMaxWidth(),
-            titleText = "備註 (${remark.length}/${Remark.LENGTH})",
-            text = remark,
-            lines = 3,
-            onClear = true,
-            onValueChange = viewModel::editRemark,
-        )
+//        val remark = edit?.remark.takeIfNotBlank.orEmpty()
+//        StringInputField(
+//            modifier = Modifier.fillMaxWidth(),
+//            titleText = "備註 (${remark.length}/${Remark.LENGTH})",
+//            text = remark,
+//            lines = 3,
+//            onClear = true,
+//            onValueChange = viewModel::editRemark,
+//        )
         edit?.attSiteEdits?.forEach { mAtt ->
             val total = mAtt.fulls.size + mAtt.halfs.size * 0.5
             val exist = total > 0.0
@@ -544,27 +604,50 @@ private fun AttEditDialog(
                     }
                 }
                 // 工數
+                var attW by remember { mutableStateOf(0.dp) }
+                var tagW by remember { mutableStateOf(0.dp) }
+                val density = LocalDensity.current
                 if (exist) {
-                    listOf(mAtt.fulls, mAtt.halfs).forEachIndexed { i, list ->
-                        if (list.isNotEmpty()) {
+                    listOf(mAtt.fulls, mAtt.halfs).forEachIndexed { i, employees ->
+                        if (employees.isNotEmpty()) {
                             Row {
                                 VerticalSpacer(1.2f)
                                 Box(contentAlignment = Alignment.CenterEnd) {
                                     ArrText(
                                         text = "000.0",
-                                        modifier = Modifier.padding(horizontal = 4.dp),
+                                        modifier =
+                                            Modifier.padding(horizontal = 4.dp).onGloballyPositioned {
+                                                attW =
+                                                    with(density) {
+                                                        it.size.width.toDp()
+                                                    }
+                                            },
                                     ) {
                                         ContentText.style.color(Color.Transparent)
                                     }
                                     if (i == 0) {
-                                        FullChip(Modifier.scale(0.8f))
+                                        FullChip(
+                                            Modifier.scale(0.8f).onGloballyPositioned {
+                                                tagW =
+                                                    with(density) {
+                                                        it.size.width.toDp()
+                                                    }
+                                            },
+                                        )
                                     } else {
-                                        HalfChip(Modifier.scale(0.8f))
+                                        HalfChip(
+                                            Modifier.scale(0.8f).onGloballyPositioned {
+                                                tagW =
+                                                    with(density) {
+                                                        it.size.width.toDp()
+                                                    }
+                                            },
+                                        )
                                     }
                                 }
                                 HorizontalSpacer(3.8f)
                                 FlowRow {
-                                    list.forEachIndexed { i, it ->
+                                    employees.forEachIndexed { i, it ->
                                         val textStyle = ContentText.style.fontSize(13.2.sp)
                                         val color = ContentText.color
                                         Row {
@@ -582,13 +665,24 @@ private fun AttEditDialog(
                                                     )
                                                 }
                                             }
-                                            if (i != list.lastIndex) {
+                                            if (i != employees.lastIndex) {
                                                 ArrText(text = "・") { textStyle.color(color) }
                                             }
                                         }
                                     }
                                 }
                             }
+                        }
+                    }
+                }
+                mAtt.remark?.let { rmk ->
+                    Row(Modifier.fillMaxWidth()) {
+                        (attW + 8.dp - tagW).takeIf { it > 0.dp }?.let {
+                            HorizontalSpacer(it)
+                        }
+                        ArrText(text = rmk) {
+                            ContentText.style.fontSize(13.2.sp).color(ContentText.color)
+                                .copy(lineHeight = 13.6.sp)
                         }
                     }
                 }

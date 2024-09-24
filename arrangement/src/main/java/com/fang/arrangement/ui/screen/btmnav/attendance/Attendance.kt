@@ -14,9 +14,10 @@ internal data class MAttendance(
     val site: Site?,
     val fulls: List<MEmployee>,
     val halfs: List<MEmployee>,
+    val remark: String?,
 ) {
     companion object {
-        val empty by lazy { MAttendance(-1L, null, emptyList(), emptyList()) }
+        val empty by lazy { MAttendance(-1L, null, emptyList(), emptyList(), null) }
     }
 }
 

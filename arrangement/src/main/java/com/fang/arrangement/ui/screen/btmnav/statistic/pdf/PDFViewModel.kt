@@ -41,6 +41,7 @@ internal class PDFViewModel(
     sheetRepository: SheetRepository,
 ) : ViewModel(), WorkState by WorkStateImpl() {
     private companion object {
+        val BLUE = Color.parseColor("#0270ed")
         const val WIDTH = 595
         const val HEIGHT = 842
         const val LEFT_MARGIN = 20f
@@ -73,6 +74,7 @@ internal class PDFViewModel(
         val site: Site,
         val fulls: List<Employee>,
         val halfs: List<Employee>,
+        val remark: String?,
     ) {
         val total get() = fulls.size + halfs.size * 0.5
     }
@@ -140,6 +142,7 @@ internal class PDFViewModel(
                                                                 Employee(it.id, it.name, s, 0.5)
                                                             } ?: Employee(id, null, null, 0.5)
                                                         },
+                                                    remark = att.remark.takeIf { request.includeRemark },
                                                 )
                                             },
                                         remark =
@@ -159,11 +162,18 @@ internal class PDFViewModel(
                                                         atts.sumOf { a ->
                                                             (a.fulls + a.halfs).sumOf {
                                                                 BigDecimal.valueOf(
-                                                                    (it.salary?.toDouble() ?: 0.0) * it.factor,
+                                                                    (
+                                                                        it.salary?.toDouble()
+                                                                            ?: 0.0
+                                                                    ) * it.factor,
                                                                 )
                                                             }
                                                         }.takeIf { it != BigDecimal.ZERO }
-                                                    TargetAttendance(name = site?.name, att = att, salary = salary)
+                                                    TargetAttendance(
+                                                        name = site?.name,
+                                                        att = att,
+                                                        salary = salary,
+                                                    )
                                                 }
                                         }
                                 }
@@ -180,7 +190,10 @@ internal class PDFViewModel(
                                                     salary =
                                                         employees.sumOf {
                                                             BigDecimal.valueOf(
-                                                                (it.salary?.toDouble() ?: 0.0) * it.factor,
+                                                                (
+                                                                    it.salary?.toDouble()
+                                                                        ?: 0.0
+                                                                ) * it.factor,
                                                             )
                                                         }.takeIf { it != BigDecimal.ZERO },
                                                 )
@@ -255,8 +268,10 @@ internal class PDFViewModel(
                                     )
                                     targets.forEach { t ->
                                         val name = t.name.orDeleted
-                                        val maxName = targets.maxBy { (it.name.orDeleted).length }.name.orDeleted
-                                        val maxAtt = targets.maxBy { AttendanceNumFormat(it.att).length }.att
+                                        val maxName =
+                                            targets.maxBy { (it.name.orDeleted).length }.name.orDeleted
+                                        val maxAtt =
+                                            targets.maxBy { AttendanceNumFormat(it.att).length }.att
                                         draws(
                                             listOf(
                                                 Draw(
@@ -269,9 +284,22 @@ internal class PDFViewModel(
                                                     x = contentPaint.measureText("$maxName "),
                                                 ),
                                                 Draw(
-                                                    text = "$${NumberFormat(t.salary, decimalCount = 0, invalidText = DASH)}",
+                                                    text = "$${
+                                                        NumberFormat(
+                                                            t.salary,
+                                                            decimalCount = 0,
+                                                            invalidText = DASH,
+                                                        )
+                                                    }",
                                                     paint = contentPaint,
-                                                    x = contentPaint.measureText("$maxName (${AttendanceNumFormat(maxAtt)}) "),
+                                                    x =
+                                                        contentPaint.measureText(
+                                                            "$maxName (${
+                                                                AttendanceNumFormat(
+                                                                    maxAtt,
+                                                                )
+                                                            }) ",
+                                                        ),
                                                 ),
                                             ),
                                         )
@@ -286,7 +314,8 @@ internal class PDFViewModel(
                                         number = pdfEmployees.sumOf { it.att }.takeIf { it > 0.0 },
                                         invalidText = DASH,
                                     )
-                                val allSalary = NumberFormat(salary, decimalCount = 0, invalidText = DASH)
+                                val allSalary =
+                                    NumberFormat(salary, decimalCount = 0, invalidText = DASH)
                                 draw(
                                     Draw(
                                         text = "工數總計 $allAtt ／薪資總計 $$allSalary",
@@ -308,7 +337,7 @@ internal class PDFViewModel(
                                         ),
                                         Draw(
                                             text = "    **藍字半工 ",
-                                            paint = paint(14f, Color.BLUE),
+                                            paint = paint(14f, BLUE),
                                         ),
                                         Draw(
                                             text = "    **灰字備註",
@@ -338,20 +367,26 @@ internal class PDFViewModel(
                                         AttendanceNumFormat(attAll.attendances.sumOf { it.total })
                                     val date = "$mmdd${ChineseDayOfWeek(attAll.dayMillis)}"
                                     val w = contentPaint.measureText("09/09六 (12.5) ")
-                                    attAll.attendances.forEach { att ->
-                                        val siteName = att.site.name.orDeleted
+                                    attAll.attendances.forEachIndexed { j, att ->
+                                        val siteName =
+                                            "${att.site.name.orDeleted} (${AttendanceNumFormat(att.total)}) "
+                                        val sitePaint = paint(16f).typeface(Typeface.DEFAULT_BOLD)
                                         draws(
-                                            listOf(
+                                            listOfNotNull(
                                                 Draw(
                                                     text = "$date ($all)",
                                                     paint = contentPaint,
-                                                ),
+                                                ).takeIf { j == 0 },
                                                 Draw(
-                                                    text = "$siteName (${AttendanceNumFormat(att.total)})",
-                                                    paint =
-                                                        paint(16f).typeface(Typeface.DEFAULT_BOLD),
+                                                    text = siteName,
+                                                    paint = sitePaint,
                                                     x = w,
                                                 ),
+                                                Draw(
+                                                    text = att.remark.orEmpty().replace("\n", "・"),
+                                                    paint = paint(14f, Color.GRAY),
+                                                    x = w + sitePaint.measureText(siteName),
+                                                ).takeIf { att.remark != null },
                                             ),
                                         )
                                         val fulls =
@@ -388,24 +423,24 @@ internal class PDFViewModel(
                                                         ).takeIf { full.isNotEmpty() },
                                                         Draw(
                                                             text = half,
-                                                            paint = paint(16f, Color.BLUE),
+                                                            paint = paint(16f, BLUE),
                                                             x = w + fullW,
                                                         ).takeIf { half.isNotEmpty() },
                                                     ),
                                                 )
                                             }
                                     }
-                                    attAll.remark?.let { remark ->
-                                        remark.chunked(30).forEach {
-                                            draw(
-                                                Draw(
-                                                    text = it,
-                                                    paint = paint(14f, Color.GRAY),
-                                                    x = w,
-                                                ),
-                                            )
-                                        }
-                                    }
+//                                    attAll.remark?.let { remark ->
+//                                        remark.chunked(30).forEach {
+//                                            draw(
+//                                                Draw(
+//                                                    text = it,
+//                                                    paint = paint(14f, Color.GRAY),
+//                                                    x = w,
+//                                                ),
+//                                            )
+//                                        }
+//                                    }
                                     newLine(4f)
                                 }
                             }

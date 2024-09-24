@@ -373,7 +373,7 @@ private fun LoanEditDialog(
         val remark = edit?.remark.takeIfNotBlank.orEmpty()
         StringInputField(
             modifier = Modifier.fillMaxWidth(),
-            titleText = "備註 (${remark.length}/${Remark.LENGTH})",
+            titleText = "備註 (${remark.length}/${Remark.L50})",
             text = remark,
             lines = 3,
             onClear = true,
@@ -425,7 +425,7 @@ private fun LoanEditDialog(
                             val rmk = recordEdit.remark.takeIfNotBlank.orEmpty()
                             StringInputField(
                                 modifier = Modifier.fillMaxWidth(),
-                                titleText = "備註 (${rmk.length}/${LoanViewModel.R_REMARK})",
+                                titleText = "備註 (${rmk.length}/${Remark.L30})",
                                 text = rmk,
                                 lines = 2,
                                 onClear = true,
