@@ -19,6 +19,8 @@ internal data class Attendance(
     val fulls: List<Long>,
     @SerializedName(AttendanceKey.HALF)
     val halfs: List<Long>,
+    @SerializedName(AttendanceKey.A_REMARK)
+    val remark: String?,
 ) {
     val total get() = fulls.size + halfs.size * 0.5
 }
@@ -31,6 +33,7 @@ internal interface AttendanceKey {
         const val SITE_ID = "id"
         const val FULL = "full"
         const val HALF = "half"
+        const val A_REMARK = "remark"
 
         fun fold(
             id: String,

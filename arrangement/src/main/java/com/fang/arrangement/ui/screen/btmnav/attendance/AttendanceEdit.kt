@@ -1,7 +1,5 @@
 package com.fang.arrangement.ui.screen.btmnav.attendance
 
-import com.fang.cosmos.foundation.takeIfNotBlank
-
 internal data class AttEditBundle(
     val current: MAttendanceAll?,
     val edit: AttAllEdit,
@@ -12,8 +10,8 @@ internal data class AttEditBundle(
             current?.id != edit.id ||
                 current?.attendances.orEmpty()
                     .filter { it.fulls.isNotEmpty() || it.halfs.isNotEmpty() } !=
-                edit.attSiteEdits.filter { it.fulls.isNotEmpty() || it.halfs.isNotEmpty() } ||
-                edit.remark?.trim().takeIfNotBlank != current?.remark?.trim().takeIfNotBlank
+                edit.attSiteEdits.filter { it.fulls.isNotEmpty() || it.halfs.isNotEmpty() }
+//                    || edit.remark?.trim().takeIfNotBlank != current?.remark?.trim().takeIfNotBlank
 }
 
 internal data class AttAllEdit(
@@ -23,7 +21,5 @@ internal data class AttAllEdit(
 ) {
     val savable
         get() =
-            id != null && attSiteEdits.sumOf {
-                it.fulls.size + it.halfs.size
-            } > 0
+            id != null && attSiteEdits.sumOf { it.fulls.size + it.halfs.size } > 0
 }
