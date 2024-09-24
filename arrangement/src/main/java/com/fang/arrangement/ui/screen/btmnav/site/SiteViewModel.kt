@@ -42,7 +42,7 @@ internal class SiteViewModel(
             sheetRepository.workSheets
                 .mapLatest { workSheets ->
                     val (sitesDeferred, attMapDeferred) =
-                        async {
+                        async(Dispatchers.Default) {
                             workSheets?.sheetSite()?.values
                                 ?.filterNot { it.isDelete }
                                 ?.sortedWith(
@@ -50,7 +50,7 @@ internal class SiteViewModel(
                                         .thenByDescending { it.id },
                                 )
                         } to
-                            async {
+                            async(Dispatchers.Default) {
                                 workSheets?.sheetAttendance()?.values?.flatMap {
                                     it.attendances
                                 }?.groupBy { it.siteId }?.mapValues { (_, atts) ->

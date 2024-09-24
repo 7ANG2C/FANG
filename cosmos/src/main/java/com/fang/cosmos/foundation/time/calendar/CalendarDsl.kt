@@ -21,4 +21,12 @@ interface ChineseDayOfWeek {
     }
 }
 
-fun today(tz: TimeZone = TimeZone.getDefault()): Calendar = Calendar.getInstance(tz)
+fun today(
+    millis: Long? = null,
+    tz: TimeZone = TimeZone.getDefault(),
+): Calendar =
+    Calendar.getInstance(tz).apply {
+        millis?.let {
+            this.timeInMillis = it
+        }
+    }
