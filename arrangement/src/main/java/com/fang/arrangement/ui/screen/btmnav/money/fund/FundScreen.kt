@@ -5,9 +5,12 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.unit.dp
 import com.fang.arrangement.foundation.orDash
 import com.fang.arrangement.ui.shared.component.ArrangementList
 import com.fang.arrangement.ui.shared.component.DateSelector
@@ -18,6 +21,7 @@ import com.fang.arrangement.ui.shared.component.fieldrow.Average2Row
 import com.fang.arrangement.ui.shared.component.inputfield.NumberInputField
 import com.fang.arrangement.ui.shared.component.inputfield.StringInputField
 import com.fang.arrangement.ui.shared.dsl.ContentText
+import com.fang.arrangement.ui.shared.dsl.HighlightText
 import com.fang.arrangement.ui.shared.dsl.Remark
 import com.fang.arrangement.ui.shared.dsl.YMDDayOfWeek
 import com.fang.cosmos.foundation.NumberFormat
@@ -31,15 +35,22 @@ internal fun FundScreen(
 ) {
     Box(modifier = Modifier.fillMaxSize()) {
         Column(modifier) {
+            val funds = viewModel.funds.stateValue()
+            funds.sumOf { it.fund }.takeIf { it > 0 }?.let {
+                HighlightText(
+                    text = "總計 $${NumberFormat(it, 0)}",
+                    modifier = Modifier.padding(horizontal = 16.dp).padding(top = 10.dp),
+                )
+            }
             ArrangementList(
                 modifier = Modifier.weight(1f, false),
-                items = viewModel.funds.stateValue(),
+                items = funds,
                 key = { it.id },
                 contentType = { it },
                 onSelect = viewModel::onUpdate,
                 onAdd = viewModel::onInsert,
             ) { item ->
-                Row(Modifier.fillMaxWidth()) {
+                Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
                     ContentText(text = YMDDayOfWeek(item.millis).orDash, Modifier.weight(1f))
                     ContentText(text = NumberFormat(item.fund, 0), Modifier.weight(1f))
                 }
