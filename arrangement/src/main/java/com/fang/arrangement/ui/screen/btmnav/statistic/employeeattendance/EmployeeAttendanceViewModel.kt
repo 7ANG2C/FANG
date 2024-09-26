@@ -17,8 +17,6 @@ import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.mapLatest
 import kotlinx.coroutines.launch
 
-data class YM(val year: Int, val month: Int)
-
 @OptIn(ExperimentalCoroutinesApi::class)
 internal class EmployeeAttendanceViewModel(private val repository: SheetRepository) : ViewModel() {
     private sealed class Mediator(

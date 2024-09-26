@@ -12,3 +12,10 @@ inline fun <T, R : Any> Iterable<T>.mapNoNull(
         null
     }
 }
+
+inline fun <T> Iterable<T>.replace(
+    predicate: (T) -> Boolean,
+    transform: (T) -> T,
+) = map { if (predicate(it)) transform(it) else it }
+
+inline fun <T> Iterable<T>.indexOfOrNull(predicate: (T) -> Boolean) = indexOfFirst(predicate).takeIf { it >= 0 }

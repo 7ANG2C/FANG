@@ -54,8 +54,8 @@ internal fun MoneyScreen(
             userScrollEnabled = false,
         ) {
             when (Money.entries[it]) {
-                Money.LOAN -> LoanScreen(Modifier.fillMaxSize())
                 Money.FUND -> FundScreen(Modifier.fillMaxSize())
+                Money.LOAN -> LoanScreen(Modifier.fillMaxSize())
             }
         }
     }
