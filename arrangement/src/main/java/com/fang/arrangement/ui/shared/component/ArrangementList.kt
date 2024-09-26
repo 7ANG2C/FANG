@@ -82,7 +82,7 @@ internal inline fun <reified T> ArrangementList(
 }
 
 @Composable
-private fun Fab(
+internal fun Fab(
     modifier: Modifier,
     onClick: Invoke,
 ) {

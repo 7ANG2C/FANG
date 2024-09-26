@@ -1,10 +1,9 @@
 package com.fang.arrangement.ui.screen.btmnav.money.fund
 
-import com.fang.arrangement.definition.Fund
 import com.fang.cosmos.foundation.takeIfNotBlank
 
 internal data class FundEditBundle(
-    val current: Fund?,
+    val current: MFund?,
     val edit: FundEdit,
 ) {
     val isInsert get() = current == null
