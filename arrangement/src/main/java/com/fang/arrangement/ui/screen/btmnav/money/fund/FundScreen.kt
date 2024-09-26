@@ -56,8 +56,8 @@ import com.fang.cosmos.foundation.ui.ext.bg
 import com.fang.cosmos.foundation.ui.ext.clickableNoRipple
 import com.fang.cosmos.foundation.ui.ext.color
 import com.fang.cosmos.foundation.ui.ext.stateValue
-import org.koin.androidx.compose.koinViewModel
 import java.util.Calendar
+import org.koin.androidx.compose.koinViewModel
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
@@ -82,7 +82,9 @@ internal fun FundScreen(
                     val style = MaterialTypography.titleLarge.color { primary }
                     ymFunds.selectedFund?.let {
                         ArrText(text = it) { style }
-                        HorizontalSpacer(8)
+                        HorizontalSpacer(2)
+                        ArrText(text = "/") { style }
+                        HorizontalSpacer(2)
                     }
                     ArrText(text = ymFunds.totalFund) { style }
                     Spacer(modifier = Modifier.weight(1f))
@@ -101,17 +103,17 @@ internal fun FundScreen(
                 VerticalSpacer(10)
                 LazyColumn(
                     modifier =
-                        Modifier
-                            .fillMaxWidth()
-                            .weight(1f, false),
+                    Modifier
+                        .fillMaxWidth()
+                        .weight(1f, false),
                 ) {
                     ymFunds.forEach { ymFund ->
                         stickyHeader {
                             Column(
                                 modifier =
-                                    Modifier
-                                        .fillMaxWidth()
-                                        .bg { surfaceContainerLowest },
+                                Modifier
+                                    .fillMaxWidth()
+                                    .bg { surfaceContainerLowest },
                             ) {
                                 VerticalSpacer(2)
                                 Row(
@@ -120,19 +122,23 @@ internal fun FundScreen(
                                 ) {
                                     val pre = "0".takeIf { ymFund.month < 9 }.orEmpty()
                                     HighlightText("${ymFund.year}-$pre${ymFund.month + 1}")
+                                    HorizontalSpacer(14)
                                     ymFund.selectedFundDisplay?.let {
-                                        HorizontalSpacer(8)
-                                        HighlightText(
-                                            text = it,
-                                        )
+                                        Box(contentAlignment = Alignment.CenterEnd) {
+                                            HighlightText(text = it)
+                                        }
+                                        HorizontalSpacer(2)
+                                        HighlightText(text = "/")
+                                        HorizontalSpacer(2)
                                     }
-                                    HorizontalSpacer(8)
                                     HighlightText(text = ymFund.totalFundDisplay)
                                     Spacer(modifier = Modifier.weight(1f))
+                                    HorizontalSpacer(6)
                                     TriCheckbox(
                                         mains = ymFund.dayFunds,
                                         items = ymFund.dayFunds.flatMap { it.funds },
                                         on = { it.selected },
+                                        checkedBoxColor = HighlightText.color
                                     ) {
                                         viewModel.toggle(ymFund.year, ymFund.month)
                                     }
@@ -148,23 +154,23 @@ internal fun FundScreen(
                             Column {
                                 ElevatedCard(
                                     modifier =
-                                        Modifier.fillMaxWidth(),
+                                    Modifier.fillMaxWidth(),
                                     colors =
-                                        CardDefaults.elevatedCardColors().copy(
-                                            containerColor = MaterialColor.surfaceContainer,
-                                        ),
+                                    CardDefaults.elevatedCardColors().copy(
+                                        containerColor = MaterialColor.surfaceContainer,
+                                    ),
                                 ) {
                                     Column(
                                         modifier =
-                                            Modifier
-                                                .fillMaxWidth(),
+                                        Modifier
+                                            .fillMaxWidth(),
                                     ) {
                                         Row(
                                             modifier =
-                                                Modifier
-                                                    .fillMaxWidth()
-                                                    .bg { primary.copy(alpha = 0.1f) }
-                                                    .padding(6.dp),
+                                            Modifier
+                                                .fillMaxWidth()
+                                                .bg { primary.copy(alpha = 0.14f) }
+                                                .padding(vertical = 5.2.dp, horizontal = 8.dp),
                                         ) {
                                             val pre = "0".takeIf { ymFund.month < 9 }.orEmpty()
                                             val dayPre = "0".takeIf { item.day < 10 }.orEmpty()
@@ -174,20 +180,36 @@ internal fun FundScreen(
                                                     set(Calendar.MONTH, ymFund.month)
                                                     set(Calendar.DAY_OF_MONTH, item.day)
                                                 }
-                                            ContentText(
-                                                text = "$pre${ymFund.month + 1}-$dayPre${item.day}${ChineseDayOfWeek(c.timeInMillis)}",
-                                            )
+                                            val style =
+                                                ContentText.style.color { onSecondaryContainer }
+                                            ArrText(
+                                                text = "$pre${ymFund.month + 1}-$dayPre${item.day}",
+                                            ) { style }
+                                            HorizontalSpacer(1.2f)
+                                            ArrText(
+                                                text = "(${ChineseDayOfWeek(c.timeInMillis)})",
+                                            ) { style }
+                                            HorizontalSpacer(14)
                                             item.selectedFundDisplay?.let {
-                                                HorizontalSpacer(8)
-                                                ContentText(text = it)
+                                                ArrText(
+                                                    text = it,
+                                                ) { style }
+                                                HorizontalSpacer(2)
+                                                ArrText(
+                                                    text = "/",
+                                                ) { style }
+                                                HorizontalSpacer(2)
                                             }
-                                            HorizontalSpacer(8)
-                                            ContentText(text = item.totalFundDisplay)
+                                            ArrText(
+                                                text = item.totalFundDisplay,
+                                            ) { style }
                                             Spacer(modifier = Modifier.weight(1f))
+                                            HorizontalSpacer(6)
                                             TriCheckbox(
                                                 mains = item.funds,
                                                 items = item.funds,
                                                 on = { it.selected },
+                                                checkedBoxColor = MaterialColor.primary
                                             ) {
                                                 viewModel.toggle(
                                                     ymFund.year,
@@ -200,28 +222,36 @@ internal fun FundScreen(
                                         item.funds.forEach {
                                             Row(
                                                 modifier =
-                                                    Modifier
-                                                        .padding(horizontal = 8.dp)
-                                                        .clickableNoRipple {
-                                                            viewModel.onUpdate(it)
-                                                        },
+                                                Modifier
+                                                    .padding(start = 8.dp, end = 13.6.dp)
+                                                    .clickableNoRipple {
+                                                        viewModel.onUpdate(it)
+                                                    },
                                             ) {
                                                 ContentText(text = "$${NumberFormat(it.fund, 0)}")
-                                                HorizontalSpacer(8)
+                                                HorizontalSpacer(10)
                                                 ContentText(
                                                     text = it.remark.orEmpty(),
                                                     modifier = Modifier.weight(1f),
                                                 )
+                                                HorizontalSpacer(6)
                                                 Box(
                                                     modifier =
-                                                        Modifier.clickableNoRipple {
-                                                            viewModel.toggle(it.id)
-                                                        },
+                                                    Modifier.clickableNoRipple {
+                                                        viewModel.toggle(it.id)
+                                                    },
                                                 ) {
+                                                    val color =
+                                                        ContentText.color.copy(alpha = 0.92f)
                                                     Checkbox(
                                                         checked = it.selected,
                                                         onCheckedChange = null,
                                                         modifier = Modifier.scale(0.8f),
+                                                        colors = CheckboxDefaults.colors().copy(
+                                                            checkedBoxColor = color,
+                                                            checkedBorderColor = color,
+                                                            uncheckedBorderColor = color,
+                                                        ),
                                                     )
                                                 }
                                             }
@@ -229,7 +259,7 @@ internal fun FundScreen(
                                         }
                                     }
                                 }
-                                VerticalSpacer(8)
+                                VerticalSpacer(10)
                             }
                         }
                     }
@@ -237,12 +267,9 @@ internal fun FundScreen(
             }
             TwoOptionDialog(
                 text =
-                    showDeleteDialog?.takeIf { it.isNotEmpty() }?.let { list ->
-                        "是否刪除以下：\n\n" +
-                            list.joinToString("\n") {
-                                NumberFormat(it.fund, 0) + " " + it.remark.orEmpty()
-                            }
-                    },
+                showDeleteDialog?.takeIf { it.isNotEmpty() }?.let {
+                    "是否批量刪除（結清）所選項目？"
+                },
                 widthFraction = 0.8f,
                 onNegative = { showDeleteDialog = null },
                 onPositive = {
@@ -255,9 +282,9 @@ internal fun FundScreen(
         }
         Fab(
             modifier =
-                Modifier
-                    .padding(20.dp)
-                    .align(Alignment.BottomEnd),
+            Modifier
+                .padding(20.dp)
+                .align(Alignment.BottomEnd),
             onClick = viewModel::onInsert,
         )
         FundEditDialog(
@@ -279,22 +306,22 @@ private fun FundEditDialog(
     EditDialog(
         isShow = editBundle != null,
         onDelete =
-            if (current != null) {
-                { viewModel.delete(current.id.toString()) }
-            } else {
-                null
-            },
+        if (current != null) {
+            { viewModel.delete(current.id.toString()) }
+        } else {
+            null
+        },
         onCancel = viewModel::clearEdit,
         onConfirm =
-            if (edit?.savable == true) {
-                if (editBundle.isInsert) {
-                    { viewModel.insert(edit) }
-                } else {
-                    { viewModel.update(editBundle) }.takeIf { editBundle.anyDiff }
-                }
+        if (edit?.savable == true) {
+            if (editBundle.isInsert) {
+                { viewModel.insert(edit) }
             } else {
-                null
-            },
+                { viewModel.update(editBundle) }.takeIf { editBundle.anyDiff }
+            }
+        } else {
+            null
+        },
     ) {
         Average2Row(modifier = Modifier.fillMaxWidth(), first = {
             NumberInputField(
@@ -313,9 +340,7 @@ private fun FundEditDialog(
                     viewModel.editMillis(null)
                 },
                 original = edit?.millis,
-                isSelectableMillis = { _ ->
-                    true
-                },
+                isSelectableMillis = { true },
                 onConfirm = viewModel::editMillis,
             )
         }
@@ -336,27 +361,21 @@ private fun <T, R> TriCheckbox(
     mains: List<T>,
     items: List<R>,
     on: (R) -> Boolean,
+    checkedBoxColor: Color,
     onClick: Invoke,
 ) {
     if (mains.isMulti) {
         Box(modifier = modifier) {
             CompositionLocalProvider(LocalMinimumInteractiveComponentSize provides 0.dp) {
                 TriStateCheckbox(
-                    state =
-                        when {
-                            items.all { on(it) } -> ToggleableState.On
-                            items.all { !on(it) } -> ToggleableState.Off
-                            else -> ToggleableState.Indeterminate
-                        },
+                    state = if (items.all { on(it) }) ToggleableState.On else ToggleableState.Off,
                     modifier = Modifier.scale(0.8f),
                     colors =
-                        CheckboxDefaults.colors().copy(
-                            checkedCheckmarkColor = Color.Unspecified,
-                            checkedBoxColor = Color.Unspecified,
-                            uncheckedBoxColor = Color.Unspecified,
-                            checkedBorderColor = Color.Unspecified,
-                            uncheckedBorderColor = Color.Unspecified,
-                        ),
+                    CheckboxDefaults.colors().copy(
+                        checkedBoxColor = checkedBoxColor,
+                        checkedBorderColor = checkedBoxColor,
+                        uncheckedBorderColor = checkedBoxColor.copy(alpha = 0.88f),
+                    ),
                     onClick = onClick,
                 )
             }

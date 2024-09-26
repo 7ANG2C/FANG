@@ -14,23 +14,23 @@ internal data class YearMonthFund(
         val selectedFund get() = funds.sumOf { if (it.selected) it.fund else 0 }.takeIf { it > 0 }
         val selectedFundDisplay get() =
             selectedFund?.let {
-                "選 ${NumberFormat(number = it, decimalCount = 0)}"
+                "$${NumberFormat(number = it, decimalCount = 0)}"
             }
         val totalFund get() = funds.sumOf { it.fund }
-        val totalFundDisplay get() = "總 ${NumberFormat(number = totalFund, decimalCount = 0)}"
+        val totalFundDisplay get() = "$${NumberFormat(number = totalFund, decimalCount = 0)}"
     }
 
     val selectedFund get() = dayFunds.sumOf { it.selectedFund ?: 0 }.takeIf { it > 0 }
     val selectedFundDisplay get() =
         selectedFund?.let {
-            "選 ${NumberFormat(number = it, decimalCount = 0)}"
+            "$${NumberFormat(number = it, decimalCount = 0)}"
         }
     val totalFund get() = dayFunds.sumOf { it.totalFund }
-    val totalFundDisplay get() = "總 ${NumberFormat(number = totalFund, decimalCount = 0)}"
+    val totalFundDisplay get() = "$${NumberFormat(number = totalFund, decimalCount = 0)}"
 }
 
 internal val List<YearMonthFund>.selectedFund get() =
     sumOf { it.selectedFund ?: 0 }.takeIf { it > 0 }?.let {
-        "選 ${NumberFormat(number = it, decimalCount = 0)}"
+        "$${NumberFormat(number = it, decimalCount = 0)}"
     }
-internal val List<YearMonthFund>.totalFund get() = "總 ${NumberFormat(number = sumOf { it.totalFund }, decimalCount = 0)}"
+internal val List<YearMonthFund>.totalFund get() = "$${NumberFormat(number = sumOf { it.totalFund }, decimalCount = 0)}"
