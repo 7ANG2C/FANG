@@ -23,6 +23,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.state.ToggleableState
@@ -262,6 +263,15 @@ internal fun FundScreen(
                                 VerticalSpacer(10)
                             }
                         }
+                    }
+                    item {
+                        Fab(
+                            modifier =
+                            Modifier
+                                .padding(bottom = 24.dp)
+                                .alpha(0f),
+                            onClick = {},
+                        )
                     }
                 }
             }
