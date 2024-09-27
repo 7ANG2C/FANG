@@ -6,10 +6,16 @@ import com.fang.arrangement.definition.Fund
 import com.fang.arrangement.definition.FundKey
 import com.fang.arrangement.definition.sheet.SheetRepository
 import com.fang.arrangement.definition.sheet.sheetFund
+import com.fang.arrangement.ui.screen.btmnav.money.fund.YearMonthFund.DayFund
 import com.fang.arrangement.ui.shared.dsl.Remark
 import com.fang.cosmos.definition.workstate.WorkState
 import com.fang.cosmos.definition.workstate.WorkStateImpl
+import com.fang.cosmos.foundation.replace
 import com.fang.cosmos.foundation.takeIfNotBlank
+import com.fang.cosmos.foundation.time.calendar.dayOfMonth
+import com.fang.cosmos.foundation.time.calendar.month
+import com.fang.cosmos.foundation.time.calendar.today
+import com.fang.cosmos.foundation.time.calendar.year
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -26,8 +32,8 @@ import kotlinx.coroutines.launch
 internal class FundViewModel(
     private val sheetRepository: SheetRepository,
 ) : ViewModel(), WorkState by WorkStateImpl() {
-    private val _funds = MutableStateFlow(emptyList<Fund>())
-    val funds = _funds.asStateFlow()
+    private val _ymFunds = MutableStateFlow(emptyList<YearMonthFund>())
+    val ymFunds = _ymFunds.asStateFlow()
 
     private val _editBundle = MutableStateFlow<FundEditBundle?>(null)
     val editBundle = _editBundle.asStateFlow()
@@ -36,14 +42,99 @@ internal class FundViewModel(
         viewModelScope.launch {
             sheetRepository.workSheets
                 .mapLatest { workSheets ->
-                    val funds = workSheets?.sheetFund()?.values?.sortedByDescending { it.millis }
-                    funds
+                    workSheets?.sheetFund()?.values
+                        ?.map {
+                            MFund(
+                                selected = false,
+                                id = it.id,
+                                fund = it.fund,
+                                millis = it.millis,
+                                remark = it.remark,
+                            )
+                        }
+                        ?.sortedWith(
+                            compareByDescending<MFund> { it.millis }
+                                .thenByDescending { it.id },
+                        )?.groupBy {
+                            with(today(it.millis)) { year to month }
+                        }?.map { (pair, yFunds) ->
+                            val (year, month) = pair
+                            val dayFunds =
+                                yFunds.groupBy {
+                                    today(it.millis).dayOfMonth
+                                }.map { (day, funds) ->
+                                    DayFund(day = day, funds = funds)
+                                }
+                            YearMonthFund(year = year, month = month, dayFunds = dayFunds)
+                        }
                 }
                 .filterNotNull()
                 .flowOn(Dispatchers.Default)
                 .collectLatest {
-                    _funds.value = it
+                    _ymFunds.value = it
                 }
+        }
+    }
+
+    fun toggle(
+        year: Int,
+        month: Int,
+    ) {
+        _ymFunds.update { ymFunds ->
+            ymFunds.replace({ it.year == year && it.month == month }) { ymFund ->
+                val selected =
+                    ymFund.dayFunds.any { dayFund ->
+                        dayFund.funds.any { !it.selected }
+                    }
+                ymFund.copy(
+                    dayFunds =
+                        ymFund.dayFunds.map { dayFund ->
+                            dayFund.copy(funds = dayFund.funds.map { it.copy(selected = selected) })
+                        },
+                )
+            }
+        }
+    }
+
+    fun toggle(
+        year: Int,
+        month: Int,
+        day: Int,
+    ) {
+        _ymFunds.update { ymFunds ->
+            ymFunds.map { ymFund ->
+                ymFund.copy(
+                    dayFunds =
+                        ymFund.dayFunds.replace(
+                            { ymFund.year == year && ymFund.month == month && it.day == day },
+                        ) { dayFund ->
+                            dayFund.copy(
+                                funds =
+                                    dayFund.funds.map { fund ->
+                                        fund.copy(selected = dayFund.funds.any { !it.selected })
+                                    },
+                            )
+                        },
+                )
+            }
+        }
+    }
+
+    fun toggle(id: Long) {
+        _ymFunds.update { ymFunds ->
+            ymFunds.map { ymFund ->
+                ymFund.copy(
+                    dayFunds =
+                        ymFund.dayFunds.map { dayFund ->
+                            dayFund.copy(
+                                funds =
+                                    dayFund.funds.replace({ it.id == id }) {
+                                        it.copy(selected = !it.selected)
+                                    },
+                            )
+                        },
+                )
+            }
         }
     }
 
@@ -61,7 +152,7 @@ internal class FundViewModel(
             )
     }
 
-    fun onUpdate(current: Fund) {
+    fun onUpdate(current: MFund) {
         _editBundle.value =
             FundEditBundle(
                 current = current,
@@ -138,8 +229,15 @@ internal class FundViewModel(
     }
 
     fun delete(id: String) {
+        execute { sheetRepository.delete<Fund>(key = FundKey.ID, value = id) }
+    }
+
+    fun deletes(ids: List<String>) {
         execute {
-            sheetRepository.delete<Fund>(key = FundKey.ID, value = id)
+            sheetRepository.deletes<Fund>(
+                key = FundKey.ID,
+                values = ids,
+            )
         }
     }
 

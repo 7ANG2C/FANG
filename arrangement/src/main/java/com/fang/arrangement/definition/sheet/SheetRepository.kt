@@ -3,6 +3,7 @@ package com.fang.arrangement.definition.sheet
 import android.content.Context
 import com.fang.arrangement.definition.foundation.KeyValue
 import com.fang.cosmos.foundation.fromJsonTypeList
+import com.fang.cosmos.foundation.indexOfOrNull
 import com.fang.cosmos.foundation.retry
 import com.fang.cosmos.foundation.retryExponentialWhen
 import com.fang.cosmos.foundation.takeIfNotBlank
@@ -14,7 +15,6 @@ import com.google.api.client.json.gson.GsonFactory
 import com.google.api.services.sheets.v4.Sheets
 import com.google.api.services.sheets.v4.SheetsScopes
 import com.google.api.services.sheets.v4.model.BatchUpdateSpreadsheetRequest
-import com.google.api.services.sheets.v4.model.BatchUpdateSpreadsheetResponse
 import com.google.api.services.sheets.v4.model.DeleteDimensionRequest
 import com.google.api.services.sheets.v4.model.DimensionRange
 import com.google.api.services.sheets.v4.model.GridCoordinate
@@ -63,7 +63,8 @@ internal class SheetRepository(
             if (MAIN) {
                 "1hYhuc7IYnVkjx6qK7WePQiTF7Jw9ZUwC-pU8DMVcNdI"
             } else {
-                "1Z7uSrOTASCKYvEydJ_QTClgwaOPvq_xuRqxKGKzrc34"
+//                "1Z7uSrOTASCKYvEydJ_QTClgwaOPvq_xuRqxKGKzrc34"
+                "1jj5ejgD-FtGH6c2tXNtrAEPDmGsAR_n2yDWRIXRBQac"
             }
     }
 
@@ -204,6 +205,32 @@ internal class SheetRepository(
         },
     )
 
+    suspend inline fun <reified T> deletes(
+        key: String,
+        values: List<String>,
+    ) = workSheets.value.orEmpty().sheet<T>()?.let { sheet ->
+        sheet.getSpreedSheetValues().getOrNull()?.let { data ->
+            withDefaultCoroutine {
+                data.firstOrNull()?.indexOfOrNull {
+                    it.toString() == key
+                }?.let { keyIndex ->
+                    values.mapNotNull { value ->
+                        data.indexOfOrNull { row ->
+                            row.getOrNull(keyIndex) == value
+                        }
+                    }
+                }?.takeIf { it.isNotEmpty() }?.sortedDescending()?.map {
+                    Request().setDeleteDimension(
+                        DeleteDimensionRequest()
+                            .setRange(range(sheet, it)),
+                    )
+                }?.let { requests ->
+                    sheet.batchUpdate(requests)
+                }
+            }
+        } ?: Result.failure(NoRowIdException(sheet.name, key, values.toString()))
+    } ?: Result.failure(NoSheetException(T::class.java))
+
     private fun refreshProperty() {
         refreshProperty.value = System.currentTimeMillis()
     }
@@ -280,44 +307,38 @@ internal class SheetRepository(
         keyValue: KeyValue?,
         vararg requests: Request.(Sheet<T>, Int) -> Request,
     ) = workSheets.value.orEmpty().sheet<T>()?.let { sheet ->
-        val response: suspend (Int) -> Result<BatchUpdateSpreadsheetResponse> = { rowIndex: Int ->
-            ioCatching {
-                service.batchUpdate(
-                    SPREAD_SHEET_ID,
-                    BatchUpdateSpreadsheetRequest().setRequests(
-                        requests.map { it.invoke(Request(), sheet, rowIndex) },
-                    ),
-                ).execute()
-            }.onSuccess {
-                refreshSheet(SpreadSheet(sheet.name))
-            }
-        }
-
         keyValue?.let { kv ->
-            retry {
-                ioCatching {
-                    service.values().get(SPREAD_SHEET_ID, sheet.name)
-                        .execute()?.getValues()
-                }
-            }.getOrNull()?.let { data ->
+            sheet.getSpreedSheetValues().getOrNull()?.let { data ->
                 withDefaultCoroutine {
-                    data.firstOrNull()?.indexOfFirst {
+                    data.firstOrNull()?.indexOfOrNull {
                         it.toString() == kv.key
                     }?.let { keyIndex ->
-                        val index =
-                            data.indexOfFirst { row ->
-                                row.getOrNull(keyIndex) == kv.value
-                            }
-                        if (index >= 0) {
-                            response(index)
-                        } else {
-                            null
-                        }
+                        data.indexOfOrNull { row ->
+                            row.getOrNull(keyIndex) == kv.value
+                        }?.let { i -> sheet.batchUpdate(requests.map { it(Request(), sheet, i) }) }
                     }
                 }
             } ?: Result.failure(NoRowIdException(sheet.name, kv.key, kv.value))
-        } ?: response(-1)
+        } ?: sheet.batchUpdate(requests.map { it(Request(), sheet, -1) })
     } ?: Result.failure(NoSheetException(T::class.java))
+
+    private suspend inline fun <reified T> Sheet<T>.getSpreedSheetValues() =
+        retry {
+            ioCatching {
+                service.values().get(SPREAD_SHEET_ID, name)
+                    .execute()?.getValues()
+            }
+        }
+
+    private suspend inline fun <reified T> Sheet<T>.batchUpdate(requests: List<Request>) =
+        ioCatching {
+            service.batchUpdate(
+                SPREAD_SHEET_ID,
+                BatchUpdateSpreadsheetRequest().setRequests(requests),
+            ).execute()
+        }.onSuccess {
+            refreshSheet(SpreadSheet(name))
+        }
 
     private fun <T> range(
         sheet: Sheet<T>,

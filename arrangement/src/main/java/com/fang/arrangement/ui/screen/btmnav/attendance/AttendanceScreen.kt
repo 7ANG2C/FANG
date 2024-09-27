@@ -533,16 +533,6 @@ private fun AttEditDialog(
                 onConfirm = viewModel::editDate,
             )
         }
-        // 備註
-//        val remark = edit?.remark.takeIfNotBlank.orEmpty()
-//        StringInputField(
-//            modifier = Modifier.fillMaxWidth(),
-//            titleText = "備註 (${remark.length}/${Remark.LENGTH})",
-//            text = remark,
-//            lines = 3,
-//            onClear = true,
-//            onValueChange = viewModel::editRemark,
-//        )
         edit?.attSiteEdits?.forEach { mAtt ->
             val total = mAtt.fulls.size + mAtt.halfs.size * 0.5
             val exist = total > 0.0
