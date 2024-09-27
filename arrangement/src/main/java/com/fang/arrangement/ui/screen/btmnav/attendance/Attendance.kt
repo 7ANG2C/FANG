@@ -6,7 +6,6 @@ import com.fang.arrangement.definition.Site
 internal data class MAttendanceAll(
     val id: Long,
     val attendances: List<MAttendance>,
-    val remark: String?,
 )
 
 internal data class MAttendance(

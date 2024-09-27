@@ -58,7 +58,7 @@ internal class SheetRepository(
     )
 
     private companion object {
-        const val MAIN = false
+        const val MAIN = true
         val SPREAD_SHEET_ID =
             if (MAIN) {
                 "1hYhuc7IYnVkjx6qK7WePQiTF7Jw9ZUwC-pU8DMVcNdI"

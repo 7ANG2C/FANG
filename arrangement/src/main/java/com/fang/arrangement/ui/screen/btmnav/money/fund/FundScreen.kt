@@ -57,8 +57,8 @@ import com.fang.cosmos.foundation.ui.ext.bg
 import com.fang.cosmos.foundation.ui.ext.clickableNoRipple
 import com.fang.cosmos.foundation.ui.ext.color
 import com.fang.cosmos.foundation.ui.ext.stateValue
-import java.util.Calendar
 import org.koin.androidx.compose.koinViewModel
+import java.util.Calendar
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
@@ -104,17 +104,17 @@ internal fun FundScreen(
                 VerticalSpacer(10)
                 LazyColumn(
                     modifier =
-                    Modifier
-                        .fillMaxWidth()
-                        .weight(1f, false),
+                        Modifier
+                            .fillMaxWidth()
+                            .weight(1f, false),
                 ) {
                     ymFunds.forEach { ymFund ->
                         stickyHeader {
                             Column(
                                 modifier =
-                                Modifier
-                                    .fillMaxWidth()
-                                    .bg { surfaceContainerLowest },
+                                    Modifier
+                                        .fillMaxWidth()
+                                        .bg { surfaceContainerLowest },
                             ) {
                                 VerticalSpacer(2)
                                 Row(
@@ -139,7 +139,7 @@ internal fun FundScreen(
                                         mains = ymFund.dayFunds,
                                         items = ymFund.dayFunds.flatMap { it.funds },
                                         on = { it.selected },
-                                        checkedBoxColor = HighlightText.color
+                                        checkedBoxColor = HighlightText.color,
                                     ) {
                                         viewModel.toggle(ymFund.year, ymFund.month)
                                     }
@@ -155,23 +155,23 @@ internal fun FundScreen(
                             Column {
                                 ElevatedCard(
                                     modifier =
-                                    Modifier.fillMaxWidth(),
+                                        Modifier.fillMaxWidth(),
                                     colors =
-                                    CardDefaults.elevatedCardColors().copy(
-                                        containerColor = MaterialColor.surfaceContainer,
-                                    ),
+                                        CardDefaults.elevatedCardColors().copy(
+                                            containerColor = MaterialColor.surfaceContainer,
+                                        ),
                                 ) {
                                     Column(
                                         modifier =
-                                        Modifier
-                                            .fillMaxWidth(),
+                                            Modifier
+                                                .fillMaxWidth(),
                                     ) {
                                         Row(
                                             modifier =
-                                            Modifier
-                                                .fillMaxWidth()
-                                                .bg { primary.copy(alpha = 0.14f) }
-                                                .padding(vertical = 5.2.dp, horizontal = 8.dp),
+                                                Modifier
+                                                    .fillMaxWidth()
+                                                    .bg { primary.copy(alpha = 0.14f) }
+                                                    .padding(vertical = 5.2.dp, horizontal = 8.dp),
                                         ) {
                                             val pre = "0".takeIf { ymFund.month < 9 }.orEmpty()
                                             val dayPre = "0".takeIf { item.day < 10 }.orEmpty()
@@ -210,7 +210,7 @@ internal fun FundScreen(
                                                 mains = item.funds,
                                                 items = item.funds,
                                                 on = { it.selected },
-                                                checkedBoxColor = MaterialColor.primary
+                                                checkedBoxColor = MaterialColor.primary,
                                             ) {
                                                 viewModel.toggle(
                                                     ymFund.year,
@@ -223,11 +223,11 @@ internal fun FundScreen(
                                         item.funds.forEach {
                                             Row(
                                                 modifier =
-                                                Modifier
-                                                    .padding(start = 8.dp, end = 13.6.dp)
-                                                    .clickableNoRipple {
-                                                        viewModel.onUpdate(it)
-                                                    },
+                                                    Modifier
+                                                        .padding(start = 8.dp, end = 13.6.dp)
+                                                        .clickableNoRipple {
+                                                            viewModel.onUpdate(it)
+                                                        },
                                             ) {
                                                 ContentText(text = "$${NumberFormat(it.fund, 0)}")
                                                 HorizontalSpacer(10)
@@ -238,9 +238,9 @@ internal fun FundScreen(
                                                 HorizontalSpacer(6)
                                                 Box(
                                                     modifier =
-                                                    Modifier.clickableNoRipple {
-                                                        viewModel.toggle(it.id)
-                                                    },
+                                                        Modifier.clickableNoRipple {
+                                                            viewModel.toggle(it.id)
+                                                        },
                                                 ) {
                                                     val color =
                                                         ContentText.color.copy(alpha = 0.92f)
@@ -248,11 +248,12 @@ internal fun FundScreen(
                                                         checked = it.selected,
                                                         onCheckedChange = null,
                                                         modifier = Modifier.scale(0.8f),
-                                                        colors = CheckboxDefaults.colors().copy(
-                                                            checkedBoxColor = color,
-                                                            checkedBorderColor = color,
-                                                            uncheckedBorderColor = color,
-                                                        ),
+                                                        colors =
+                                                            CheckboxDefaults.colors().copy(
+                                                                checkedBoxColor = color,
+                                                                checkedBorderColor = color,
+                                                                uncheckedBorderColor = color,
+                                                            ),
                                                     )
                                                 }
                                             }
@@ -267,9 +268,9 @@ internal fun FundScreen(
                     item {
                         Fab(
                             modifier =
-                            Modifier
-                                .padding(bottom = 24.dp)
-                                .alpha(0f),
+                                Modifier
+                                    .padding(bottom = 24.dp)
+                                    .alpha(0f),
                             onClick = {},
                         )
                     }
@@ -277,9 +278,9 @@ internal fun FundScreen(
             }
             TwoOptionDialog(
                 text =
-                showDeleteDialog?.takeIf { it.isNotEmpty() }?.let {
-                    "是否批量刪除（結清）所選項目？"
-                },
+                    showDeleteDialog?.takeIf { it.isNotEmpty() }?.let {
+                        "是否批量刪除（結清）所選項目？"
+                    },
                 widthFraction = 0.8f,
                 onNegative = { showDeleteDialog = null },
                 onPositive = {
@@ -292,9 +293,9 @@ internal fun FundScreen(
         }
         Fab(
             modifier =
-            Modifier
-                .padding(20.dp)
-                .align(Alignment.BottomEnd),
+                Modifier
+                    .padding(20.dp)
+                    .align(Alignment.BottomEnd),
             onClick = viewModel::onInsert,
         )
         FundEditDialog(
@@ -316,22 +317,22 @@ private fun FundEditDialog(
     EditDialog(
         isShow = editBundle != null,
         onDelete =
-        if (current != null) {
-            { viewModel.delete(current.id.toString()) }
-        } else {
-            null
-        },
+            if (current != null) {
+                { viewModel.delete(current.id.toString()) }
+            } else {
+                null
+            },
         onCancel = viewModel::clearEdit,
         onConfirm =
-        if (edit?.savable == true) {
-            if (editBundle.isInsert) {
-                { viewModel.insert(edit) }
+            if (edit?.savable == true) {
+                if (editBundle.isInsert) {
+                    { viewModel.insert(edit) }
+                } else {
+                    { viewModel.update(editBundle) }.takeIf { editBundle.anyDiff }
+                }
             } else {
-                { viewModel.update(editBundle) }.takeIf { editBundle.anyDiff }
-            }
-        } else {
-            null
-        },
+                null
+            },
     ) {
         Average2Row(modifier = Modifier.fillMaxWidth(), first = {
             NumberInputField(
@@ -381,11 +382,11 @@ private fun <T, R> TriCheckbox(
                     state = if (items.all { on(it) }) ToggleableState.On else ToggleableState.Off,
                     modifier = Modifier.scale(0.8f),
                     colors =
-                    CheckboxDefaults.colors().copy(
-                        checkedBoxColor = checkedBoxColor,
-                        checkedBorderColor = checkedBoxColor,
-                        uncheckedBorderColor = checkedBoxColor.copy(alpha = 0.88f),
-                    ),
+                        CheckboxDefaults.colors().copy(
+                            checkedBoxColor = checkedBoxColor,
+                            checkedBorderColor = checkedBoxColor,
+                            uncheckedBorderColor = checkedBoxColor.copy(alpha = 0.88f),
+                        ),
                     onClick = onClick,
                 )
             }

@@ -11,13 +11,11 @@ internal data class AttEditBundle(
                 current?.attendances.orEmpty()
                     .filter { it.fulls.isNotEmpty() || it.halfs.isNotEmpty() } !=
                 edit.attSiteEdits.filter { it.fulls.isNotEmpty() || it.halfs.isNotEmpty() }
-//                    || edit.remark?.trim().takeIfNotBlank != current?.remark?.trim().takeIfNotBlank
 }
 
 internal data class AttAllEdit(
     val id: Long?,
     val attSiteEdits: List<MAttendance>,
-    val remark: String?,
 ) {
     val savable
         get() =

@@ -67,7 +67,6 @@ internal class PDFViewModel(
     private data class AttAll(
         val dayMillis: Long,
         val attendances: List<Att>,
-        val remark: String?,
     )
 
     private data class Att(
@@ -145,9 +144,6 @@ internal class PDFViewModel(
                                                     remark = att.remark.takeIf { request.includeRemark },
                                                 )
                                             },
-                                        remark =
-                                            attAll.remark.takeIf { request.includeRemark }
-                                                ?.replace("\n", "・"),
                                     )
                                 }
                             val flattenAtts = attAlls.flatMap { it.attendances }
