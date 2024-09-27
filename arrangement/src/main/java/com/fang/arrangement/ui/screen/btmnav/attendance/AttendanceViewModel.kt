@@ -108,7 +108,6 @@ internal class AttendanceViewModel(
                                                 { it.site?.isArchive == true },
                                             ).thenByDescending { it.site?.id },
                                         ),
-                                remark = attAll.remark,
                             )
                         }
                         ?.let {
@@ -142,7 +141,6 @@ internal class AttendanceViewModel(
                                     remark = null,
                                 )
                             },
-                        remark = null,
                     ),
             )
     }
@@ -183,7 +181,6 @@ internal class AttendanceViewModel(
                                         .thenByDescending { it.site?.isArchive == true }
                                         .thenByDescending { it.site?.id },
                                 ),
-                        remark = attendance.remark,
                     ),
             )
     }
@@ -263,17 +260,6 @@ internal class AttendanceViewModel(
         _mAttEdit.value = MAttendance.empty
     }
 
-    fun editRemark(string: String?) {
-        _editBundle.update {
-            it?.copy(
-                edit =
-                    it.edit.copy(
-                        remark = string.takeIfNotBlank?.take(Remark.L50),
-                    ),
-            )
-        }
-    }
-
     fun clearEdit() {
         _editBundle.value = null
     }
@@ -298,7 +284,6 @@ internal class AttendanceViewModel(
                                         )
                                     },
                                 ).getOrNull()?.noBreathing ?: "[]",
-                            remark = "\"${edit.remark.orEmpty().trim()}\"",
                         ),
                 )
             }
@@ -329,7 +314,6 @@ internal class AttendanceViewModel(
                                         )
                                     },
                                 ).getOrNull()?.noBreathing ?: "[]",
-                            remark = "\"${edit.remark.orEmpty().trim()}\"",
                         ),
                 )
             }
