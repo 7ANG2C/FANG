@@ -9,6 +9,7 @@ import com.fang.arrangement.ui.screen.btmnav.money.loan.LoanViewModel
 import com.fang.arrangement.ui.screen.btmnav.site.SiteViewModel
 import com.fang.arrangement.ui.screen.btmnav.statistic.StatisticViewModel
 import com.fang.arrangement.ui.screen.btmnav.statistic.employeeattendance.EmployeeAttendanceViewModel
+import com.fang.arrangement.ui.screen.btmnav.statistic.employeeloan.EmployeeLoanViewModel
 import com.fang.arrangement.ui.screen.btmnav.statistic.pdf.PDFViewModel
 import com.fang.arrangement.ui.screen.btmnav.statistic.salary.SalaryViewModel
 import org.koin.androidx.viewmodel.dsl.viewModelOf
@@ -26,6 +27,7 @@ internal object ViewModelModule {
             viewModelOf(::SalaryViewModel)
             viewModelOf(::PDFViewModel)
             viewModelOf(::EmployeeAttendanceViewModel)
+            viewModelOf(::EmployeeLoanViewModel)
             viewModelOf(::EmployeeViewModel)
             viewModelOf(::SiteViewModel)
         }
