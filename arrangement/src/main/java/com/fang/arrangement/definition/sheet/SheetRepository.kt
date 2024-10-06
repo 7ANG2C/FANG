@@ -3,7 +3,7 @@ package com.fang.arrangement.definition.sheet
 import android.content.Context
 import com.fang.arrangement.definition.foundation.KeyValue
 import com.fang.cosmos.foundation.fromJsonTypeList
-import com.fang.cosmos.foundation.indexOfOrNull
+import com.fang.cosmos.foundation.indexOfFirstOrNull
 import com.fang.cosmos.foundation.retry
 import com.fang.cosmos.foundation.retryExponentialWhen
 import com.fang.cosmos.foundation.takeIfNotBlank
@@ -211,11 +211,11 @@ internal class SheetRepository(
     ) = workSheets.value.orEmpty().sheet<T>()?.let { sheet ->
         sheet.getSpreedSheetValues().getOrNull()?.let { data ->
             withDefaultCoroutine {
-                data.firstOrNull()?.indexOfOrNull {
+                data.firstOrNull()?.indexOfFirstOrNull {
                     it.toString() == key
                 }?.let { keyIndex ->
                     values.mapNotNull { value ->
-                        data.indexOfOrNull { row ->
+                        data.indexOfFirstOrNull { row ->
                             row.getOrNull(keyIndex) == value
                         }
                     }
@@ -310,10 +310,10 @@ internal class SheetRepository(
         keyValue?.let { kv ->
             sheet.getSpreedSheetValues().getOrNull()?.let { data ->
                 withDefaultCoroutine {
-                    data.firstOrNull()?.indexOfOrNull {
+                    data.firstOrNull()?.indexOfFirstOrNull {
                         it.toString() == kv.key
                     }?.let { keyIndex ->
-                        data.indexOfOrNull { row ->
+                        data.indexOfFirstOrNull { row ->
                             row.getOrNull(keyIndex) == kv.value
                         }?.let { i -> sheet.batchUpdate(requests.map { it(Request(), sheet, i) }) }
                     }
