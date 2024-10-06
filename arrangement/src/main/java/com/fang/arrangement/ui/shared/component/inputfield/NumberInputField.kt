@@ -69,7 +69,7 @@ internal fun NumberInputField(
     text: String?,
     imeAction: ImeAction = ImeAction.Unspecified,
     onClear: Boolean,
-    enableDecimal: Boolean = true,
+    enableDecimal: Boolean = false,
     onValueChange: Action<String?>,
 ) {
     val textFieldState = rememberTextFieldState(EMPTY_NUM_HOLDER)
