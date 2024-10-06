@@ -28,8 +28,10 @@ private val trim: TextFieldBuffer.(Boolean) -> Unit by lazy {
             }
             with(toString()) {
                 val dotIndex = indexOfFirstOrNull { it == '.' } ?: length
-                (indexOfFirstOrNull { it != '0' }?.takeIf { it < dotIndex }
-                    ?: dotIndex.takeIf { it > 1 }?.let { it - 1 })
+                (
+                    indexOfFirstOrNull { it != '0' }?.takeIf { it < dotIndex }
+                        ?: dotIndex.takeIf { it > 1 }?.let { it - 1 }
+                )
                     ?.let { delete(0, it) }
             }
         } else {
@@ -49,9 +51,10 @@ private val trim: TextFieldBuffer.(Boolean) -> Unit by lazy {
 private val pretty: TextFieldBuffer.() -> Unit by lazy {
     {
         val space = 3
-        val length = with(toString()) {
-            substringBefore(".", this)
-        }.length
+        val length =
+            with(toString()) {
+                substringBefore(".", this)
+            }.length
         val times = ceil(length / space.toFloat()).toInt() - 1
         (0..<times).forEach {
             insert(length - space * (it + 1), ",")

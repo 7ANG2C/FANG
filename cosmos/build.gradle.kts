@@ -24,11 +24,12 @@ android {
         }
     }
     composeCompiler {
-        featureFlags = setOf(
-            ComposeFeatureFlag.StrongSkipping,
-            ComposeFeatureFlag.OptimizeNonSkippingGroups,
-            ComposeFeatureFlag.IntrinsicRemember
-        )
+        featureFlags =
+            setOf(
+                ComposeFeatureFlag.StrongSkipping,
+                ComposeFeatureFlag.OptimizeNonSkippingGroups,
+                ComposeFeatureFlag.IntrinsicRemember,
+            )
     }
     packaging {
         resources {

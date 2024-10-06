@@ -1,9 +1,9 @@
 import com.android.build.gradle.internal.api.BaseVariantOutputImpl
+import org.jetbrains.kotlin.compose.compiler.gradle.ComposeFeatureFlag
 import java.io.FileInputStream
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Properties
-import org.jetbrains.kotlin.compose.compiler.gradle.ComposeFeatureFlag
 
 plugins {
     alias(libs.plugins.googleServices)
@@ -66,11 +66,12 @@ android {
         }
     }
     composeCompiler {
-        featureFlags = setOf(
-            ComposeFeatureFlag.StrongSkipping,
-            ComposeFeatureFlag.OptimizeNonSkippingGroups,
-            ComposeFeatureFlag.IntrinsicRemember
-        )
+        featureFlags =
+            setOf(
+                ComposeFeatureFlag.StrongSkipping,
+                ComposeFeatureFlag.OptimizeNonSkippingGroups,
+                ComposeFeatureFlag.IntrinsicRemember,
+            )
     }
     packaging { resources { excludes += "/META-INF/{AL2.0,LGPL2.1,INDEX.LIST,DEPENDENCIES}" } }
 }

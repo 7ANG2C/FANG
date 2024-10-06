@@ -37,10 +37,10 @@ internal fun BaseInputField(
         inputTransformation = inputTransformation,
         textStyle = ContentText.style.color(ContentText.color),
         keyboardOptions =
-        KeyboardOptions.Default.copy(
-            keyboardType = keyboardType,
-            imeAction = imeAction,
-        ),
+            KeyboardOptions.Default.copy(
+                keyboardType = keyboardType,
+                imeAction = imeAction,
+            ),
         lineLimits = lineLimits,
         cursorBrush = SolidColor(ContentText.color),
         outputTransformation = outputTransformation,
@@ -48,10 +48,11 @@ internal fun BaseInputField(
             BaseField(
                 modifier = Modifier.fillMaxWidth(),
                 title = titleText,
-                onClear = {
-                    textFieldState.clearText()
-                    onValueChange(null)
-                }.takeIf { onClear },
+                onClear =
+                    {
+                        textFieldState.clearText()
+                        onValueChange(null)
+                    }.takeIf { onClear },
             ) {
                 innerTextField()
             }

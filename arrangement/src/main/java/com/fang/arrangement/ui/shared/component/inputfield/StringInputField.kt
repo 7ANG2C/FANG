@@ -46,9 +46,9 @@ internal fun StringInputField(
         },
         imeAction = imeAction,
         lineLimits =
-        lines?.let {
-            TextFieldLineLimits.MultiLine(maxHeightInLines = it)
-        } ?: TextFieldLineLimits.Default,
+            lines?.let {
+                TextFieldLineLimits.MultiLine(maxHeightInLines = it)
+            } ?: TextFieldLineLimits.Default,
         onClear = onClear,
         onValueChange = onValueChange,
     )
