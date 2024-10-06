@@ -20,8 +20,8 @@ android {
     resourcePrefix = "arr_"
     defaultConfig {
         applicationId = pkg
-        versionCode = 4
-        versionName = "1.3.0"
+        versionCode = 5
+        versionName = "1.3.1"
         vectorDrawables.useSupportLibrary = true
         ndk { abiFilters.addAll(listOf("armeabi-v7a", "arm64-v8a")) }
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
