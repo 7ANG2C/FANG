@@ -7,8 +7,8 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.text.input.InputTransformation
 import androidx.compose.foundation.text.input.TextFieldBuffer
 import androidx.compose.foundation.text.input.TextFieldLineLimits
+import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.foundation.text.input.clearText
-import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.SolidColor
@@ -23,17 +23,15 @@ import com.fang.cosmos.foundation.ui.ext.color
 internal fun BaseInputField(
     modifier: Modifier,
     titleText: String,
-    text: String?,
+    textFieldState: TextFieldState,
     inputTransformation: InputTransformation? = null,
     keyboardType: KeyboardType = KeyboardType.Unspecified,
     imeAction: ImeAction = ImeAction.Unspecified,
     lineLimits: TextFieldLineLimits = TextFieldLineLimits.Default,
     onClear: Boolean = false,
-    transformOutput: (TextFieldBuffer.(String) -> Unit)? = null,
-    onValueChange: Action<String>,
+    outputTransformation: (TextFieldBuffer.() -> Unit)? = null,
+    onValueChange: Action<String?>,
 ) = Box(modifier = modifier) {
-    val textFieldState = rememberTextFieldState(text.orEmpty())
-    if (text.isNullOrEmpty()) textFieldState.clearText()
     BasicTextField(
         state = textFieldState,
         inputTransformation = inputTransformation,
@@ -45,15 +43,16 @@ internal fun BaseInputField(
             ),
         lineLimits = lineLimits,
         cursorBrush = SolidColor(ContentText.color),
-        outputTransformation = {
-            onValueChange(toString())
-            transformOutput?.invoke(this, toString())
-        },
+        outputTransformation = outputTransformation,
         decorator = { innerTextField ->
             BaseField(
                 modifier = Modifier.fillMaxWidth(),
                 title = titleText,
-                onClear = { textFieldState.clearText() }.takeIf { onClear },
+                onClear =
+                    {
+                        textFieldState.clearText()
+                        onValueChange(null)
+                    }.takeIf { onClear },
             ) {
                 innerTextField()
             }

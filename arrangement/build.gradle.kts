@@ -1,4 +1,5 @@
 import com.android.build.gradle.internal.api.BaseVariantOutputImpl
+import org.jetbrains.kotlin.compose.compiler.gradle.ComposeFeatureFlag
 import java.io.FileInputStream
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -19,8 +20,8 @@ android {
     resourcePrefix = "arr_"
     defaultConfig {
         applicationId = pkg
-        versionCode = 3
-        versionName = "1.2.0"
+        versionCode = 4
+        versionName = "1.3.0"
         vectorDrawables.useSupportLibrary = true
         ndk { abiFilters.addAll(listOf("armeabi-v7a", "arm64-v8a")) }
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
@@ -65,7 +66,12 @@ android {
         }
     }
     composeCompiler {
-        enableStrongSkippingMode = true
+        featureFlags =
+            setOf(
+                ComposeFeatureFlag.StrongSkipping,
+                ComposeFeatureFlag.OptimizeNonSkippingGroups,
+                ComposeFeatureFlag.IntrinsicRemember,
+            )
     }
     packaging { resources { excludes += "/META-INF/{AL2.0,LGPL2.1,INDEX.LIST,DEPENDENCIES}" } }
 }
@@ -90,6 +96,7 @@ dependencies {
     implementation(libs.androidx.navigation.compose)
     // others
     implementation(libs.retrofit.gson)
+    implementation(platform(libs.io.koin.bom))
     implementation(libs.io.koin.core)
     implementation(libs.io.koin.android)
     implementation(libs.io.koin.androidx.compose)
