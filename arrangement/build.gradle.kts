@@ -3,6 +3,7 @@ import java.io.FileInputStream
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Properties
+import org.jetbrains.kotlin.compose.compiler.gradle.ComposeFeatureFlag
 
 plugins {
     alias(libs.plugins.googleServices)
@@ -65,7 +66,11 @@ android {
         }
     }
     composeCompiler {
-        enableStrongSkippingMode = true
+        featureFlags = setOf(
+            ComposeFeatureFlag.StrongSkipping,
+            ComposeFeatureFlag.OptimizeNonSkippingGroups,
+            ComposeFeatureFlag.IntrinsicRemember
+        )
     }
     packaging { resources { excludes += "/META-INF/{AL2.0,LGPL2.1,INDEX.LIST,DEPENDENCIES}" } }
 }
@@ -90,6 +95,7 @@ dependencies {
     implementation(libs.androidx.navigation.compose)
     // others
     implementation(libs.retrofit.gson)
+    implementation(platform(libs.io.koin.bom))
     implementation(libs.io.koin.core)
     implementation(libs.io.koin.android)
     implementation(libs.io.koin.androidx.compose)

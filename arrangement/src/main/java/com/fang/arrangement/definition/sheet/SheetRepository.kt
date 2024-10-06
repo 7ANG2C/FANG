@@ -3,7 +3,7 @@ package com.fang.arrangement.definition.sheet
 import android.content.Context
 import com.fang.arrangement.definition.foundation.KeyValue
 import com.fang.cosmos.foundation.fromJsonTypeList
-import com.fang.cosmos.foundation.indexOfOrNull
+import com.fang.cosmos.foundation.indexOfFirstOrNull
 import com.fang.cosmos.foundation.retry
 import com.fang.cosmos.foundation.retryExponentialWhen
 import com.fang.cosmos.foundation.takeIfNotBlank
@@ -24,6 +24,7 @@ import com.google.api.services.sheets.v4.model.Request
 import com.google.auth.http.HttpCredentialsAdapter
 import com.google.auth.oauth2.ServiceAccountCredentials
 import com.google.gson.Gson
+import kotlin.time.Duration.Companion.seconds
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -42,7 +43,6 @@ import kotlinx.coroutines.flow.scan
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
-import kotlin.time.Duration.Companion.seconds
 
 @OptIn(ExperimentalCoroutinesApi::class)
 internal class SheetRepository(
@@ -211,11 +211,11 @@ internal class SheetRepository(
     ) = workSheets.value.orEmpty().sheet<T>()?.let { sheet ->
         sheet.getSpreedSheetValues().getOrNull()?.let { data ->
             withDefaultCoroutine {
-                data.firstOrNull()?.indexOfOrNull {
+                data.firstOrNull()?.indexOfFirstOrNull {
                     it.toString() == key
                 }?.let { keyIndex ->
                     values.mapNotNull { value ->
-                        data.indexOfOrNull { row ->
+                        data.indexOfFirstOrNull { row ->
                             row.getOrNull(keyIndex) == value
                         }
                     }
@@ -310,10 +310,10 @@ internal class SheetRepository(
         keyValue?.let { kv ->
             sheet.getSpreedSheetValues().getOrNull()?.let { data ->
                 withDefaultCoroutine {
-                    data.firstOrNull()?.indexOfOrNull {
+                    data.firstOrNull()?.indexOfFirstOrNull {
                         it.toString() == kv.key
                     }?.let { keyIndex ->
-                        data.indexOfOrNull { row ->
+                        data.indexOfFirstOrNull { row ->
                             row.getOrNull(keyIndex) == kv.value
                         }?.let { i -> sheet.batchUpdate(requests.map { it(Request(), sheet, i) }) }
                     }

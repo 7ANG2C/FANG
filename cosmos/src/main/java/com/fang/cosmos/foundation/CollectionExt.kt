@@ -18,4 +18,8 @@ inline fun <T> Iterable<T>.replace(
     transform: (T) -> T,
 ) = map { if (predicate(it)) transform(it) else it }
 
-inline fun <T> Iterable<T>.indexOfOrNull(predicate: (T) -> Boolean) = indexOfFirst(predicate).takeIf { it >= 0 }
+inline fun <T> Iterable<T>.indexOfFirstOrNull(predicate: (T) -> Boolean) =
+    indexOfFirst(predicate).takeIf { it >= 0 }
+
+inline fun <T> Iterable<T>.indexOfLastOrNull(predicate: (T) -> Boolean) =
+    indexOfLast(predicate).takeIf { it >= 0 }

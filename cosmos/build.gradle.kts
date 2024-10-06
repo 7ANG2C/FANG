@@ -1,3 +1,5 @@
+import org.jetbrains.kotlin.compose.compiler.gradle.ComposeFeatureFlag
+
 plugins {
     alias(libs.plugins.androidLibrary)
     alias(libs.plugins.jetbrainsKotlinAndroid)
@@ -22,7 +24,11 @@ android {
         }
     }
     composeCompiler {
-        enableStrongSkippingMode = true
+        featureFlags = setOf(
+            ComposeFeatureFlag.StrongSkipping,
+            ComposeFeatureFlag.OptimizeNonSkippingGroups,
+            ComposeFeatureFlag.IntrinsicRemember
+        )
     }
     packaging {
         resources {
@@ -45,6 +51,7 @@ dependencies {
     implementation(libs.androidx.datastore.preferences)
     // others
     implementation(libs.retrofit.gson)
+    implementation(platform(libs.io.koin.bom))
     implementation(libs.io.koin.core)
     // debug
     debugImplementation(libs.androidx.ui.tooling)
