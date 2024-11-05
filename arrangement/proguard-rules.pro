@@ -56,18 +56,10 @@
 
 # Keep no-args constructor of classes which can be used with @JsonAdapter
 # By default their no-args constructor is invoked to create an adapter instance
--keepclassmembers class * extends com.google.gson.TypeAdapter {
-  <init>();
-}
--keepclassmembers class * implements com.google.gson.TypeAdapterFactory {
-  <init>();
-}
--keepclassmembers class * implements com.google.gson.JsonSerializer {
-  <init>();
-}
--keepclassmembers class * implements com.google.gson.JsonDeserializer {
-  <init>();
-}
+-keepclassmembers class * extends com.google.gson.TypeAdapter { <init>(); }
+-keepclassmembers class * implements com.google.gson.TypeAdapterFactory { <init>(); }
+-keepclassmembers class * implements com.google.gson.JsonSerializer { <init>(); }
+-keepclassmembers class * implements com.google.gson.JsonDeserializer { <init>(); }
 
 # Keep fields annotated with @SerializedName for classes which are referenced.
 # If classes with fields annotated with @SerializedName have a no-args
@@ -79,23 +71,20 @@
 -keepclasseswithmembers,allowobfuscation class <1> {
   @com.google.gson.annotations.SerializedName <fields>;
 }
--if class * {
-  @com.google.gson.annotations.SerializedName <fields>;
-}
--keepclassmembers,allowobfuscation,allowoptimization class <1> {
-  <init>();
-}
+-if class * { @com.google.gson.annotations.SerializedName <fields>; }
+-keepclassmembers,allowobfuscation,allowoptimization class <1> { <init>(); }
 # https://github.com/google/google-api-java-client-samples/blob/master/tasks-android-sample/proguard-google-api-client.txt
 -keep class * extends com.google.api.client.json.** { *; }
--keepclassmembers class * {
-  @com.google.api.client.util.Key <fields>;
-}
+-keepclassmembers class * { @com.google.api.client.util.Key <fields>; }
+-keepclassmembers class com.google.api.client.** { <init>(); }
+-keep class com.google.api.client.util.** { *; }
 # Needed by google-http-client-android when linking against an older platform version
 -dontwarn com.google.api.client.extensions.android.**
 # Needed by google-api-client-android when linking against an older platform version
 -dontwarn com.google.api.client.googleapis.extensions.android.**
 # Needed by google-play-services when linking against an older platform version
 -dontwarn com.google.android.gms.**
+-dontnote com.google.android.gms.**
 # com.google.client.util.IOUtils references java.nio.file.Files when on Java 7+
 -dontnote java.nio.file.Files, java.nio.file.Path
 # Suppress notes on LicensingServices

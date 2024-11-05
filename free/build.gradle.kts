@@ -53,7 +53,6 @@ android {
             applicationIdSuffix = ".debug"
         }
         release {
-            isDebuggable = true
             isMinifyEnabled = true
             isShrinkResources = true
             proguardFiles(
@@ -64,12 +63,7 @@ android {
         }
     }
     composeCompiler {
-        featureFlags =
-            setOf(
-                ComposeFeatureFlag.StrongSkipping,
-                ComposeFeatureFlag.OptimizeNonSkippingGroups,
-                ComposeFeatureFlag.IntrinsicRemember,
-            )
+        featureFlags = setOf(ComposeFeatureFlag.OptimizeNonSkippingGroups)
     }
     packaging { resources { excludes += "/META-INF/{AL2.0,LGPL2.1}" } }
 }

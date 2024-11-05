@@ -41,7 +41,6 @@ import kotlinx.coroutines.flow.merge
 import kotlinx.coroutines.flow.scan
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.withContext
 import kotlin.time.Duration.Companion.seconds
 
 @OptIn(ExperimentalCoroutinesApi::class)
@@ -50,6 +49,13 @@ internal class SheetRepository(
     coroutineScope: CoroutineScope,
     private val gson: Gson,
 ) {
+    @Suppress("unused")
+    enum class Env(val id: String) {
+        PROD("1hYhuc7IYnVkjx6qK7WePQiTF7Jw9ZUwC-pU8DMVcNdI"),
+        UAT("1Z7uSrOTASCKYvEydJ_QTClgwaOPvq_xuRqxKGKzrc34"),
+        SIT("1jj5ejgD-FtGH6c2tXNtrAEPDmGsAR_n2yDWRIXRBQac"),
+    }
+
     private data class Mediator(
         val name: String,
         val keys: List<String>,
@@ -58,24 +64,15 @@ internal class SheetRepository(
     )
 
     private companion object {
-        const val MAIN = true
-        val SPREAD_SHEET_ID =
-            if (MAIN) {
-                "1hYhuc7IYnVkjx6qK7WePQiTF7Jw9ZUwC-pU8DMVcNdI"
-            } else {
-//                "1Z7uSrOTASCKYvEydJ_QTClgwaOPvq_xuRqxKGKzrc34"
-                "1jj5ejgD-FtGH6c2tXNtrAEPDmGsAR_n2yDWRIXRBQac"
-            }
+        val SPREAD_SHEET_ID = Env.PROD.id
     }
 
     private val service by lazy {
         val credentials =
-            runBlocking {
-                withContext(Dispatchers.IO) {
-                    ServiceAccountCredentials.fromStream(
-                        context.assets.open("service-account.json"),
-                    ).createScoped(SheetsScopes.SPREADSHEETS)
-                }
+            runBlocking(Dispatchers.IO) {
+                ServiceAccountCredentials.fromStream(
+                    context.assets.open("service-account.json"),
+                ).createScoped(SheetsScopes.SPREADSHEETS)
             }
         Sheets.Builder(
             NetHttpTransport(),
