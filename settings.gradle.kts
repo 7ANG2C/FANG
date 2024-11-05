@@ -38,6 +38,7 @@ dependencyResolutionManagement {
     }
 }
 
+include(":free")
 include(":arrangement")
 include(":cosmos")
 enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")

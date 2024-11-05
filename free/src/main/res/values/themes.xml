@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <style name="free_Theme.Free" parent="Theme.AppCompat.DayNight.NoActionBar" />
+
+    <style name="free_SplashTheme" parent="free_Theme.Free">
+        <item name="android:windowBackground">@drawable/free_splash</item>
+    </style>
+</resources>

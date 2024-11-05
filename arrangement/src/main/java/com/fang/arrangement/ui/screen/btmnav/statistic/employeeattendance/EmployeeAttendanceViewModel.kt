@@ -6,6 +6,8 @@ import com.fang.arrangement.definition.Attendance
 import com.fang.arrangement.definition.sheet.SheetRepository
 import com.fang.arrangement.definition.sheet.sheetAttendance
 import com.fang.arrangement.definition.sheet.sheetEmployee
+import com.fang.cosmos.foundation.time.calendar.dayOfMonth
+import com.fang.cosmos.foundation.time.calendar.month
 import com.fang.cosmos.foundation.time.calendar.today
 import com.fang.cosmos.foundation.time.calendar.year
 import kotlinx.coroutines.Dispatchers
@@ -76,6 +78,22 @@ internal class EmployeeAttendanceViewModel(private val repository: SheetReposito
                                             employeeId = employeeId,
                                             employee = employees.find { it.id == employeeId },
                                             attendance = eMediators.sumOf { it.attFactor },
+                                            months =
+                                                eMediators.groupBy {
+                                                    today(it.attMillis).month
+                                                }.map { (month, values) ->
+                                                    YearAttendance.Summary.Month(
+                                                        month = month,
+                                                        halfDays =
+                                                            values.filterIsInstance<Mediator.Half>().map {
+                                                                today(it.attMillis).dayOfMonth
+                                                            },
+                                                        fullDays =
+                                                            values.filterIsInstance<Mediator.Full>().map {
+                                                                today(it.attMillis).dayOfMonth
+                                                            },
+                                                    )
+                                                },
                                         )
                                     }
                                     .sortedWith(

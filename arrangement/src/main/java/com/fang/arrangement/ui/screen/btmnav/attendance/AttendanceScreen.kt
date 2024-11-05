@@ -115,24 +115,6 @@ internal fun AttendanceScreen(
                         tint = ContentText.color,
                     )
                 }
-//                item.remark?.let {
-//                    VerticalSpacer(2.8f)
-//                    Row {
-//                        val style = TextStyle(fontSize = 14.8.sp, fontWeight = FontWeight.W400)
-//                        val color = HighlightText.color.copy(alpha = 0.8f)
-//                        Box(contentAlignment = Alignment.CenterStart) {
-//                            ArrText(
-//                                text = "註",
-//                            ) { style.color(Color.Transparent) }
-//                            RemarkTag(
-//                                modifier = Modifier.scale(0.88f),
-//                                tint = color,
-//                            )
-//                        }
-//                        HorizontalSpacer(4)
-//                        ArrText(text = it) { style.color(color) }
-//                    }
-//                }
                 AnimatedVisibility(visible = isExpand) {
                     Column {
                         VerticalSpacer(4f)

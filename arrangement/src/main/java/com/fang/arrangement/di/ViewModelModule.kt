@@ -12,7 +12,7 @@ import com.fang.arrangement.ui.screen.btmnav.statistic.employeeattendance.Employ
 import com.fang.arrangement.ui.screen.btmnav.statistic.employeeloan.EmployeeLoanViewModel
 import com.fang.arrangement.ui.screen.btmnav.statistic.pdf.PDFViewModel
 import com.fang.arrangement.ui.screen.btmnav.statistic.salary.SalaryViewModel
-import org.koin.androidx.viewmodel.dsl.viewModelOf
+import org.koin.core.module.dsl.viewModelOf
 import org.koin.dsl.module
 
 internal object ViewModelModule {

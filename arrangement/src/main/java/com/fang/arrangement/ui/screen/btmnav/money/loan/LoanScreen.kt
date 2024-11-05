@@ -419,8 +419,7 @@ private fun LoanEditDialog(
                                     },
                                     original = recordEdit.millis,
                                     isSelectableMillis = { millis ->
-                                        (millis !in edit?.records?.map { it.millis }.orEmpty()) &&
-                                            (edit?.millis?.let { millis >= it } ?: true)
+                                        edit?.millis?.let { millis >= it } ?: true
                                     },
                                     onConfirm = viewModel::editRecordMillis,
                                 )
