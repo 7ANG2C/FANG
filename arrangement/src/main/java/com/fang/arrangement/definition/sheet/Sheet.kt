@@ -5,7 +5,7 @@ import com.fang.arrangement.definition.Employee
 import com.fang.arrangement.definition.Fund
 import com.fang.arrangement.definition.Loan
 import com.fang.arrangement.definition.Site
-import com.fang.cosmos.foundation.withcontextcatching.withDefaultCoroutine
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 
 internal data class Sheet<T>(
@@ -26,15 +26,13 @@ internal fun List<WorkSheet>.sheetEmployee() = sheet<Employee>()
 internal fun List<WorkSheet>.sheetSite() = sheet<Site>()
 
 internal inline fun <reified T> List<WorkSheet>.sheet() =
-    runBlocking {
-        withDefaultCoroutine {
-            find { it.clazz == T::class.java }?.let {
-                Sheet(
-                    id = it.id,
-                    name = it.name,
-                    keys = it.keys,
-                    values = it.values.filterIsInstance<T>(),
-                )
-            }
+    runBlocking(Dispatchers.Default) {
+        find { it.clazz == T::class.java }?.let {
+            Sheet(
+                id = it.id,
+                name = it.name,
+                keys = it.keys,
+                values = it.values.filterIsInstance<T>(),
+            )
         }
     }

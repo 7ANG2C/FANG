@@ -6,8 +6,6 @@ import java.util.Date
 import java.util.Properties
 
 plugins {
-    alias(libs.plugins.googleServices)
-    alias(libs.plugins.firebaseCrashlytics)
     alias(libs.plugins.androidApplication)
     alias(libs.plugins.jetbrainsKotlinAndroid)
     alias(libs.plugins.jetbrainsKotlinParcelize)
@@ -15,13 +13,13 @@ plugins {
 }
 
 android {
-    val pkg = "com.fang.arrangement"
+    val pkg = "com.fang.free"
     namespace = pkg
-    resourcePrefix = "arr_"
+    resourcePrefix = "free_"
     defaultConfig {
         applicationId = pkg
-        versionCode = 5
-        versionName = "1.3.1"
+        versionCode = 1
+        versionName = "1.0.0"
         vectorDrawables.useSupportLibrary = true
         ndk { abiFilters.addAll(listOf("armeabi-v7a", "arm64-v8a")) }
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
@@ -45,7 +43,7 @@ android {
             val dateTime = SimpleDateFormat("MM.dd-HH.mm").format(Date())
             outputs.forEach {
                 (it as? BaseVariantOutputImpl)?.outputFileName =
-                    "arrangement-$versionName-$dateTime.apk"
+                    "free-$versionName-$dateTime.apk"
             }
         }
     }
@@ -67,16 +65,11 @@ android {
     composeCompiler {
         featureFlags = setOf(ComposeFeatureFlag.OptimizeNonSkippingGroups)
     }
-    packaging { resources { excludes += "/META-INF/{AL2.0,LGPL2.1,INDEX.LIST,DEPENDENCIES}" } }
+    packaging { resources { excludes += "/META-INF/{AL2.0,LGPL2.1}" } }
 }
 
 dependencies {
     implementation(projects.cosmos)
-    implementation(libs.google.auth.oauth2)
-    implementation(libs.google.apis.sheets)
-    implementation(platform(libs.google.firebase.bom))
-    implementation(libs.google.firebase.analytics)
-    implementation(libs.google.firebase.crashlytics)
     // androidx - initial
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)

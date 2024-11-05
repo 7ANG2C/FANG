@@ -426,17 +426,6 @@ internal class PDFViewModel(
                                                 )
                                             }
                                     }
-//                                    attAll.remark?.let { remark ->
-//                                        remark.chunked(30).forEach {
-//                                            draw(
-//                                                Draw(
-//                                                    text = it,
-//                                                    paint = paint(14f, Color.GRAY),
-//                                                    x = w,
-//                                                ),
-//                                            )
-//                                        }
-//                                    }
                                     newLine(4f)
                                 }
                             }
