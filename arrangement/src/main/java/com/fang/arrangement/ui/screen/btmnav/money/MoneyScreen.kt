@@ -25,10 +25,11 @@ internal fun MoneyScreen(
     viewModel: MoneyViewModel = koinViewModel(),
 ) {
     Column(modifier) {
+        val allMoney = Money.all
         val pagerState =
-            rememberPagerState { Money.entries.size }
+            rememberPagerState { allMoney.size }
         val money = viewModel.money.stateValue()
-        val index = Money.entries.indexOf(money)
+        val index = allMoney.indexOf(money)
         LaunchedEffect(index) {
             pagerState.scrollToPage(index)
         }
@@ -37,7 +38,7 @@ internal fun MoneyScreen(
             modifier = Modifier.fillMaxWidth(),
             edgePadding = 0.dp,
         ) {
-            Money.entries.forEach { item ->
+            allMoney.forEach { item ->
                 Tab(
                     selected = item == money,
                     onClick = { viewModel.setMoney(item) },
@@ -53,7 +54,7 @@ internal fun MoneyScreen(
                     .weight(1f),
             userScrollEnabled = false,
         ) {
-            when (Money.entries[it]) {
+            when (allMoney[it]) {
                 Money.FUND -> FundScreen(Modifier.fillMaxSize())
                 Money.LOAN -> LoanScreen(Modifier.fillMaxSize())
             }

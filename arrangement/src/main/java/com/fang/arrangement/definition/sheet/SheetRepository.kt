@@ -1,6 +1,7 @@
 package com.fang.arrangement.definition.sheet
 
 import android.content.Context
+import com.fang.arrangement.Arrangement
 import com.fang.arrangement.definition.foundation.KeyValue
 import com.fang.cosmos.foundation.fromJsonTypeList
 import com.fang.cosmos.foundation.indexOfFirstOrNull
@@ -49,13 +50,6 @@ internal class SheetRepository(
     coroutineScope: CoroutineScope,
     private val gson: Gson,
 ) {
-    @Suppress("unused")
-    enum class Env(val id: String) {
-        PROD("1hYhuc7IYnVkjx6qK7WePQiTF7Jw9ZUwC-pU8DMVcNdI"),
-        UAT("1Z7uSrOTASCKYvEydJ_QTClgwaOPvq_xuRqxKGKzrc34"),
-        SIT("1jj5ejgD-FtGH6c2tXNtrAEPDmGsAR_n2yDWRIXRBQac"),
-    }
-
     private data class Mediator(
         val name: String,
         val keys: List<String>,
@@ -64,7 +58,7 @@ internal class SheetRepository(
     )
 
     private companion object {
-        val SPREAD_SHEET_ID = Env.PROD.id
+        val SPREAD_SHEET_ID = Arrangement.current.id
     }
 
     private val service by lazy {
