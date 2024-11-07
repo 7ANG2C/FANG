@@ -6,7 +6,7 @@ import com.fang.arrangement.definition.Fund
 import com.fang.arrangement.definition.Loan
 import com.fang.arrangement.definition.Site
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withContext
 
 internal data class Sheet<T>(
     val id: Int,
@@ -15,18 +15,18 @@ internal data class Sheet<T>(
     val values: List<T>,
 )
 
-internal fun List<WorkSheet>.sheetAttendance() = sheet<AttendanceAll>()
+internal suspend fun List<WorkSheet>.sheetAttendance() = sheet<AttendanceAll>()
 
-internal fun List<WorkSheet>.sheetLoan() = sheet<Loan>()
+internal suspend fun List<WorkSheet>.sheetLoan() = sheet<Loan>()
 
-internal fun List<WorkSheet>.sheetFund() = sheet<Fund>()
+internal suspend fun List<WorkSheet>.sheetFund() = sheet<Fund>()
 
-internal fun List<WorkSheet>.sheetEmployee() = sheet<Employee>()
+internal suspend fun List<WorkSheet>.sheetEmployee() = sheet<Employee>()
 
-internal fun List<WorkSheet>.sheetSite() = sheet<Site>()
+internal suspend fun List<WorkSheet>.sheetSite() = sheet<Site>()
 
-internal inline fun <reified T> List<WorkSheet>.sheet() =
-    runBlocking(Dispatchers.Default) {
+internal suspend inline fun <reified T> List<WorkSheet>.sheet() =
+    withContext(Dispatchers.Default) {
         find { it.clazz == T::class.java }?.let {
             Sheet(
                 id = it.id,
