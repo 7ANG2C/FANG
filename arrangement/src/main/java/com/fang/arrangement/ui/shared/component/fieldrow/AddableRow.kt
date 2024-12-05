@@ -24,32 +24,30 @@ internal fun AddableRow(
     content: @Composable RowScope.() -> Unit,
     onAdd: Invoke?,
     decorationAdd: @Composable (innerTextField: @Composable () -> Unit) -> Unit = @Composable { innerAddIcon -> innerAddIcon() },
+) = Row(
+    modifier = modifier.height(IntrinsicSize.Max),
+    verticalAlignment = Alignment.CenterVertically,
 ) {
-    Row(
-        modifier = modifier.height(IntrinsicSize.Max),
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        Row(modifier = Modifier.weight(1f), content = content)
-        decorationAdd {
-            Box(
-                Modifier
-                    .clickableNoRipple { onAdd?.invoke() }
-                    .padding(start = 4.dp),
-            ) {
-                CustomIcon(
-                    drawableResId = R.drawable.arr_r24_add,
-                    modifier =
-                        Modifier.bg(CircleShape) {
-                            animateColor(label = "AddableBg") {
-                                primary.copy(alpha = if (onAdd != null) 0.38f else 0f)
-                            }
-                        },
-                    tint =
-                        animateColor(label = "AddableTint") {
-                            secondary.copy(alpha = if (onAdd != null) 1f else 0f)
-                        },
-                )
-            }
+    Row(modifier = Modifier.weight(1f), content = content)
+    decorationAdd {
+        Box(
+            Modifier
+                .clickableNoRipple { onAdd?.invoke() }
+                .padding(start = 4.dp),
+        ) {
+            CustomIcon(
+                drawableResId = R.drawable.arr_r24_add,
+                modifier =
+                    Modifier.bg(CircleShape) {
+                        animateColor(label = "AddableBg") {
+                            primary.copy(alpha = if (onAdd != null) 0.38f else 0f)
+                        }
+                    },
+                tint =
+                    animateColor(label = "AddableTint") {
+                        secondary.copy(alpha = if (onAdd != null) 1f else 0f)
+                    },
+            )
         }
     }
 }
