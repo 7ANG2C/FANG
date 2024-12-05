@@ -29,6 +29,9 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.state.ToggleableState
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
+import com.fang.arrangement.R
+import com.fang.arrangement.ui.screen.btmnav.money.fund.pdf.FundPDFDialog
+import com.fang.arrangement.ui.screen.btmnav.money.fund.pdf.FundPDFViewModel
 import com.fang.arrangement.ui.shared.component.ArrText
 import com.fang.arrangement.ui.shared.component.DateSelector
 import com.fang.arrangement.ui.shared.component.EmptyScreen
@@ -49,6 +52,7 @@ import com.fang.cosmos.foundation.NumberFormat
 import com.fang.cosmos.foundation.isMulti
 import com.fang.cosmos.foundation.time.calendar.ChineseDayOfWeek
 import com.fang.cosmos.foundation.time.calendar.today
+import com.fang.cosmos.foundation.ui.component.CustomIcon
 import com.fang.cosmos.foundation.ui.component.HorizontalSpacer
 import com.fang.cosmos.foundation.ui.component.VerticalSpacer
 import com.fang.cosmos.foundation.ui.dsl.MaterialColor
@@ -65,246 +69,252 @@ import java.util.Calendar
 internal fun FundScreen(
     modifier: Modifier,
     viewModel: FundViewModel = koinViewModel(),
-) {
-    Box(modifier = Modifier.fillMaxWidth()) {
-        val ymFunds = viewModel.ymFunds.stateValue()
-        if (ymFunds.isEmpty()) {
-            EmptyScreen(modifier = modifier)
-        } else {
-            var showDeleteDialog by remember {
-                mutableStateOf<List<MFund>?>(null)
-            }
-            Column(
-                modifier
-                    .padding(horizontal = 16.dp)
-                    .padding(top = 12.dp),
-            ) {
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    val style = MaterialTypography.titleLarge.color { primary }
-                    ymFunds.selectedFund?.let {
-                        ArrText(text = it) { style }
-                        HorizontalSpacer(2)
-                        ArrText(text = "/") { style }
-                        HorizontalSpacer(2)
-                    }
-                    ArrText(text = ymFunds.totalFund) { style }
-                    Spacer(modifier = Modifier.weight(1f))
-                    val ids =
-                        ymFunds.flatMap { ymFund ->
-                            ymFund.dayFunds.flatMap { fund ->
-                                fund.funds.filter { it.selected }
-                            }
-                        }
-                    if (ids.size >= 2) {
-                        DeleteButton(text = "批量刪除", color = { error }) {
-                            showDeleteDialog = ids
-                        }
-                    }
+    pdfViewModel: FundPDFViewModel = koinViewModel(),
+) = Box(modifier = Modifier.fillMaxWidth()) {
+    val ymFunds = viewModel.ymFunds.stateValue()
+    if (ymFunds.isEmpty()) {
+        EmptyScreen(modifier = modifier)
+    } else {
+        var showDeleteDialog by remember {
+            mutableStateOf<List<MFund>?>(null)
+        }
+        Column(
+            modifier
+                .padding(horizontal = 16.dp)
+                .padding(top = 12.dp),
+        ) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                val style = MaterialTypography.titleLarge.color { primary }
+                ymFunds.selectedFund?.let {
+                    ArrText(text = it) { style }
+                    HorizontalSpacer(2)
+                    ArrText(text = "/") { style }
+                    HorizontalSpacer(2)
                 }
-                VerticalSpacer(10)
-                LazyColumn(
-                    modifier =
-                        Modifier
-                            .fillMaxWidth()
-                            .weight(1f, false),
-                ) {
-                    ymFunds.forEach { ymFund ->
-                        stickyHeader {
-                            Column(
-                                modifier =
-                                    Modifier
-                                        .fillMaxWidth()
-                                        .bg { surfaceContainerLowest },
-                            ) {
-                                VerticalSpacer(2)
-                                Row(
-                                    modifier = Modifier.fillMaxWidth(),
-                                    verticalAlignment = Alignment.CenterVertically,
-                                ) {
-                                    val pre = "0".takeIf { ymFund.month < 9 }.orEmpty()
-                                    HighlightText("${ymFund.year}-$pre${ymFund.month + 1}")
-                                    HorizontalSpacer(14)
-                                    ymFund.selectedFundDisplay?.let {
-                                        Box(contentAlignment = Alignment.CenterEnd) {
-                                            HighlightText(text = it)
-                                        }
-                                        HorizontalSpacer(2)
-                                        HighlightText(text = "/")
-                                        HorizontalSpacer(2)
-                                    }
-                                    HighlightText(text = ymFund.totalFundDisplay)
-                                    Spacer(modifier = Modifier.weight(1f))
-                                    HorizontalSpacer(6)
-                                    TriCheckbox(
-                                        mains = ymFund.dayFunds,
-                                        items = ymFund.dayFunds.flatMap { it.funds },
-                                        on = { it.selected },
-                                        checkedBoxColor = HighlightText.color,
-                                    ) {
-                                        viewModel.toggle(ymFund.year, ymFund.month)
-                                    }
-                                }
-                                VerticalSpacer(10)
-                            }
+                ArrText(text = ymFunds.totalFund) { style }
+                Spacer(modifier = Modifier.weight(1f))
+                val ids =
+                    ymFunds.flatMap { ymFund ->
+                        ymFund.dayFunds.flatMap { fund ->
+                            fund.funds.filter { it.selected }
                         }
-                        items(
-                            items = ymFund.dayFunds,
-                            key = { "${ymFund.year}${ymFund.month}${it.day}" },
-                            contentType = { it },
-                        ) { item ->
-                            Column {
-                                ElevatedCard(
-                                    modifier =
-                                        Modifier.fillMaxWidth(),
-                                    colors =
-                                        CardDefaults.elevatedCardColors().copy(
-                                            containerColor = MaterialColor.surfaceContainer,
-                                        ),
+                    }
+                if (ids.size >= 2) {
+                    DeleteButton(text = "批量刪除", color = { error }) {
+                        showDeleteDialog = ids
+                    }
+                } else {
+                    CustomIcon(
+                        drawableResId = R.drawable.arr_r24_picture_as_pdf,
+                        modifier = Modifier.clickableNoRipple(onClick = pdfViewModel::showRequest),
+                        tint = MaterialColor.primary,
+                    )
+                }
+            }
+            VerticalSpacer(10)
+            LazyColumn(
+                modifier =
+                    Modifier
+                        .fillMaxWidth()
+                        .weight(1f, false),
+            ) {
+                ymFunds.forEach { ymFund ->
+                    stickyHeader {
+                        Column(
+                            modifier =
+                                Modifier
+                                    .fillMaxWidth()
+                                    .bg { surfaceContainerLowest },
+                        ) {
+                            VerticalSpacer(2)
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                verticalAlignment = Alignment.CenterVertically,
+                            ) {
+                                val pre = "0".takeIf { ymFund.month < 9 }.orEmpty()
+                                HighlightText("${ymFund.year}-$pre${ymFund.month + 1}")
+                                HorizontalSpacer(14)
+                                ymFund.selectedFundDisplay?.let {
+                                    Box(contentAlignment = Alignment.CenterEnd) {
+                                        HighlightText(text = it)
+                                    }
+                                    HorizontalSpacer(2)
+                                    HighlightText(text = "/")
+                                    HorizontalSpacer(2)
+                                }
+                                HighlightText(text = ymFund.totalFundDisplay)
+                                Spacer(modifier = Modifier.weight(1f))
+                                HorizontalSpacer(6)
+                                TriCheckbox(
+                                    mains = ymFund.dayFunds,
+                                    items = ymFund.dayFunds.flatMap { it.funds },
+                                    on = { it.selected },
+                                    checkedBoxColor = HighlightText.color,
                                 ) {
-                                    Column(
+                                    viewModel.toggle(ymFund.year, ymFund.month)
+                                }
+                            }
+                            VerticalSpacer(10)
+                        }
+                    }
+                    items(
+                        items = ymFund.dayFunds,
+                        key = { "${ymFund.year}${ymFund.month}${it.day}" },
+                        contentType = { it },
+                    ) { item ->
+                        Column {
+                            ElevatedCard(
+                                modifier =
+                                    Modifier.fillMaxWidth(),
+                                colors =
+                                    CardDefaults.elevatedCardColors().copy(
+                                        containerColor = MaterialColor.surfaceContainer,
+                                    ),
+                            ) {
+                                Column(
+                                    modifier =
+                                        Modifier
+                                            .fillMaxWidth(),
+                                ) {
+                                    Row(
                                         modifier =
                                             Modifier
-                                                .fillMaxWidth(),
+                                                .fillMaxWidth()
+                                                .bg { primary.copy(alpha = 0.14f) }
+                                                .padding(vertical = 5.2.dp, horizontal = 8.dp),
                                     ) {
+                                        val pre = "0".takeIf { ymFund.month < 9 }.orEmpty()
+                                        val dayPre = "0".takeIf { item.day < 10 }.orEmpty()
+                                        val c =
+                                            today().apply {
+                                                set(Calendar.YEAR, ymFund.year)
+                                                set(Calendar.MONTH, ymFund.month)
+                                                set(Calendar.DAY_OF_MONTH, item.day)
+                                            }
+                                        val style =
+                                            ContentText.style.color { onSecondaryContainer }
+                                        ArrText(
+                                            text = "$pre${ymFund.month + 1}-$dayPre${item.day}",
+                                        ) { style }
+                                        HorizontalSpacer(1.2f)
+                                        ArrText(
+                                            text = "(${ChineseDayOfWeek(c.timeInMillis)})",
+                                        ) { style }
+                                        HorizontalSpacer(14)
+                                        item.selectedFundDisplay?.let {
+                                            ArrText(
+                                                text = it,
+                                            ) { style }
+                                            HorizontalSpacer(2)
+                                            ArrText(
+                                                text = "/",
+                                            ) { style }
+                                            HorizontalSpacer(2)
+                                        }
+                                        ArrText(
+                                            text = item.totalFundDisplay,
+                                        ) { style }
+                                        Spacer(modifier = Modifier.weight(1f))
+                                        HorizontalSpacer(6)
+                                        TriCheckbox(
+                                            mains = item.funds,
+                                            items = item.funds,
+                                            on = { it.selected },
+                                            checkedBoxColor = MaterialColor.primary,
+                                        ) {
+                                            viewModel.toggle(
+                                                ymFund.year,
+                                                ymFund.month,
+                                                item.day,
+                                            )
+                                        }
+                                    }
+                                    VerticalSpacer(6)
+                                    item.funds.forEach {
                                         Row(
                                             modifier =
                                                 Modifier
-                                                    .fillMaxWidth()
-                                                    .bg { primary.copy(alpha = 0.14f) }
-                                                    .padding(vertical = 5.2.dp, horizontal = 8.dp),
+                                                    .padding(start = 8.dp, end = 13.6.dp)
+                                                    .clickableNoRipple {
+                                                        viewModel.onUpdate(it)
+                                                    },
                                         ) {
-                                            val pre = "0".takeIf { ymFund.month < 9 }.orEmpty()
-                                            val dayPre = "0".takeIf { item.day < 10 }.orEmpty()
-                                            val c =
-                                                today().apply {
-                                                    set(Calendar.YEAR, ymFund.year)
-                                                    set(Calendar.MONTH, ymFund.month)
-                                                    set(Calendar.DAY_OF_MONTH, item.day)
-                                                }
-                                            val style =
-                                                ContentText.style.color { onSecondaryContainer }
-                                            ArrText(
-                                                text = "$pre${ymFund.month + 1}-$dayPre${item.day}",
-                                            ) { style }
-                                            HorizontalSpacer(1.2f)
-                                            ArrText(
-                                                text = "(${ChineseDayOfWeek(c.timeInMillis)})",
-                                            ) { style }
-                                            HorizontalSpacer(14)
-                                            item.selectedFundDisplay?.let {
-                                                ArrText(
-                                                    text = it,
-                                                ) { style }
-                                                HorizontalSpacer(2)
-                                                ArrText(
-                                                    text = "/",
-                                                ) { style }
-                                                HorizontalSpacer(2)
-                                            }
-                                            ArrText(
-                                                text = item.totalFundDisplay,
-                                            ) { style }
-                                            Spacer(modifier = Modifier.weight(1f))
+                                            ContentText(text = "$${NumberFormat(it.fund, 0)}")
+                                            HorizontalSpacer(10)
+                                            ContentText(
+                                                text = it.remark.orEmpty(),
+                                                modifier = Modifier.weight(1f),
+                                            )
                                             HorizontalSpacer(6)
-                                            TriCheckbox(
-                                                mains = item.funds,
-                                                items = item.funds,
-                                                on = { it.selected },
-                                                checkedBoxColor = MaterialColor.primary,
+                                            Box(
+                                                modifier =
+                                                    Modifier.clickableNoRipple {
+                                                        viewModel.toggle(it.id)
+                                                    },
                                             ) {
-                                                viewModel.toggle(
-                                                    ymFund.year,
-                                                    ymFund.month,
-                                                    item.day,
+                                                val color =
+                                                    ContentText.color.copy(alpha = 0.92f)
+                                                Checkbox(
+                                                    checked = it.selected,
+                                                    onCheckedChange = null,
+                                                    modifier = Modifier.scale(0.8f),
+                                                    colors =
+                                                        CheckboxDefaults.colors().copy(
+                                                            checkedBoxColor = color,
+                                                            checkedBorderColor = color,
+                                                            uncheckedBorderColor = color,
+                                                        ),
                                                 )
                                             }
                                         }
                                         VerticalSpacer(6)
-                                        item.funds.forEach {
-                                            Row(
-                                                modifier =
-                                                    Modifier
-                                                        .padding(start = 8.dp, end = 13.6.dp)
-                                                        .clickableNoRipple {
-                                                            viewModel.onUpdate(it)
-                                                        },
-                                            ) {
-                                                ContentText(text = "$${NumberFormat(it.fund, 0)}")
-                                                HorizontalSpacer(10)
-                                                ContentText(
-                                                    text = it.remark.orEmpty(),
-                                                    modifier = Modifier.weight(1f),
-                                                )
-                                                HorizontalSpacer(6)
-                                                Box(
-                                                    modifier =
-                                                        Modifier.clickableNoRipple {
-                                                            viewModel.toggle(it.id)
-                                                        },
-                                                ) {
-                                                    val color =
-                                                        ContentText.color.copy(alpha = 0.92f)
-                                                    Checkbox(
-                                                        checked = it.selected,
-                                                        onCheckedChange = null,
-                                                        modifier = Modifier.scale(0.8f),
-                                                        colors =
-                                                            CheckboxDefaults.colors().copy(
-                                                                checkedBoxColor = color,
-                                                                checkedBorderColor = color,
-                                                                uncheckedBorderColor = color,
-                                                            ),
-                                                    )
-                                                }
-                                            }
-                                            VerticalSpacer(6)
-                                        }
                                     }
                                 }
-                                VerticalSpacer(10)
                             }
+                            VerticalSpacer(10)
                         }
                     }
-                    item {
-                        Fab(
-                            modifier =
-                                Modifier
-                                    .padding(bottom = 24.dp)
-                                    .alpha(0f),
-                            onClick = {},
-                        )
-                    }
+                }
+                item {
+                    Fab(
+                        modifier =
+                            Modifier
+                                .padding(bottom = 24.dp)
+                                .alpha(0f),
+                        onClick = {},
+                    )
                 }
             }
-            TwoOptionDialog(
-                text =
-                    showDeleteDialog?.takeIf { it.isNotEmpty() }?.let {
-                        "是否批量刪除（結清）所選項目？"
-                    },
-                widthFraction = 0.8f,
-                onNegative = { showDeleteDialog = null },
-                onPositive = {
-                    showDeleteDialog?.map { it.id.toString() }?.let {
-                        viewModel.deletes(it)
-                    }
-                    showDeleteDialog = null
-                },
-            )
         }
-        Fab(
-            modifier =
-                Modifier
-                    .padding(20.dp)
-                    .align(Alignment.BottomEnd),
-            onClick = viewModel::onInsert,
+        TwoOptionDialog(
+            text =
+                showDeleteDialog?.takeIf { it.isNotEmpty() }?.let {
+                    "是否批量刪除（結清）所選項目？"
+                },
+            widthFraction = 0.8f,
+            onNegative = { showDeleteDialog = null },
+            onPositive = {
+                showDeleteDialog?.map { it.id.toString() }?.let {
+                    viewModel.deletes(it)
+                }
+                showDeleteDialog = null
+            },
         )
-        FundEditDialog(
-            editBundle = viewModel.editBundle.stateValue(),
-            viewModel = viewModel,
-        )
-        ErrorDialog(viewModel)
-        Loading(viewModel)
     }
+    Fab(
+        modifier =
+            Modifier
+                .padding(20.dp)
+                .align(Alignment.BottomEnd),
+        onClick = viewModel::onInsert,
+    )
+    FundEditDialog(
+        editBundle = viewModel.editBundle.stateValue(),
+        viewModel = viewModel,
+    )
+    ErrorDialog(viewModel)
+    Loading(viewModel)
+    FundPDFDialog(pdfViewModel)
 }
 
 @Composable

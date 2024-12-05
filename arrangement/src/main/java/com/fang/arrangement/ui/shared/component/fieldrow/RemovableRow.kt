@@ -26,27 +26,25 @@ fun RemovableRow(
     modifier: Modifier,
     content: @Composable RowScope.() -> Unit,
     onRemove: () -> Unit,
-) {
-    Row(modifier = modifier.height(IntrinsicSize.Max)) {
-        Row(modifier = Modifier.weight(1f), content = content)
-        val focusManager = LocalFocusManager.current
-        Box(
-            modifier =
-                Modifier
-                    .clickableNoRipple {
-                        focusManager.clearFocus()
-                        onRemove()
-                    }
-                    .padding(start = 4.dp),
-        ) {
-            ArrText(text = "1") {
-                ContentText.style.color(Color.Transparent)
-            }
-            CustomIcon(
-                drawableResId = R.drawable.arr_r24_remove,
-                modifier = Modifier.bg(CircleShape) { error.copy(alpha = 0.18f) },
-                tint = MaterialColor.error,
-            )
+) = Row(modifier = modifier.height(IntrinsicSize.Max)) {
+    Row(modifier = Modifier.weight(1f), content = content)
+    val focusManager = LocalFocusManager.current
+    Box(
+        modifier =
+            Modifier
+                .clickableNoRipple {
+                    focusManager.clearFocus()
+                    onRemove()
+                }
+                .padding(start = 4.dp),
+    ) {
+        ArrText(text = "1") {
+            ContentText.style.color(Color.Transparent)
         }
+        CustomIcon(
+            drawableResId = R.drawable.arr_r24_remove,
+            modifier = Modifier.bg(CircleShape) { error.copy(alpha = 0.18f) },
+            tint = MaterialColor.error,
+        )
     }
 }

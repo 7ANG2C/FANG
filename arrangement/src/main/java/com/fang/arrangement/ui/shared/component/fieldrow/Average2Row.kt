@@ -13,13 +13,11 @@ internal fun Average2Row(
     modifier: Modifier,
     first: @Composable BoxScope.() -> Unit,
     second: @Composable BoxScope.() -> Unit,
+) = Row(
+    modifier = modifier,
+    verticalAlignment = Alignment.CenterVertically,
 ) {
-    Row(
-        modifier = modifier,
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        Box(modifier = Modifier.weight(1f), content = first)
-        HorizontalSpacer(4)
-        Box(modifier = Modifier.weight(1f), content = second)
-    }
+    Box(modifier = Modifier.weight(1f), content = first)
+    HorizontalSpacer(4)
+    Box(modifier = Modifier.weight(1f), content = second)
 }
