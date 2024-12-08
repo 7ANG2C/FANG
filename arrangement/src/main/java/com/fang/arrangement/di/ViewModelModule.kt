@@ -7,6 +7,7 @@ import com.fang.arrangement.ui.screen.btmnav.money.MoneyViewModel
 import com.fang.arrangement.ui.screen.btmnav.money.fund.FundViewModel
 import com.fang.arrangement.ui.screen.btmnav.money.fund.pdf.FundPDFViewModel
 import com.fang.arrangement.ui.screen.btmnav.money.loan.LoanViewModel
+import com.fang.arrangement.ui.screen.btmnav.money.payback.PaybackViewModel
 import com.fang.arrangement.ui.screen.btmnav.site.SiteViewModel
 import com.fang.arrangement.ui.screen.btmnav.statistic.StatisticViewModel
 import com.fang.arrangement.ui.screen.btmnav.statistic.employeeattendance.EmployeeAttendanceViewModel
@@ -25,6 +26,7 @@ internal object ViewModelModule {
             viewModelOf(::LoanViewModel)
             viewModelOf(::FundViewModel)
             viewModelOf(::FundPDFViewModel)
+            viewModelOf(::PaybackViewModel)
             viewModelOf(::StatisticViewModel)
             viewModelOf(::SalaryViewModel)
             viewModelOf(::PDFViewModel)

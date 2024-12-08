@@ -1,13 +1,15 @@
-package com.fang.arrangement.ui.screen.btmnav.money.loan
+package com.fang.arrangement.ui.screen.btmnav.money.payback
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.fang.arrangement.definition.Employee
-import com.fang.arrangement.definition.Loan
-import com.fang.arrangement.definition.LoanKey
+import com.fang.arrangement.definition.Boss
+import com.fang.arrangement.definition.BossKey
+import com.fang.arrangement.definition.Payback
+import com.fang.arrangement.definition.PaybackKey
 import com.fang.arrangement.definition.sheet.SheetRepository
-import com.fang.arrangement.definition.sheet.sheetEmployee
-import com.fang.arrangement.definition.sheet.sheetLoan
+import com.fang.arrangement.definition.sheet.sheetBoss
+import com.fang.arrangement.definition.sheet.sheetPayback
+import com.fang.arrangement.foundation.Bool
 import com.fang.arrangement.foundation.noBreathing
 import com.fang.arrangement.ui.shared.dsl.Remark
 import com.fang.cosmos.definition.workstate.WorkState
@@ -28,14 +30,14 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalCoroutinesApi::class)
-internal class LoanViewModel(
+internal class PaybackViewModel(
     private val sheetRepository: SheetRepository,
     private val gson: Gson,
 ) : ViewModel(), WorkState by WorkStateImpl() {
-    private val _bundle = MutableStateFlow(LoanBundle(emptyList(), emptyList()))
+    private val _bundle = MutableStateFlow(PaybackBundle(emptyList(), emptyList()))
     val bundle = _bundle.asStateFlow()
 
-    private val _editBundle = MutableStateFlow<LoanEditBundle?>(null)
+    private val _editBundle = MutableStateFlow<PaybackEditBundle?>(null)
     val editBundle = _editBundle.asStateFlow()
 
     private val _recordEdit = MutableStateFlow(RecordEdit.empty)
@@ -45,41 +47,38 @@ internal class LoanViewModel(
         viewModelScope.launch {
             sheetRepository.workSheets
                 .mapLatest { workSheets ->
-                    val employees =
-                        workSheets?.sheetEmployee()?.values.orEmpty()
+                    val bosses =
+                        workSheets?.sheetBoss()?.values.orEmpty()
                             .sortedWith(
-                                compareBy<Employee> { it.delete }
-                                    .thenByDescending { it.expiredMillis ?: Long.MAX_VALUE }
+                                compareBy<Boss> { it.delete }
                                     .thenByDescending { it.id },
                             )
-                    workSheets?.sheetLoan()?.values
-                        ?.map { loan ->
-                            val records = loan.records
-                            MLoan(
-                                id = loan.id,
-                                employee =
-                                    employees.find {
-                                        it.id == loan.employeeId
-                                    } ?: Employee(
-                                        id = loan.employeeId,
+                    workSheets?.sheetPayback()?.values
+                        ?.map { payback ->
+                            val records = payback.records
+                            MPayback(
+                                id = payback.id,
+                                boss =
+                                    bosses.find {
+                                        it.id == payback.bossId
+                                    } ?: Boss(
+                                        id = payback.bossId,
                                         name = "",
-                                        salaries = emptyList(),
-                                        expiredMillis = null,
                                         delete = 1,
                                     ),
-                                loan = loan.loan,
-                                millis = loan.millis,
+                                payback = payback.payback,
+                                millis = payback.millis,
                                 records = records,
-                                remark = loan.remark,
+                                remark = payback.remark,
                             )
                         }
                         ?.sortedWith(
-                            compareBy<MLoan> { it.isClear }
+                            compareBy<MPayback> { it.isClear }
                                 .thenByDescending { it.millis }
-                                .thenByDescending { it.loan }
-                                .thenByDescending { it.employee.id },
+                                .thenByDescending { it.payback }
+                                .thenByDescending { it.boss.id },
                         )?.let {
-                            LoanBundle(employees, it)
+                            PaybackBundle(bosses, it)
                         }
                 }
                 .filterNotNull()
@@ -92,13 +91,13 @@ internal class LoanViewModel(
 
     fun onInsert() {
         _editBundle.value =
-            LoanEditBundle(
+            PaybackEditBundle(
                 current = null,
                 edit =
-                    LoanEdit(
+                    PaybackEdit(
                         id = -1,
-                        employee = null,
-                        loan = null,
+                        boss = null,
+                        payback = null,
                         millis = null,
                         records = emptyList(),
                         remark = null,
@@ -106,21 +105,21 @@ internal class LoanViewModel(
             )
     }
 
-    fun onUpdate(current: MLoan) {
+    fun onUpdate(current: MPayback) {
         _editBundle.value =
-            LoanEditBundle(
+            PaybackEditBundle(
                 current = current,
                 edit =
-                    LoanEdit(
+                    PaybackEdit(
                         id = current.id,
-                        employee = current.employee,
-                        loan = current.loan.toString(),
+                        boss = current.boss,
+                        payback = current.payback.toString(),
                         millis = current.millis,
                         records =
                             current.records.map {
                                 RecordEdit(
                                     millis = it.millis,
-                                    loan = it.loan.toString(),
+                                    payback = it.payback.toString(),
                                     remark = it.remark,
                                 )
                             },
@@ -129,15 +128,15 @@ internal class LoanViewModel(
             )
     }
 
-    fun editEmployee(employee: Employee?) {
+    fun editBoss(boss: Boss?) {
         _editBundle.update {
-            it?.copy(edit = it.edit.copy(employee = employee))
+            it?.copy(edit = it.edit.copy(boss = boss))
         }
     }
 
-    fun editLoan(loan: String?) {
+    fun editPayback(payback: String?) {
         _editBundle.update {
-            it?.copy(edit = it.edit.copy(loan = loan.takeIfNotBlank))
+            it?.copy(edit = it.edit.copy(payback = payback.takeIfNotBlank))
         }
     }
 
@@ -153,9 +152,9 @@ internal class LoanViewModel(
         }
     }
 
-    fun editRecordLoan(loan: String?) {
+    fun editRecordPayback(payback: String?) {
         _recordEdit.update { old ->
-            old.copy(loan = loan.takeIfNotBlank)
+            old.copy(payback = payback.takeIfNotBlank)
         }
     }
 
@@ -166,7 +165,7 @@ internal class LoanViewModel(
     }
 
     fun addRecord(edit: RecordEdit) {
-        if (edit.millis != null && edit.loan != null) {
+        if (edit.millis != null && edit.payback != null) {
             _editBundle.update { old ->
                 val new = listOf(edit) + old?.edit?.records.orEmpty()
                 old?.copy(
@@ -204,15 +203,15 @@ internal class LoanViewModel(
         _editBundle.value = null
     }
 
-    fun insert(edit: LoanEdit) {
+    fun insert(edit: PaybackEdit) {
         if (edit.savable) {
             execute {
-                sheetRepository.insert<Loan>(
+                sheetRepository.insert<Payback>(
                     keyValues =
-                        LoanKey.fold(
+                        PaybackKey.fold(
                             id = System.currentTimeMillis().toString(),
-                            employeeId = edit.employee?.id?.toString().orEmpty(),
-                            loan = edit.loan.orEmpty(),
+                            bossId = edit.boss?.id?.toString().orEmpty(),
+                            payback = edit.payback.orEmpty(),
                             millis = edit.millis?.toString().orEmpty(),
                             records = "[]",
                             remark = "\"${edit.remark.takeIfNotBlank.orEmpty().trim()}\"",
@@ -222,19 +221,19 @@ internal class LoanViewModel(
         }
     }
 
-    fun update(editBundle: LoanEditBundle) {
+    fun update(editBundle: PaybackEditBundle) {
         val id = editBundle.current?.id?.toString()
         val edit = editBundle.edit
         if (id != null && edit.savable && editBundle.anyDiff) {
             execute {
-                sheetRepository.update<Loan>(
-                    key = LoanKey.ID,
+                sheetRepository.update<Payback>(
+                    key = PaybackKey.ID,
                     value = id,
                     keyValues =
-                        LoanKey.fold(
+                        PaybackKey.fold(
                             id = id,
-                            employeeId = edit.employee?.id?.toString().orEmpty(),
-                            loan = edit.loan.orEmpty(),
+                            bossId = edit.boss?.id?.toString().orEmpty(),
+                            payback = edit.payback.orEmpty(),
                             millis = edit.millis?.toString().orEmpty(),
                             records = gson.json(edit.records).getOrNull()?.noBreathing ?: "[]",
                             remark = "\"${edit.remark.takeIfNotBlank.orEmpty().trim()}\"",
@@ -246,7 +245,7 @@ internal class LoanViewModel(
 
     fun delete(id: String) {
         execute {
-            sheetRepository.delete<Loan>(key = LoanKey.ID, value = id)
+            sheetRepository.delete<Payback>(key = PaybackKey.ID, value = id)
         }
     }
 
@@ -255,6 +254,103 @@ internal class LoanViewModel(
         viewModelScope.launch {
             block().onSuccess {
                 clearEdit()
+            }.onFailure(::throwable)
+            noLoading()
+        }
+    }
+
+    private val _bossEditBundle = MutableStateFlow<BossEditBundle?>(null)
+    val bossEditBundle = _bossEditBundle.asStateFlow()
+
+    fun bossOnInsert() {
+        _bossEditBundle.value =
+            BossEditBundle(
+                current = null,
+                edit =
+                    BossEdit(
+                        id = -1L,
+                        name = null,
+                    ),
+            )
+    }
+
+    fun bossOnUpdate(current: Boss) {
+        _bossEditBundle.value =
+            BossEditBundle(
+                current = current,
+                edit =
+                    BossEdit(
+                        id = current.id,
+                        name = current.name,
+                    ),
+            )
+    }
+
+    fun editName(name: String?) {
+        _bossEditBundle.update {
+            it?.copy(edit = it.edit.copy(name = name.takeIfNotBlank))
+        }
+    }
+
+    fun bossClearEdit() {
+        _bossEditBundle.value = null
+    }
+
+    fun bossInsert(edit: BossEdit) {
+        if (edit.savable) {
+            bossExecute {
+                sheetRepository.insert<Boss>(
+                    keyValues =
+                        BossKey.fold(
+                            id = System.currentTimeMillis().toString(),
+                            name = "\"${edit.name.orEmpty().trim()}\"",
+                            delete = Bool.FALSE.toString(),
+                        ),
+                )
+            }
+        }
+    }
+
+    fun bossUpdate(editBundle: BossEditBundle) {
+        val id = editBundle.current?.id?.toString()
+        val edit = editBundle.edit
+        if (id != null && edit.savable && editBundle.anyDiff) {
+            bossExecute {
+                sheetRepository.update<Boss>(
+                    key = BossKey.ID,
+                    value = id,
+                    keyValues =
+                        BossKey.fold(
+                            id = id,
+                            name = "\"${edit.name.orEmpty().trim()}\"",
+                            delete = Bool.FALSE.toString(),
+                        ),
+                )
+            }
+        }
+    }
+
+    fun bossDelete(current: Boss) {
+        bossExecute {
+            val id = current.id.toString()
+            sheetRepository.update<Boss>(
+                key = BossKey.ID,
+                value = id,
+                keyValues =
+                    BossKey.fold(
+                        id = id,
+                        name = "\"${current.name}\"",
+                        delete = Bool.TRUE.toString(),
+                    ),
+            )
+        }
+    }
+
+    private fun <T> bossExecute(block: suspend CoroutineScope.() -> Result<T>) {
+        loading()
+        viewModelScope.launch {
+            block().onSuccess {
+                bossClearEdit()
             }.onFailure(::throwable)
             noLoading()
         }

@@ -50,7 +50,11 @@ internal class EmployeeLoanViewModel(
                             EmployeeLoan(
                                 employeeId = employeeId,
                                 employee = employees?.find { it.id == employeeId },
-                                loans = ymLoans.sortedByDescending { "${it.year}${it.month}" },
+                                loans =
+                                    ymLoans.sortedWith(
+                                        compareByDescending<EmployeeLoan.YMLoan> { it.year }
+                                            .thenByDescending { it.month },
+                                    ),
                             )
                         }
                     }
