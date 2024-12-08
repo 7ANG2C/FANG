@@ -1,18 +1,25 @@
-package com.fang.arrangement.ui.screen.btmnav.money.loan
+package com.fang.arrangement.ui.screen.btmnav.money.payback
 
+import androidx.compose.animation.Crossfade
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -32,7 +39,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.fang.arrangement.definition.Employee
+import com.fang.arrangement.R
+import com.fang.arrangement.definition.Boss
 import com.fang.arrangement.foundation.orDash
 import com.fang.arrangement.ui.shared.component.ArrText
 import com.fang.arrangement.ui.shared.component.ArrangementList
@@ -52,17 +60,20 @@ import com.fang.arrangement.ui.shared.component.fieldrow.RemovableRow
 import com.fang.arrangement.ui.shared.component.inputfield.NumberInputField
 import com.fang.arrangement.ui.shared.component.inputfield.StringInputField
 import com.fang.arrangement.ui.shared.dsl.AlphaColor
+import com.fang.arrangement.ui.shared.dsl.BossTag
 import com.fang.arrangement.ui.shared.dsl.ContentText
-import com.fang.arrangement.ui.shared.dsl.EmployeeTag
 import com.fang.arrangement.ui.shared.dsl.HighlightText
 import com.fang.arrangement.ui.shared.dsl.Remark
 import com.fang.arrangement.ui.shared.dsl.YMDDayOfWeek
 import com.fang.arrangement.ui.shared.dsl.alphaColor
 import com.fang.cosmos.foundation.NumberFormat
 import com.fang.cosmos.foundation.takeIfNotBlank
+import com.fang.cosmos.foundation.ui.component.CustomIcon
 import com.fang.cosmos.foundation.ui.component.HorizontalSpacer
 import com.fang.cosmos.foundation.ui.component.VerticalSpacer
 import com.fang.cosmos.foundation.ui.dsl.MaterialColor
+import com.fang.cosmos.foundation.ui.dsl.MaterialShape
+import com.fang.cosmos.foundation.ui.dsl.screenHeightDp
 import com.fang.cosmos.foundation.ui.dsl.screenWidthDp
 import com.fang.cosmos.foundation.ui.ext.bg
 import com.fang.cosmos.foundation.ui.ext.clickableNoRipple
@@ -71,147 +82,221 @@ import com.fang.cosmos.foundation.ui.ext.fontSize
 import com.fang.cosmos.foundation.ui.ext.stateValue
 import org.koin.androidx.compose.koinViewModel
 
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
-internal fun LoanScreen(
+internal fun PaybackScreen(
     modifier: Modifier,
-    viewModel: LoanViewModel = koinViewModel(),
+    viewModel: PaybackViewModel = koinViewModel(),
 ) = Box(modifier = Modifier.fillMaxSize()) {
     Column(modifier = modifier) {
-        ArrangementList(
-            modifier = Modifier.weight(1f, false),
-            items = viewModel.bundle.stateValue().loans,
-            key = { it.id },
-            contentType = { it },
-            onSelect = viewModel::onUpdate,
-            onAdd = viewModel::onInsert,
-        ) { item ->
-            val isClear = item.isClear
-            Row {
-                Row(
-                    modifier = Modifier.weight(1f),
-                    verticalAlignment = Alignment.CenterVertically,
-                ) {
-                    HighlightText(
-                        text = item.employee.name.takeIfNotBlank ?: item.employee.id.toString(),
-                        modifier = Modifier.weight(1f, false),
-                        isAlpha = isClear,
-                    )
-                    HorizontalSpacer(2)
-                    EmployeeTag(
-                        employee = item.employee,
-                        modifier =
-                            Modifier
-                                .scale(0.88f)
-                                .alpha(if (isClear) AlphaColor.DEFAULT else 1f),
-                    )
-                }
-                if (!isClear) {
-                    HighlightText(
-                        text = "尚欠：${NumberFormat(item.remain)}",
-                        modifier = Modifier.weight(1f),
-                        isAlpha = false,
-                    )
-                }
-            }
-            Row {
-                HighlightText(
-                    text = "借日：${YMDDayOfWeek(item.millis)}",
-                    modifier = Modifier.weight(1f),
-                    isAlpha = isClear,
-                )
-                HighlightText(
-                    text = "金額：${NumberFormat(item.loan)}",
-                    modifier = Modifier.weight(1f),
-                    isAlpha = isClear,
-                )
-            }
-
-            // 備註
-            item.remark.takeIfNotBlank?.let {
+        var expandedState by rememberSaveable {
+            mutableStateOf(false)
+        }
+        CustomIcon(
+            drawableResId = R.drawable.arr_r24_keyboard_double_arrow_down,
+            modifier =
+                Modifier
+                    .align(Alignment.CenterHorizontally)
+                    .clickableNoRipple {
+                        expandedState = !expandedState
+                    }
+                    .padding(horizontal = 12.dp)
+                    .padding(top = 8.dp),
+            tint = MaterialColor.primary,
+        )
+        Box(Modifier.fillMaxWidth().weight(1f)) {
+            ArrangementList(
+                modifier = Modifier.fillMaxWidth(),
+                items = viewModel.bundle.stateValue().paybacks,
+                key = { it.id },
+                contentType = { it },
+                onSelect = viewModel::onUpdate,
+                onAdd = viewModel::onInsert,
+            ) { item ->
+                val isClear = item.isClear
                 Row {
-                    val alpha = if (isClear) AlphaColor.DEFAULT else 0.72f
-                    val style =
-                        HighlightText.style.color(
-                            HighlightText.color.copy(alpha = alpha),
-                        ).fontSize(12.8.sp).copy(lineHeight = 13.2.sp)
-                    Box(contentAlignment = Alignment.CenterStart) {
-                        ArrText(
-                            text = "註",
-                        ) { style.color(Color.Transparent) }
-                        RemarkTag(
-                            modifier = Modifier.scale(0.84f),
-                            tint = HighlightText.color.copy(alpha = alpha),
+                    Row(
+                        modifier = Modifier.weight(1f),
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        HighlightText(
+                            text = item.boss.name.takeIfNotBlank ?: item.boss.id.toString(),
+                            modifier = Modifier.weight(1f, false),
+                            isAlpha = isClear,
+                        )
+                        HorizontalSpacer(2)
+                        BossTag(
+                            boss = item.boss,
+                            modifier =
+                                Modifier
+                                    .scale(0.88f)
+                                    .alpha(if (isClear) AlphaColor.DEFAULT else 1f),
                         )
                     }
-                    HorizontalSpacer(2.8f)
-                    ArrText(
-                        text = it,
-                        modifier = Modifier.weight(1f),
-                    ) { style }
+                    if (!isClear) {
+                        HighlightText(
+                            text = "尚欠：${NumberFormat(item.remain)}",
+                            modifier = Modifier.weight(1f),
+                            isAlpha = false,
+                        )
+                    }
                 }
-            }
-            // 還款紀錄
-            if (item.records.isNotEmpty()) {
-                HorizontalDivider(
-                    Modifier
-                        .fillMaxWidth()
-                        .padding(vertical = 2.dp),
-                )
-                Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                    item.records.forEach { record ->
-                        Column {
-                            Row {
-                                ContentText(
-                                    text = "還日：${YMDDayOfWeek(record.millis)}",
-                                    modifier = Modifier.weight(1f),
-                                    isAlpha = isClear,
-                                )
-                                ContentText(
-                                    text = "金額：${NumberFormat(record.loan)}",
-                                    modifier = Modifier.weight(1f),
-                                    isAlpha = isClear,
-                                )
-                            }
-                            record.remark?.let { remark ->
+                Row {
+                    HighlightText(
+                        text = "欠日：${YMDDayOfWeek(item.millis)}",
+                        modifier = Modifier.weight(1f),
+                        isAlpha = isClear,
+                    )
+                    HighlightText(
+                        text = "總額：${NumberFormat(item.payback)}",
+                        modifier = Modifier.weight(1f),
+                        isAlpha = isClear,
+                    )
+                }
+
+                // 備註
+                item.remark.takeIfNotBlank?.let {
+                    Row {
+                        val alpha = if (isClear) AlphaColor.DEFAULT else 0.72f
+                        val style =
+                            HighlightText.style.color(
+                                HighlightText.color.copy(alpha = alpha),
+                            ).fontSize(12.8.sp).copy(lineHeight = 13.2.sp)
+                        Box(contentAlignment = Alignment.CenterStart) {
+                            ArrText(
+                                text = "註",
+                            ) { style.color(Color.Transparent) }
+                            RemarkTag(
+                                modifier = Modifier.scale(0.84f),
+                                tint = HighlightText.color.copy(alpha = alpha),
+                            )
+                        }
+                        HorizontalSpacer(2.8f)
+                        ArrText(
+                            text = it,
+                            modifier = Modifier.weight(1f),
+                        ) { style }
+                    }
+                }
+                // 還款紀錄
+                if (item.records.isNotEmpty()) {
+                    HorizontalDivider(
+                        Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 2.dp),
+                    )
+                    Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                        item.records.forEach { record ->
+                            Column {
                                 Row {
-                                    val color =
-                                        if (isClear) {
-                                            alphaColor(color = ContentText.color)
-                                        } else {
-                                            ContentText.color.copy(alpha = 0.72f)
-                                        }
-                                    val style =
-                                        ContentText.style.color(color).copy(
-                                            fontSize = 13.2.sp,
-                                            lineHeight = 13.2.sp,
-                                            platformStyle = PlatformTextStyle(includeFontPadding = false),
-                                        )
-                                    Box(contentAlignment = Alignment.CenterStart) {
-                                        ArrText(
-                                            text = "註",
-                                        ) { style.color(Color.Transparent) }
-                                        RemarkTag(
-                                            modifier = Modifier.scale(0.84f),
-                                            tint = color,
-                                        )
-                                    }
-                                    HorizontalSpacer(2.4f)
-                                    ArrText(
-                                        text = remark,
+                                    ContentText(
+                                        text = "還日：${YMDDayOfWeek(record.millis)}",
                                         modifier = Modifier.weight(1f),
-                                    ) { style }
+                                        isAlpha = isClear,
+                                    )
+                                    ContentText(
+                                        text = "金額：${NumberFormat(record.payback)}",
+                                        modifier = Modifier.weight(1f),
+                                        isAlpha = isClear,
+                                    )
+                                }
+                                record.remark?.let { remark ->
+                                    Row {
+                                        val color =
+                                            if (isClear) {
+                                                alphaColor(color = ContentText.color)
+                                            } else {
+                                                ContentText.color.copy(alpha = 0.72f)
+                                            }
+                                        val style =
+                                            ContentText.style.color(color).copy(
+                                                fontSize = 13.2.sp,
+                                                lineHeight = 13.2.sp,
+                                                platformStyle = PlatformTextStyle(includeFontPadding = false),
+                                            )
+                                        Box(contentAlignment = Alignment.CenterStart) {
+                                            ArrText(
+                                                text = "註",
+                                            ) { style.color(Color.Transparent) }
+                                            RemarkTag(
+                                                modifier = Modifier.scale(0.84f),
+                                                tint = color,
+                                            )
+                                        }
+                                        HorizontalSpacer(2.4f)
+                                        ArrText(
+                                            text = remark,
+                                            modifier = Modifier.weight(1f),
+                                        ) { style }
+                                    }
                                 }
                             }
                         }
                     }
                 }
             }
+            Crossfade(
+                targetState = expandedState,
+                label = "expandedState",
+            ) { expand ->
+                if (expand) {
+                    Column(
+                        Modifier
+                            .fillMaxSize()
+                            .bg { scrim.copy(alpha = 0.42f) },
+                    ) {
+                        FlowRow(
+                            modifier =
+                                Modifier
+                                    .fillMaxWidth()
+                                    .bg(RoundedCornerShape(bottomStart = 16.dp, bottomEnd = 16.dp)) {
+                                        surfaceContainerLowest
+                                    }
+                                    .heightIn(1.dp, screenHeightDp * 0.58f)
+                                    .padding(horizontal = 18.dp)
+                                    .padding(bottom = 16.dp)
+                                    .verticalScroll(rememberScrollState()),
+                            horizontalArrangement = Arrangement.spacedBy(8.dp),
+                            verticalArrangement = Arrangement.spacedBy(8.dp),
+                        ) {
+                            ContentText(
+                                text = "  ＋  ",
+                                modifier =
+                                    Modifier
+                                        .border(1.dp, ContentText.color, MaterialShape.small)
+                                        .clickableNoRipple(onClick = viewModel::bossOnInsert)
+                                        .padding(horizontal = 5.2.dp, vertical = 3.2.dp),
+                            )
+                            viewModel.bundle.stateValue().bosses.filter { it.notDelete }.forEach {
+                                ContentText(
+                                    text = it.name,
+                                    modifier =
+                                        Modifier
+                                            .border(1.dp, ContentText.color, MaterialShape.small)
+                                            .clickableNoRipple { viewModel.bossOnUpdate(it) }
+                                            .padding(horizontal = 5.2.dp, vertical = 3.2.dp),
+                                )
+                            }
+                        }
+                        Box(
+                            Modifier
+                                .fillMaxWidth()
+                                .weight(1f)
+                                .clickableNoRipple { expandedState = false },
+                        )
+                    }
+                }
+            }
         }
     }
-    LoanEditDialog(
-        employees = viewModel.bundle.stateValue().employees,
+    PaybackEditDialog(
+        bosses = viewModel.bundle.stateValue().bosses,
         editBundle = viewModel.editBundle.stateValue(),
         recordEdit = viewModel.recordEdit.stateValue(),
+        viewModel = viewModel,
+    )
+    BossEditDialog(
+        editBundle = viewModel.bossEditBundle.stateValue(),
         viewModel = viewModel,
     )
     ErrorDialog(viewModel)
@@ -219,11 +304,53 @@ internal fun LoanScreen(
 }
 
 @Composable
-private fun LoanEditDialog(
-    employees: List<Employee>,
-    editBundle: LoanEditBundle?,
+private fun BossEditDialog(
+    editBundle: BossEditBundle?,
+    viewModel: PaybackViewModel,
+) {
+    val current = editBundle?.current
+    val edit = editBundle?.edit
+    EditDialog(
+        isShow = editBundle != null,
+        onDelete =
+            if (current != null) {
+                { viewModel.bossDelete(current) }
+            } else {
+                null
+            },
+        onCancel = {
+            viewModel.bossClearEdit()
+        },
+        onConfirm =
+            if (edit?.savable == true) {
+                if (editBundle.isInsert) {
+                    { viewModel.bossInsert(edit) }
+                } else {
+                    {
+                        viewModel.bossUpdate(editBundle)
+                    }.takeIf { editBundle.anyDiff }
+                }
+            } else {
+                null
+            },
+    ) {
+        StringInputField(
+            modifier = Modifier.fillMaxWidth(),
+            titleText = "姓名",
+            text = edit?.name.orEmpty(),
+            lines = 1,
+            onClear = true,
+            onValueChange = viewModel::editName,
+        )
+    }
+}
+
+@Composable
+private fun PaybackEditDialog(
+    bosses: List<Boss>,
+    editBundle: PaybackEditBundle?,
     recordEdit: RecordEdit,
-    viewModel: LoanViewModel,
+    viewModel: PaybackViewModel,
 ) {
     val current = editBundle?.current
     val edit = editBundle?.edit
@@ -253,24 +380,24 @@ private fun LoanEditDialog(
                 null
             },
     ) {
-        // 選擇員工
-        val currentEmployee = current?.employee
-        val selectableEmployees =
-            employees.filter {
-                it.id == currentEmployee?.id || (it.notExpire && it.notDelete)
+        // 選擇業主
+        val currentBoss = current?.boss
+        val selectableBosses =
+            bosses.filter {
+                it.id == currentBoss?.id || it.notDelete
             }
-        val allEmployees =
-            selectableEmployees +
+        val allBosses =
+            selectableBosses +
                 listOfNotNull(
-                    currentEmployee?.takeIf {
-                        currentEmployee.id !in selectableEmployees.map { it.id }
+                    currentBoss?.takeIf {
+                        currentBoss.id !in selectableBosses.map { it.id }
                     },
                 )
 
         Column {
             if (editBundle?.isInsert == false) {
                 TextChip(
-                    text = "借款",
+                    text = "欠款",
                     bgColor = { primary },
                     textStyle = {
                         TextStyle(fontSize = 16.8.sp, fontWeight = FontWeight.W600)
@@ -291,28 +418,30 @@ private fun LoanEditDialog(
                         .clickableNoRipple {
                             expandedState.value = true
                         },
-                title = "員工",
-                onClear = { viewModel.editEmployee(null) },
+                title = "業主",
+                onClear = { viewModel.editBoss(null) },
             ) {
-                val employee = edit?.employee
-                if (editBundle?.isInsert == false || employee != null) {
+                val boss = edit?.boss
+                if (editBundle?.isInsert == false || boss != null) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
-                        ContentText(employee?.name.takeIfNotBlank ?: employee?.id?.toString().orDash)
+                        ContentText(
+                            boss?.name.takeIfNotBlank ?: boss?.id?.toString().orDash,
+                        )
                         HorizontalSpacer(4)
-                        EmployeeTag(employee = employee, Modifier.scale(0.92f))
+                        BossTag(boss = boss, Modifier.scale(0.92f))
                     }
                 }
             }
-            if (allEmployees.isNotEmpty()) {
+            if (allBosses.isNotEmpty()) {
                 DropdownSelector(
-                    items = allEmployees,
+                    items = allBosses,
                     modifier =
                         Modifier.width(
                             screenWidthDp * DialogShared.EDIT_WIDTH_FRACTION - DialogShared.editHPaddingDp * 2,
                         ),
-                    selected = allEmployees.find { it.id == edit?.employee?.id },
+                    selected = allBosses.find { it.id == edit?.boss?.id },
                     expandedState = expandedState,
-                    onSelected = viewModel::editEmployee,
+                    onSelected = viewModel::editBoss,
                 ) {
                     Row(
                         Modifier
@@ -322,9 +451,9 @@ private fun LoanEditDialog(
                     ) {
                         ContentText(text = it.name.takeIfNotBlank ?: it.id.toString())
                         HorizontalSpacer(4)
-                        EmployeeTag(employee = it, Modifier.scale(0.92f))
+                        BossTag(boss = it, Modifier.scale(0.92f))
                         Spacer(modifier = Modifier.weight(1f))
-                        if (it.id == edit?.employee?.id) {
+                        if (it.id == edit?.boss?.id) {
                             Box(
                                 modifier =
                                     Modifier
@@ -348,16 +477,16 @@ private fun LoanEditDialog(
         Average2Row(modifier = Modifier.fillMaxWidth(), first = {
             NumberInputField(
                 modifier = Modifier.fillMaxWidth(),
-                titleText = "借款金額",
-                text = edit?.loan.orEmpty(),
+                titleText = "欠款金額",
+                text = edit?.payback.orEmpty(),
                 imeAction = ImeAction.Next,
                 onClear = true,
-                onValueChange = viewModel::editLoan,
+                onValueChange = viewModel::editPayback,
             )
         }) {
             DateSelector(
                 modifier = Modifier.fillMaxWidth(),
-                titleText = "借款日",
+                titleText = "欠款日",
                 onClear = {
                     viewModel.editMillis(null)
                 },
@@ -403,10 +532,10 @@ private fun LoanEditDialog(
                                 NumberInputField(
                                     modifier = Modifier.fillMaxWidth(),
                                     titleText = "金額",
-                                    text = recordEdit.loan.orEmpty(),
+                                    text = recordEdit.payback.orEmpty(),
                                     imeAction = ImeAction.Next,
                                     onClear = true,
-                                    onValueChange = viewModel::editRecordLoan,
+                                    onValueChange = viewModel::editRecordPayback,
                                 )
                             }) {
                                 DateSelector(
@@ -461,7 +590,7 @@ private fun LoanEditDialog(
                                 Average2Row(
                                     modifier = Modifier.fillMaxWidth(),
                                     first = {
-                                        ContentText(text = NumberFormat(record.loan))
+                                        ContentText(text = NumberFormat(record.payback))
                                     },
                                 ) {
                                     ContentText(text = YMDDayOfWeek(record.millis).orDash)
@@ -497,7 +626,7 @@ private fun LoanEditDialog(
             }
         }
     }
-    val salary = "金　額：${NumberFormat(showDeleteDialog?.loan)}"
+    val salary = "金　額：${NumberFormat(showDeleteDialog?.payback)}"
     val millis = "生效日：${YMDDayOfWeek(showDeleteDialog?.millis)}"
     TwoOptionDialog(
         text = "是否確定移除\n\n$salary\n$millis".takeIf { showDeleteDialog != null },

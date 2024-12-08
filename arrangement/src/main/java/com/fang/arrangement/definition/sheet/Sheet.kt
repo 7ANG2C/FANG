@@ -1,9 +1,11 @@
 package com.fang.arrangement.definition.sheet
 
 import com.fang.arrangement.definition.AttendanceAll
+import com.fang.arrangement.definition.Boss
 import com.fang.arrangement.definition.Employee
 import com.fang.arrangement.definition.Fund
 import com.fang.arrangement.definition.Loan
+import com.fang.arrangement.definition.Payback
 import com.fang.arrangement.definition.Site
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -20,6 +22,10 @@ internal suspend fun List<WorkSheet>.sheetAttendance() = sheet<AttendanceAll>()
 internal suspend fun List<WorkSheet>.sheetLoan() = sheet<Loan>()
 
 internal suspend fun List<WorkSheet>.sheetFund() = sheet<Fund>()
+
+internal suspend fun List<WorkSheet>.sheetPayback() = sheet<Payback>()
+
+internal suspend fun List<WorkSheet>.sheetBoss() = sheet<Boss>()
 
 internal suspend fun List<WorkSheet>.sheetEmployee() = sheet<Employee>()
 

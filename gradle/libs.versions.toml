@@ -12,7 +12,7 @@ detekt = "1.23.7"
 #libraries
 googleApisSheets = "v4-rev612-1.25.0"
 googleAuthOauth2 = "1.28.0"
-firebaseBom = "33.6.0"
+firebaseBom = "33.7.0"
 coreKtx = "1.15.0"
 lifecycleRuntime = "2.8.7"
 activityCompose = "1.9.3"

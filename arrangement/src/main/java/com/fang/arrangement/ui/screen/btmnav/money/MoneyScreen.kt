@@ -15,6 +15,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.fang.arrangement.ui.screen.btmnav.money.fund.FundScreen
 import com.fang.arrangement.ui.screen.btmnav.money.loan.LoanScreen
+import com.fang.arrangement.ui.screen.btmnav.money.payback.PaybackScreen
 import com.fang.cosmos.foundation.ui.ext.stateValue
 import org.koin.androidx.compose.koinViewModel
 
@@ -57,6 +58,7 @@ internal fun MoneyScreen(
             when (allMoney[it]) {
                 Money.FUND -> FundScreen(Modifier.fillMaxSize())
                 Money.LOAN -> LoanScreen(Modifier.fillMaxSize())
+                Money.PAYBACK -> PaybackScreen(Modifier.fillMaxSize())
             }
         }
     }

@@ -18,8 +18,6 @@ internal data class Loan(
     val remark: String?,
 ) {
     val remain get() = loan - records.sumOf { it.loan }
-    val isClear get() = remain <= 0
-    val notClear get() = !isClear
 }
 
 internal data class Record(
