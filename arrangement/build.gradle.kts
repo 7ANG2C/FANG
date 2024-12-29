@@ -20,8 +20,8 @@ android {
     resourcePrefix = "arr_"
     defaultConfig {
         applicationId = pkg
-        versionCode = 9
-        versionName = "1.6.0"
+        versionCode = 10
+        versionName = "1.6.1"
         vectorDrawables.useSupportLibrary = true
         ndk { abiFilters.addAll(listOf("armeabi-v7a", "arm64-v8a")) }
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
@@ -52,7 +52,7 @@ android {
 
     buildTypes {
         debug {
-            applicationIdSuffix = ".debug"
+          // applicationIdSuffix = ".debug"
         }
         release {
             isMinifyEnabled = true
