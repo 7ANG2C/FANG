@@ -75,9 +75,9 @@ internal class LoanViewModel(
                         }
                         ?.sortedWith(
                             compareBy<MLoan> { it.isClear }
+                                .thenByDescending { it.employee.id }
                                 .thenByDescending { it.millis }
-                                .thenByDescending { it.loan }
-                                .thenByDescending { it.employee.id },
+                                .thenByDescending { it.loan },
                         )?.let {
                             LoanBundle(employees, it)
                         }
