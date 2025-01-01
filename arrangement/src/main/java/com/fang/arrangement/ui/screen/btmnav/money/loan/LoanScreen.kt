@@ -32,6 +32,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.fang.arrangement.R
 import com.fang.arrangement.definition.Employee
 import com.fang.arrangement.foundation.orDash
 import com.fang.arrangement.ui.shared.component.ArrText
@@ -60,9 +61,11 @@ import com.fang.arrangement.ui.shared.dsl.YMDDayOfWeek
 import com.fang.arrangement.ui.shared.dsl.alphaColor
 import com.fang.cosmos.foundation.NumberFormat
 import com.fang.cosmos.foundation.takeIfNotBlank
+import com.fang.cosmos.foundation.ui.component.CustomIcon
 import com.fang.cosmos.foundation.ui.component.HorizontalSpacer
 import com.fang.cosmos.foundation.ui.component.VerticalSpacer
 import com.fang.cosmos.foundation.ui.dsl.MaterialColor
+import com.fang.cosmos.foundation.ui.dsl.MaterialShape
 import com.fang.cosmos.foundation.ui.dsl.screenWidthDp
 import com.fang.cosmos.foundation.ui.ext.bg
 import com.fang.cosmos.foundation.ui.ext.clickableNoRipple
@@ -76,7 +79,64 @@ internal fun LoanScreen(
     modifier: Modifier,
     viewModel: LoanViewModel = koinViewModel(),
 ) = Box(modifier = Modifier.fillMaxSize()) {
+    val employees = viewModel.bundle.stateValue().employees
     Column(modifier = modifier) {
+        val selectableFilters = employees.filter { it.notExpire && it.notDelete }
+        if (selectableFilters.isNotEmpty()) {
+            val expandedFilter = rememberSaveable { mutableStateOf(false) }
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 18.dp)
+                    .padding(top = 8.dp, bottom = 4.dp),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Column(
+                    modifier = Modifier
+                        .weight(1f)
+                        .border(1.dp, ContentText.color, MaterialShape.small)
+                        .clickableNoRipple { expandedFilter.value = true }
+                ) {
+                    val filter = viewModel.filter.stateValue()
+                    ContentText(
+                        text = filter?.name ?: "全部",
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 8.dp, vertical = 4.dp)
+                    )
+                    DropdownSelector(
+                        items = selectableFilters,
+                        modifier = Modifier.width(
+                            (screenWidthDp * DialogShared.EDIT_WIDTH_FRACTION - DialogShared.editHPaddingDp * 1.5f),
+                        ),
+                        selected = filter,
+                        expandedState = expandedFilter,
+                        onSelected = viewModel::filterEmployee,
+                    ) {
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(vertical = 6.dp, horizontal = 16.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                        ) {
+                            ContentText(text = it.name)
+                            Spacer(modifier = Modifier.weight(1f))
+                            if (it.id == filter?.id) {
+                                SelectedTag()
+                            }
+                        }
+                    }
+                }
+                CustomIcon(
+                    drawableResId = R.drawable.arr_r24_cancel,
+                    tint = ContentText.color,
+                    modifier = Modifier
+                        .clickableNoRipple { viewModel.filterEmployee(null) }
+                        .padding(vertical = 4.dp)
+                        .padding(start = 8.dp),
+                )
+            }
+        }
         ArrangementList(
             modifier = Modifier.weight(1f, false),
             items = viewModel.bundle.stateValue().loans,
@@ -100,9 +160,9 @@ internal fun LoanScreen(
                     EmployeeTag(
                         employee = item.employee,
                         modifier =
-                            Modifier
-                                .scale(0.88f)
-                                .alpha(if (isClear) AlphaColor.DEFAULT else 1f),
+                        Modifier
+                            .scale(0.88f)
+                            .alpha(if (isClear) AlphaColor.DEFAULT else 1f),
                     )
                 }
                 if (!isClear) {
@@ -209,7 +269,7 @@ internal fun LoanScreen(
         }
     }
     LoanEditDialog(
-        employees = viewModel.bundle.stateValue().employees,
+        employees = employees,
         editBundle = viewModel.editBundle.stateValue(),
         recordEdit = viewModel.recordEdit.stateValue(),
         viewModel = viewModel,
@@ -233,25 +293,25 @@ private fun LoanEditDialog(
     EditDialog(
         isShow = editBundle != null,
         onDelete =
-            if (current != null) {
-                { viewModel.delete(current.id.toString()) }
-            } else {
-                null
-            },
+        if (current != null) {
+            { viewModel.delete(current.id.toString()) }
+        } else {
+            null
+        },
         onCancel = {
             viewModel.clearRecord()
             viewModel.clearEdit()
         },
         onConfirm =
-            if (edit?.savable == true && recordEdit.allBlank) {
-                if (editBundle.isInsert) {
-                    { viewModel.insert(edit) }
-                } else {
-                    { viewModel.update(editBundle) }.takeIf { editBundle.anyDiff }
-                }
+        if (edit?.savable == true && recordEdit.allBlank) {
+            if (editBundle.isInsert) {
+                { viewModel.insert(edit) }
             } else {
-                null
-            },
+                { viewModel.update(editBundle) }.takeIf { editBundle.anyDiff }
+            }
+        } else {
+            null
+        },
     ) {
         // 選擇員工
         val currentEmployee = current?.employee
@@ -286,18 +346,20 @@ private fun LoanEditDialog(
                 }
             BaseField(
                 modifier =
-                    Modifier
-                        .fillMaxWidth()
-                        .clickableNoRipple {
-                            expandedState.value = true
-                        },
+                Modifier
+                    .fillMaxWidth()
+                    .clickableNoRipple {
+                        expandedState.value = true
+                    },
                 title = "員工",
                 onClear = { viewModel.editEmployee(null) },
             ) {
                 val employee = edit?.employee
                 if (editBundle?.isInsert == false || employee != null) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
-                        ContentText(employee?.name.takeIfNotBlank ?: employee?.id?.toString().orDash)
+                        ContentText(
+                            employee?.name.takeIfNotBlank ?: employee?.id?.toString().orDash
+                        )
                         HorizontalSpacer(4)
                         EmployeeTag(employee = employee, Modifier.scale(0.92f))
                     }
@@ -307,9 +369,9 @@ private fun LoanEditDialog(
                 DropdownSelector(
                     items = allEmployees,
                     modifier =
-                        Modifier.width(
-                            screenWidthDp * DialogShared.EDIT_WIDTH_FRACTION - DialogShared.editHPaddingDp * 2,
-                        ),
+                    Modifier.width(
+                        screenWidthDp * DialogShared.EDIT_WIDTH_FRACTION - DialogShared.editHPaddingDp * 2,
+                    ),
                     selected = allEmployees.find { it.id == edit?.employee?.id },
                     expandedState = expandedState,
                     onSelected = viewModel::editEmployee,
@@ -325,20 +387,7 @@ private fun LoanEditDialog(
                         EmployeeTag(employee = it, Modifier.scale(0.92f))
                         Spacer(modifier = Modifier.weight(1f))
                         if (it.id == edit?.employee?.id) {
-                            Box(
-                                modifier =
-                                    Modifier
-                                        .size(16.dp)
-                                        .border(1.dp, MaterialColor.primary, CircleShape),
-                                contentAlignment = Alignment.Center,
-                            ) {
-                                Box(
-                                    modifier =
-                                        Modifier
-                                            .size(8.dp)
-                                            .bg(CircleShape) { primary },
-                                )
-                            }
+                            SelectedTag()
                         }
                     }
                 }
@@ -434,14 +483,14 @@ private fun LoanEditDialog(
                         }
                     },
                     onAdd =
-                        if (recordEdit.allFilled) {
-                            {
-                                focusManager.clearFocus()
-                                viewModel.addRecord(recordEdit)
-                            }
-                        } else {
-                            null
-                        },
+                    if (recordEdit.allFilled) {
+                        {
+                            focusManager.clearFocus()
+                            viewModel.addRecord(recordEdit)
+                        }
+                    } else {
+                        null
+                    },
                     decorationAdd = { inner ->
                         Box(
                             modifier = Modifier.fillMaxHeight(),
@@ -453,9 +502,9 @@ private fun LoanEditDialog(
                 edit?.records?.takeIf { it.isNotEmpty() }?.forEach { record ->
                     RemovableRow(
                         modifier =
-                            Modifier
-                                .fillMaxWidth()
-                                .padding(vertical = 2.8.dp),
+                        Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 2.8.dp),
                         content = {
                             Column(Modifier.fillMaxWidth()) {
                                 Average2Row(
@@ -475,7 +524,7 @@ private fun LoanEditDialog(
                                                     fontSize = 13.2.sp,
                                                     lineHeight = 13.2.sp,
                                                     platformStyle =
-                                                        PlatformTextStyle(includeFontPadding = false),
+                                                    PlatformTextStyle(includeFontPadding = false),
                                                 )
                                         Box(contentAlignment = Alignment.CenterStart) {
                                             ArrText(text = "註") { style.color(Color.Transparent) }
@@ -509,4 +558,22 @@ private fun LoanEditDialog(
             showDeleteDialog = null
         },
     )
+}
+
+@Composable
+private fun SelectedTag() {
+    Box(
+        modifier =
+        Modifier
+            .size(16.dp)
+            .border(1.dp, MaterialColor.primary, CircleShape),
+        contentAlignment = Alignment.Center,
+    ) {
+        Box(
+            modifier =
+            Modifier
+                .size(8.dp)
+                .bg(CircleShape) { primary },
+        )
+    }
 }
