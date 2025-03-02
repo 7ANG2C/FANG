@@ -80,8 +80,13 @@ internal fun LoanScreen(
     viewModel: LoanViewModel = koinViewModel(),
 ) = Box(modifier = Modifier.fillMaxSize()) {
     val employees = viewModel.bundle.stateValue().employees
+    val loans = viewModel.bundle.stateValue().loans
     Column(modifier = modifier) {
-        val selectableFilters = employees.filter { it.notExpire && it.notDelete }
+        val selectableFilters = employees.filter { e ->
+            e.notExpire && e.notDelete && e.id in loans.mapNotNull {
+                if(it.isClear) null else it.employee.id
+            }
+        }
         if (selectableFilters.isNotEmpty()) {
             val expandedFilter = rememberSaveable { mutableStateOf(false) }
             Row(
@@ -139,7 +144,7 @@ internal fun LoanScreen(
         }
         ArrangementList(
             modifier = Modifier.weight(1f, false),
-            items = viewModel.bundle.stateValue().loans,
+            items = loans,
             key = { it.id },
             contentType = { it },
             onSelect = viewModel::onUpdate,
