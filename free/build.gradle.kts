@@ -8,8 +8,8 @@ import java.util.Properties
 plugins {
     alias(libs.plugins.androidApplication)
     alias(libs.plugins.jetbrainsKotlinAndroid)
-    alias(libs.plugins.jetbrainsKotlinParcelize)
     alias(libs.plugins.compose.compiler)
+    alias(libs.plugins.jetbrainsKotlinParcelize)
 }
 
 android {

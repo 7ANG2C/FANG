@@ -10,8 +10,8 @@ plugins {
     alias(libs.plugins.androidApplication) apply false
     alias(libs.plugins.androidLibrary) apply false
     alias(libs.plugins.jetbrainsKotlinAndroid) apply false
-    alias(libs.plugins.jetbrainsKotlinParcelize) apply false
     alias(libs.plugins.compose.compiler) apply false
+    alias(libs.plugins.jetbrainsKotlinParcelize) apply false
     alias(libs.plugins.spotless)
     alias(libs.plugins.detekt)
 }
@@ -24,14 +24,14 @@ allprojects {
             target("**/*.kt")
             ktlint().setEditorConfigPath("${rootProject.rootDir}/.editorconfig")
             trimTrailingWhitespace()
-            indentWithSpaces()
+            leadingTabsToSpaces()
             endWithNewline()
         }
         kotlinGradle {
             target("*.gradle.kts")
             ktlint()
             trimTrailingWhitespace()
-            indentWithSpaces()
+            leadingTabsToSpaces()
             endWithNewline()
         }
     }

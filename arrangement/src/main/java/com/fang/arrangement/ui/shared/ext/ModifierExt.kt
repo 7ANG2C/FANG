@@ -18,16 +18,13 @@ internal fun Modifier.clickRipple(
     role: Role? = null,
     onClick: Invoke,
 ) = composed {
-    then(
-        Modifier.clickableRipple(
-            interactionSource = interactionSource,
-            indication =
-                indication
-                    ?: ripple(color = MaterialColor.inversePrimary.copy(alpha = 0.35f)),
-            enabled = enabled,
-            onClickLabel = onClickLabel,
-            role = role,
-            onClick = onClick,
-        ),
+    Modifier.clickableRipple(
+        interactionSource = interactionSource,
+        indication = indication
+            ?: ripple(color = MaterialColor.inversePrimary.copy(alpha = 0.35f)),
+        enabled = enabled,
+        onClickLabel = onClickLabel,
+        role = role,
+        onClick = onClick,
     )
 }
