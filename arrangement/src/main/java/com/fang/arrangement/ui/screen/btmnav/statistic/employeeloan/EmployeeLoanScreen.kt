@@ -19,7 +19,7 @@ import com.fang.arrangement.ui.shared.dsl.ContentText
 import com.fang.arrangement.ui.shared.dsl.HighlightText
 import com.fang.arrangement.ui.shared.ext.clickRipple
 import com.fang.cosmos.foundation.NumberFormat
-import com.fang.cosmos.foundation.textDp
+import com.fang.cosmos.foundation.ui.ext.textDp
 import com.fang.cosmos.foundation.ui.component.VerticalSpacer
 import com.fang.cosmos.foundation.ui.ext.color
 import com.fang.cosmos.foundation.ui.ext.stateValue

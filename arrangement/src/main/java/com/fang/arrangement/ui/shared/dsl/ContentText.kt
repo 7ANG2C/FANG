@@ -6,10 +6,14 @@ import com.fang.arrangement.ui.shared.component.ArrText
 import com.fang.cosmos.foundation.ui.dsl.MaterialColor
 import com.fang.cosmos.foundation.ui.dsl.MaterialTypography
 import com.fang.cosmos.foundation.ui.ext.color
+import com.fang.cosmos.foundation.ui.ext.textDp
 
 internal interface ContentText {
     companion object {
-        val style @Composable get() = MaterialTypography.bodyLarge
+        val style @Composable get() = MaterialTypography.bodyLarge.copy(
+            fontSize = 16.textDp,
+            lineHeight = 24.textDp,
+        )
         val color @Composable get() = MaterialColor.secondary
     }
 }

@@ -36,7 +36,7 @@ import com.fang.arrangement.ui.shared.dsl.EmployeeTag
 import com.fang.arrangement.ui.shared.dsl.HighlightText
 import com.fang.arrangement.ui.shared.ext.clickRipple
 import com.fang.cosmos.foundation.NumberFormat
-import com.fang.cosmos.foundation.textDp
+import com.fang.cosmos.foundation.ui.ext.textDp
 import com.fang.cosmos.foundation.ui.component.CustomIcon
 import com.fang.cosmos.foundation.ui.component.HorizontalSpacer
 import com.fang.cosmos.foundation.ui.component.VerticalSpacer

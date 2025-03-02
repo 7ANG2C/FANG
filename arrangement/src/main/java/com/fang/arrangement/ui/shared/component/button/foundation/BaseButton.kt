@@ -12,7 +12,7 @@ import androidx.compose.ui.unit.dp
 import com.fang.arrangement.ui.shared.dsl.ContentText
 import com.fang.arrangement.ui.shared.ext.clickRipple
 import com.fang.cosmos.foundation.Invoke
-import com.fang.cosmos.foundation.textDp
+import com.fang.cosmos.foundation.ui.ext.textDp
 import com.fang.cosmos.foundation.ui.component.AlignText
 import com.fang.cosmos.foundation.ui.dsl.MaterialColor
 import com.fang.cosmos.foundation.ui.dsl.MaterialShape

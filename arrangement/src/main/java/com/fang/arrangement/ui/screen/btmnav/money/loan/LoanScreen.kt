@@ -63,7 +63,7 @@ import com.fang.arrangement.ui.shared.dsl.YMDDayOfWeek
 import com.fang.arrangement.ui.shared.dsl.alphaColor
 import com.fang.cosmos.foundation.NumberFormat
 import com.fang.cosmos.foundation.takeIfNotBlank
-import com.fang.cosmos.foundation.textDp
+import com.fang.cosmos.foundation.ui.ext.textDp
 import com.fang.cosmos.foundation.ui.component.CustomIcon
 import com.fang.cosmos.foundation.ui.component.HorizontalSpacer
 import com.fang.cosmos.foundation.ui.component.VerticalSpacer
