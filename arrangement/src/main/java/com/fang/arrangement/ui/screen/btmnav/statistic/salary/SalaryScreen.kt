@@ -24,7 +24,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import com.fang.arrangement.R
 import com.fang.arrangement.foundation.DASH
 import com.fang.arrangement.ui.screen.btmnav.statistic.pdf.PDFDialog
@@ -37,6 +36,7 @@ import com.fang.arrangement.ui.shared.dsl.EmployeeTag
 import com.fang.arrangement.ui.shared.dsl.HighlightText
 import com.fang.arrangement.ui.shared.ext.clickRipple
 import com.fang.cosmos.foundation.NumberFormat
+import com.fang.cosmos.foundation.textDp
 import com.fang.cosmos.foundation.ui.component.CustomIcon
 import com.fang.cosmos.foundation.ui.component.HorizontalSpacer
 import com.fang.cosmos.foundation.ui.component.VerticalSpacer
@@ -47,8 +47,8 @@ import com.fang.cosmos.foundation.ui.ext.clickableNoRipple
 import com.fang.cosmos.foundation.ui.ext.color
 import com.fang.cosmos.foundation.ui.ext.fontSize
 import com.fang.cosmos.foundation.ui.ext.stateValue
-import org.koin.androidx.compose.koinViewModel
 import java.math.BigDecimal
+import org.koin.androidx.compose.koinViewModel
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
@@ -227,7 +227,7 @@ internal fun SalaryScreen(
                                                         val color = ContentText.color
                                                         val textSize =
                                                             MaterialTypography.bodyMedium
-                                                                .fontSize(15.2.sp)
+                                                                .fontSize(15.2.textDp)
                                                         val style =
                                                             textSize
                                                                 .color(color.copy(alpha = 0.94f))

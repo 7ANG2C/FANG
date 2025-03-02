@@ -38,7 +38,6 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import com.fang.arrangement.R
 import com.fang.arrangement.definition.Boss
 import com.fang.arrangement.foundation.orDash
@@ -68,6 +67,7 @@ import com.fang.arrangement.ui.shared.dsl.YMDDayOfWeek
 import com.fang.arrangement.ui.shared.dsl.alphaColor
 import com.fang.cosmos.foundation.NumberFormat
 import com.fang.cosmos.foundation.takeIfNotBlank
+import com.fang.cosmos.foundation.textDp
 import com.fang.cosmos.foundation.ui.component.CustomIcon
 import com.fang.cosmos.foundation.ui.component.HorizontalSpacer
 import com.fang.cosmos.foundation.ui.component.VerticalSpacer
@@ -161,7 +161,7 @@ internal fun PaybackScreen(
                         val style =
                             HighlightText.style.color(
                                 HighlightText.color.copy(alpha = alpha),
-                            ).fontSize(12.8.sp).copy(lineHeight = 13.2.sp)
+                            ).fontSize(12.8.textDp).copy(lineHeight = 13.2.textDp)
                         Box(contentAlignment = Alignment.CenterStart) {
                             ArrText(
                                 text = "註",
@@ -210,8 +210,8 @@ internal fun PaybackScreen(
                                             }
                                         val style =
                                             ContentText.style.color(color).copy(
-                                                fontSize = 13.2.sp,
-                                                lineHeight = 13.2.sp,
+                                                fontSize = 13.2.textDp,
+                                                lineHeight = 13.2.textDp,
                                                 platformStyle = PlatformTextStyle(includeFontPadding = false),
                                             )
                                         Box(contentAlignment = Alignment.CenterStart) {
@@ -400,7 +400,7 @@ private fun PaybackEditDialog(
                     text = "欠款",
                     bgColor = { primary },
                     textStyle = {
-                        TextStyle(fontSize = 16.8.sp, fontWeight = FontWeight.W600)
+                        TextStyle(fontSize = 16.8.textDp, fontWeight = FontWeight.W600)
                             .color(surface)
                     },
                     placeHolder = false,
@@ -517,7 +517,7 @@ private fun PaybackEditDialog(
                     text = "還款",
                     bgColor = { primary },
                     textStyle = {
-                        TextStyle(fontSize = 16.8.sp, fontWeight = FontWeight.W600)
+                        TextStyle(fontSize = 16.8.textDp, fontWeight = FontWeight.W600)
                             .color(surface)
                     },
                     placeHolder = false,
@@ -601,8 +601,8 @@ private fun PaybackEditDialog(
                                         val style =
                                             ContentText.style
                                                 .copy(
-                                                    fontSize = 13.2.sp,
-                                                    lineHeight = 13.2.sp,
+                                                    fontSize = 13.2.textDp,
+                                                    lineHeight = 13.2.textDp,
                                                     platformStyle =
                                                         PlatformTextStyle(includeFontPadding = false),
                                                 )

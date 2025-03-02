@@ -34,7 +34,6 @@ import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import com.fang.arrangement.R
 import com.fang.arrangement.foundation.orDash
 import com.fang.arrangement.ui.shared.component.ArrText
@@ -58,6 +57,7 @@ import com.fang.arrangement.ui.shared.dsl.YMDDayOfWeek
 import com.fang.arrangement.ui.shared.dsl.employeeState
 import com.fang.arrangement.ui.shared.ext.clickRipple
 import com.fang.cosmos.foundation.mapNoNull
+import com.fang.cosmos.foundation.textDp
 import com.fang.cosmos.foundation.ui.component.CustomBottomSheet
 import com.fang.cosmos.foundation.ui.component.CustomIcon
 import com.fang.cosmos.foundation.ui.component.HorizontalSpacer
@@ -155,7 +155,7 @@ internal fun AttendanceScreen(
                                 }
                                 val style =
                                     TextStyle(
-                                        fontSize = 14.4.sp,
+                                        fontSize = 14.4.textDp,
                                         fontWeight = FontWeight.W400,
                                         color =
                                             MaterialColor.onSurfaceVariant.copy(
@@ -620,7 +620,7 @@ private fun AttEditDialog(
                                 HorizontalSpacer(3.8f)
                                 FlowRow {
                                     employees.forEachIndexed { i, it ->
-                                        val textStyle = ContentText.style.fontSize(13.2.sp)
+                                        val textStyle = ContentText.style.fontSize(13.2.textDp)
                                         val color = ContentText.color
                                         Row {
                                             ArrText(
@@ -653,8 +653,8 @@ private fun AttEditDialog(
                             HorizontalSpacer(it)
                         }
                         ArrText(text = rmk) {
-                            ContentText.style.fontSize(13.2.sp).color(ContentText.color)
-                                .copy(lineHeight = 13.6.sp)
+                            ContentText.style.fontSize(13.2.textDp).color(ContentText.color)
+                                .copy(lineHeight = 13.6.textDp)
                         }
                     }
                 }

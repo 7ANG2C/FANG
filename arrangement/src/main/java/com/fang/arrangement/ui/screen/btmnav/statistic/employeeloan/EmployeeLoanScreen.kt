@@ -13,13 +13,13 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import com.fang.arrangement.ui.shared.component.ArrText
 import com.fang.arrangement.ui.shared.component.ArrangementCard
 import com.fang.arrangement.ui.shared.dsl.ContentText
 import com.fang.arrangement.ui.shared.dsl.HighlightText
 import com.fang.arrangement.ui.shared.ext.clickRipple
 import com.fang.cosmos.foundation.NumberFormat
+import com.fang.cosmos.foundation.textDp
 import com.fang.cosmos.foundation.ui.component.VerticalSpacer
 import com.fang.cosmos.foundation.ui.ext.color
 import com.fang.cosmos.foundation.ui.ext.stateValue
@@ -61,8 +61,8 @@ internal fun EmployeeLoanScreen(
                                 val style =
                                     ContentText.style.color(ContentText.color)
                                         .copy(
-                                            fontSize = 14.8.sp,
-                                            lineHeight = 15.2.sp,
+                                            fontSize = 14.8.textDp,
+                                            lineHeight = 15.2.textDp,
                                         )
                                 val loan = NumberFormat(ymLoan.loan, 0)
                                 val pre = "0".takeIf { ymLoan.month < 9 }.orEmpty()

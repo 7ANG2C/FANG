@@ -74,7 +74,7 @@ internal class SiteViewModel(
                                         } * 0.5
                                     SiteMoney(
                                         att = atts.sumOf { it.second.total }.takeIf { it > 0.0 },
-                                        (full + half).takeIf { it > 0.0 },
+                                        salary = (full + half).takeIf { it > 0.0 },
                                     )
                                 }.orEmpty()
                             }

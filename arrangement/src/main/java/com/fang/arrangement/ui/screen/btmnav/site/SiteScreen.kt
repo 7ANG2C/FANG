@@ -2,12 +2,22 @@ package com.fang.arrangement.ui.screen.btmnav.site
 
 import android.content.Intent
 import android.net.Uri
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -15,16 +25,21 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextDecoration
+import androidx.compose.ui.unit.dp
 import com.fang.arrangement.foundation.orDash
+import com.fang.arrangement.ui.screen.btmnav.statistic.employeeattendance.YearAttendance
 import com.fang.arrangement.ui.shared.component.ArrText
 import com.fang.arrangement.ui.shared.component.ArrangementList
 import com.fang.arrangement.ui.shared.component.DateSelector
+import com.fang.arrangement.ui.shared.component.button.component.PositiveButton
 import com.fang.arrangement.ui.shared.component.chip.ArchivedTag
 import com.fang.arrangement.ui.shared.component.chip.AttendanceChip
 import com.fang.arrangement.ui.shared.component.chip.UnarchivedTag
+import com.fang.arrangement.ui.shared.component.dialog.DialogShared
 import com.fang.arrangement.ui.shared.component.dialog.EditDialog
 import com.fang.arrangement.ui.shared.component.dialog.ErrorDialog
 import com.fang.arrangement.ui.shared.component.dialog.Loading
+import com.fang.arrangement.ui.shared.component.dialog.dialogBg
 import com.fang.arrangement.ui.shared.component.fieldrow.Average2Row
 import com.fang.arrangement.ui.shared.component.inputfield.NumberInputField
 import com.fang.arrangement.ui.shared.component.inputfield.StringInputField
@@ -35,8 +50,14 @@ import com.fang.arrangement.ui.shared.dsl.YMDDayOfWeek
 import com.fang.arrangement.ui.shared.dsl.alphaColor
 import com.fang.cosmos.foundation.Invoke
 import com.fang.cosmos.foundation.NumberFormat
+import com.fang.cosmos.foundation.logD
 import com.fang.cosmos.foundation.takeIfNotBlank
+import com.fang.cosmos.foundation.ui.component.DialogThemedScreen
 import com.fang.cosmos.foundation.ui.component.HorizontalSpacer
+import com.fang.cosmos.foundation.ui.dsl.MaterialShape
+import com.fang.cosmos.foundation.ui.dsl.MaterialTypography
+import com.fang.cosmos.foundation.ui.dsl.screenHeightDp
+import com.fang.cosmos.foundation.ui.ext.bg
 import com.fang.cosmos.foundation.ui.ext.clickableNoRipple
 import com.fang.cosmos.foundation.ui.ext.color
 import com.fang.cosmos.foundation.ui.ext.stateValue
@@ -47,6 +68,10 @@ internal fun SiteScreen(
     modifier: Modifier,
     viewModel: SiteViewModel = koinViewModel(),
 ) {
+    val showMonths =
+        remember {
+            mutableStateOf<YearAttendance.Summary?>(null)
+        }
     Column(modifier) {
         ArrangementList(
             modifier = Modifier.weight(1f, false),
@@ -71,8 +96,14 @@ internal fun SiteScreen(
                 }
                 Row(modifier = Modifier.fillMaxWidth()) {
                     allAtt?.let {
-                        AttAllChip(it, fill = true, true)
-                        HorizontalSpacer(6)
+                        Row(
+                            modifier = Modifier.clickableNoRipple {
+                                showMonths.value = null
+                            },
+                        ) {
+                            AttAllChip(it, fill = true, true)
+                            HorizontalSpacer(6)
+                        }
                     }
                     HighlightText(text = item.name, Modifier.weight(1f), isAlpha = archive)
                     if (archive) {
@@ -143,12 +174,102 @@ internal fun SiteScreen(
             }
         }
     }
+    MonthlyDialog(showMonths)
     SiteEditDialog(
         editBundle = viewModel.editBundle.stateValue(),
         viewModel = viewModel,
     )
     ErrorDialog(viewModel)
     Loading(viewModel)
+}
+
+@OptIn(ExperimentalLayoutApi::class)
+@Composable
+private fun MonthlyDialog(ySummary: MutableState<YearAttendance.Summary?>) {
+    DialogThemedScreen(isShow = ySummary.value != null) {
+        Column(
+            modifier =
+            Modifier
+                .fillMaxWidth(DialogShared.EDIT_WIDTH_FRACTION)
+                .heightIn(min = 0.dp, max = screenHeightDp * 0.84f)
+                .dialogBg(),
+        ) {
+            ySummary.value?.let { summary ->
+                ArrText(
+                    text = summary.employee?.name ?: summary.employeeId.toString(),
+                    modifier =
+                    Modifier
+                        .align(Alignment.CenterHorizontally)
+                        .padding(16.dp),
+                ) { MaterialTypography.titleMedium.color { onSecondaryContainer } }
+                Column(
+                    modifier =
+                    Modifier
+                        .fillMaxWidth()
+                        .weight(1f, false)
+                        .padding(horizontal = 16.dp)
+                        .verticalScroll(rememberScrollState()),
+                    verticalArrangement = Arrangement.spacedBy(6.dp),
+                ) {
+                    summary.months.forEach { month ->
+                        Row(modifier = Modifier.fillMaxWidth()) {
+                            val pre = "0".takeIf { month.month < 9 }.orEmpty()
+                            ArrText(
+                                text = "$pre${month.month + 1}",
+                                modifier =
+                                Modifier
+                                    .bg(MaterialShape.extraSmall) { primary.copy(alpha = 0.32f) }
+                                    .padding(horizontal = 2.dp),
+                            ) { HighlightText.style.color(onSecondaryContainer) }
+                            HorizontalSpacer(4)
+                            FlowRow(
+                                modifier = Modifier.weight(1f),
+                                verticalArrangement = Arrangement.spacedBy(2.4.dp),
+                            ) {
+                                val fulls = month.fullDays.map { it to true }
+                                val halfs = month.halfDays.map { it to false }
+                                (fulls + halfs).sortedBy { it.first }
+                                    .forEachIndexed { i, pair ->
+                                        val (day, isFull) = pair
+                                        Row {
+                                            val style =
+                                                if (isFull) {
+                                                    ContentText.style.color(ContentText.color)
+                                                } else {
+                                                    HighlightText.style.color(HighlightText.color)
+                                                }
+                                            if (i != 0) {
+                                                HorizontalSpacer(1)
+                                                ArrText(text = "·") { style }
+                                                HorizontalSpacer(1)
+                                            }
+                                            ArrText(
+                                                text = day.toString(),
+                                                modifier =
+                                                if (isFull) {
+                                                    Modifier
+                                                } else {
+                                                    Modifier.bg(MaterialShape.extraSmall) {
+                                                        HighlightText.color.copy(alpha = 0.24f)
+                                                    }
+                                                },
+                                            ) { style }
+                                        }
+                                    }
+                            }
+                        }
+                    }
+                }
+            }
+            PositiveButton(
+                modifier =
+                Modifier
+                    .align(Alignment.CenterHorizontally)
+                    .padding(16.dp),
+                onClick = { ySummary.value = null },
+            )
+        }
+    }
 }
 
 @Composable
