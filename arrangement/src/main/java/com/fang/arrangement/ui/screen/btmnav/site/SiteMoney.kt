@@ -1,5 +1,7 @@
 package com.fang.arrangement.ui.screen.btmnav.site
 
+import com.fang.arrangement.definition.Employee
+
 internal data class SiteMoney(
     val att: Double?,
     val years: List<Year>,
@@ -21,7 +23,9 @@ internal data class SiteMoney(
     )
 
     data class Day(
-        val date: Int,
-        val att: Double
+        val dateMillis: Long,
+        val att: Double,
+        val fulls: List<Employee>?,
+        val halfs: List<Employee>?
     )
 }

@@ -55,6 +55,8 @@ import com.fang.arrangement.ui.shared.dsl.alphaColor
 import com.fang.cosmos.foundation.Invoke
 import com.fang.cosmos.foundation.NumberFormat
 import com.fang.cosmos.foundation.takeIfNotBlank
+import com.fang.cosmos.foundation.time.calendar.dayOfMonth
+import com.fang.cosmos.foundation.time.calendar.today
 import com.fang.cosmos.foundation.ui.component.DialogThemedScreen
 import com.fang.cosmos.foundation.ui.component.HorizontalSpacer
 import com.fang.cosmos.foundation.ui.component.VerticalSpacer
@@ -191,6 +193,10 @@ internal fun SiteScreen(
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
 private fun MonthlyDialog(ySummary: MutableState<SiteMoney.YearSummary?>) {
+    val showEmployee =
+        remember {
+            mutableStateOf<SiteMoney.Day?>(null)
+        }
     DialogThemedScreen(isShow = ySummary.value != null) {
         Column(
             modifier =
@@ -240,9 +246,13 @@ private fun MonthlyDialog(ySummary: MutableState<SiteMoney.YearSummary?>) {
                                         modifier = Modifier.weight(1f),
                                         verticalArrangement = Arrangement.spacedBy(2.4.dp),
                                     ) {
-                                        month.days.sortedBy { it.date }
-                                            .forEachIndexed { i, pair ->
-                                                Row {
+                                        month.days.sortedBy { it.dateMillis }
+                                            .forEachIndexed { i, day ->
+                                                Row(
+                                                    modifier = Modifier.clickableNoRipple {
+                                                        showEmployee.value = day
+                                                    }
+                                                ) {
                                                     val style =
                                                         ContentText.style.color(ContentText.color)
                                                     if (i != 0) {
@@ -251,11 +261,11 @@ private fun MonthlyDialog(ySummary: MutableState<SiteMoney.YearSummary?>) {
                                                         HorizontalSpacer(1.2f)
                                                     }
                                                     ArrText(
-                                                        text = pair.date.toString(),
+                                                        text = today(day.dateMillis).dayOfMonth.toString(),
                                                     ) { style }
                                                     if (showAtt) {
                                                         ArrText(
-                                                            text = "(${AttendanceNumFormat(pair.att)})"
+                                                            text = "(${AttendanceNumFormat(day.att)})"
                                                         ) { style.color(ContentText.color.copy(alpha = 0.6f)) }
                                                     }
                                                 }
@@ -273,6 +283,57 @@ private fun MonthlyDialog(ySummary: MutableState<SiteMoney.YearSummary?>) {
                     .align(Alignment.CenterHorizontally)
                     .padding(16.dp),
                 onClick = { ySummary.value = null },
+            )
+        }
+    }
+    MonthlyEmployeeDialog(showEmployee)
+}
+
+@Composable
+private fun MonthlyEmployeeDialog(showEmployee: MutableState<SiteMoney.Day?>) {
+    DialogThemedScreen(isShow = showEmployee.value != null) {
+        Column(
+            modifier =
+            Modifier
+                .fillMaxWidth(DialogShared.EDIT_WIDTH_FRACTION)
+                .heightIn(min = 0.dp, max = screenHeightDp * 0.84f)
+                .dialogBg()
+                .animateContentSize(),
+        ) {
+            showEmployee.value?.let { summary ->
+                ArrText(
+                    text = YMDDayOfWeek(summary.dateMillis).orDash,
+                    modifier =
+                    Modifier
+                        .align(Alignment.CenterHorizontally)
+                        .padding(16.dp),
+                ) { MaterialTypography.titleMedium.color { onSecondaryContainer } }
+                Column(
+                    modifier =
+                    Modifier
+                        .fillMaxWidth()
+                        .weight(1f, false)
+                        .padding(horizontal = 16.dp)
+                        .verticalScroll(rememberScrollState()),
+                    verticalArrangement = Arrangement.spacedBy(6.dp),
+                ) {
+                    summary.fulls?.joinToString("、") { it.name }?.let {
+                        ContentText(text = it)
+                    }
+                    summary.halfs?.joinToString("、") { it.name }?.let {
+                        VerticalSpacer(6)
+                        ArrText(
+                            text = it,
+                        ) { ContentText.style.color(HighlightText.color) }
+                    }
+                }
+            }
+            PositiveButton(
+                modifier =
+                Modifier
+                    .align(Alignment.CenterHorizontally)
+                    .padding(16.dp),
+                onClick = { showEmployee.value = null },
             )
         }
     }

@@ -12,7 +12,6 @@ import com.fang.arrangement.foundation.Bool
 import com.fang.cosmos.definition.workstate.WorkState
 import com.fang.cosmos.definition.workstate.WorkStateImpl
 import com.fang.cosmos.foundation.takeIfNotBlank
-import com.fang.cosmos.foundation.time.calendar.dayOfMonth
 import com.fang.cosmos.foundation.time.calendar.month
 import com.fang.cosmos.foundation.time.calendar.today
 import com.fang.cosmos.foundation.time.calendar.year
@@ -88,10 +87,16 @@ internal class SiteViewModel(
                                                 }.map { (month, monthAtts) ->
                                                     SiteMoney.Month(
                                                         month = month,
-                                                        days = monthAtts.map {
+                                                        days = monthAtts.map { pair ->
                                                             SiteMoney.Day(
-                                                                date = today(it.first).dayOfMonth,
-                                                                att = it.second.total
+                                                                dateMillis = today(pair.first).timeInMillis,
+                                                                att = pair.second.total,
+                                                                fulls = pair.second.fulls.mapNotNull { eId ->
+                                                                    employees?.find { e -> e.id == eId }
+                                                                }.takeIf { it.isNotEmpty() },
+                                                                halfs = pair.second.halfs.mapNotNull { eId ->
+                                                                    employees?.find { e -> e.id == eId }
+                                                                }.takeIf { it.isNotEmpty() },
                                                             )
                                                         }
                                                     )
