@@ -12,6 +12,10 @@ import com.fang.arrangement.foundation.Bool
 import com.fang.cosmos.definition.workstate.WorkState
 import com.fang.cosmos.definition.workstate.WorkStateImpl
 import com.fang.cosmos.foundation.takeIfNotBlank
+import com.fang.cosmos.foundation.time.calendar.dayOfMonth
+import com.fang.cosmos.foundation.time.calendar.month
+import com.fang.cosmos.foundation.time.calendar.today
+import com.fang.cosmos.foundation.time.calendar.year
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -74,6 +78,26 @@ internal class SiteViewModel(
                                         } * 0.5
                                     SiteMoney(
                                         att = atts.sumOf { it.second.total }.takeIf { it > 0.0 },
+                                        years = atts.sortedByDescending { it.first }.groupBy {
+                                            today(it.first).year
+                                        }.map { (year, yearAtts) ->
+                                            SiteMoney.Year(
+                                                year = year,
+                                                months = yearAtts.groupBy {
+                                                    today(it.first).month
+                                                }.map { (month, monthAtts) ->
+                                                    SiteMoney.Month(
+                                                        month = month,
+                                                        days = monthAtts.map {
+                                                            SiteMoney.Day(
+                                                                date = today(it.first).dayOfMonth,
+                                                                att = it.second.total
+                                                            )
+                                                        }
+                                                    )
+                                                }
+                                            )
+                                        },
                                         salary = (full + half).takeIf { it > 0.0 },
                                     )
                                 }.orEmpty()
@@ -96,15 +120,15 @@ internal class SiteViewModel(
             SiteEditBundle(
                 current = null,
                 edit =
-                    SiteEdit(
-                        id = -1L,
-                        name = null,
-                        address = null,
-                        income = null,
-                        startMillis = null,
-                        endMillis = null,
-                        archive = false,
-                    ),
+                SiteEdit(
+                    id = -1L,
+                    name = null,
+                    address = null,
+                    income = null,
+                    startMillis = null,
+                    endMillis = null,
+                    archive = false,
+                ),
             )
     }
 
@@ -113,15 +137,15 @@ internal class SiteViewModel(
             SiteEditBundle(
                 current = current,
                 edit =
-                    SiteEdit(
-                        id = current.id,
-                        name = current.name,
-                        address = current.address,
-                        income = current.income?.toString(),
-                        startMillis = current.startMillis,
-                        endMillis = current.endMillis,
-                        archive = current.isArchive,
-                    ),
+                SiteEdit(
+                    id = current.id,
+                    name = current.name,
+                    address = current.address,
+                    income = current.income?.toString(),
+                    startMillis = current.startMillis,
+                    endMillis = current.endMillis,
+                    archive = current.isArchive,
+                ),
             )
     }
 
@@ -164,16 +188,16 @@ internal class SiteViewModel(
             execute {
                 sheetRepository.insert<Site>(
                     keyValues =
-                        SiteKey.fold(
-                            id = System.currentTimeMillis().toString(),
-                            name = "\"${edit.name.orEmpty().trim()}\"",
-                            address = "\"${edit.address.orEmpty().trim()}\"",
-                            income = edit.income.orEmpty(),
-                            startMillis = edit.startMillis?.toString().orEmpty(),
-                            endMillis = edit.endMillis?.toString().orEmpty(),
-                            archive = Bool.FALSE.toString(),
-                            delete = Bool.FALSE.toString(),
-                        ),
+                    SiteKey.fold(
+                        id = System.currentTimeMillis().toString(),
+                        name = "\"${edit.name.orEmpty().trim()}\"",
+                        address = "\"${edit.address.orEmpty().trim()}\"",
+                        income = edit.income.orEmpty(),
+                        startMillis = edit.startMillis?.toString().orEmpty(),
+                        endMillis = edit.endMillis?.toString().orEmpty(),
+                        archive = Bool.FALSE.toString(),
+                        delete = Bool.FALSE.toString(),
+                    ),
                 )
             }
         }
@@ -188,16 +212,16 @@ internal class SiteViewModel(
                     key = SiteKey.ID,
                     value = id,
                     keyValues =
-                        SiteKey.fold(
-                            id = id,
-                            name = "\"${edit.name.orEmpty().trim()}\"",
-                            address = "\"${edit.address.orEmpty().trim()}\"",
-                            income = edit.income.orEmpty(),
-                            startMillis = edit.startMillis?.toString().orEmpty(),
-                            endMillis = edit.endMillis?.toString().orEmpty(),
-                            archive = Bool(edit.archive).toString(),
-                            delete = Bool.FALSE.toString(),
-                        ),
+                    SiteKey.fold(
+                        id = id,
+                        name = "\"${edit.name.orEmpty().trim()}\"",
+                        address = "\"${edit.address.orEmpty().trim()}\"",
+                        income = edit.income.orEmpty(),
+                        startMillis = edit.startMillis?.toString().orEmpty(),
+                        endMillis = edit.endMillis?.toString().orEmpty(),
+                        archive = Bool(edit.archive).toString(),
+                        delete = Bool.FALSE.toString(),
+                    ),
                 )
             }
         }
@@ -210,16 +234,16 @@ internal class SiteViewModel(
                 key = SiteKey.ID,
                 value = id,
                 keyValues =
-                    SiteKey.fold(
-                        id = id,
-                        name = "\"${current.name}\"",
-                        address = "\"${current.address.orEmpty()}\"",
-                        income = current.income?.toString().orEmpty(),
-                        startMillis = current.startMillis?.toString().orEmpty(),
-                        endMillis = current.endMillis?.toString().orEmpty(),
-                        archive = Bool(current.isArchive).toString(),
-                        delete = Bool.TRUE.toString(),
-                    ),
+                SiteKey.fold(
+                    id = id,
+                    name = "\"${current.name}\"",
+                    address = "\"${current.address.orEmpty()}\"",
+                    income = current.income?.toString().orEmpty(),
+                    startMillis = current.startMillis?.toString().orEmpty(),
+                    endMillis = current.endMillis?.toString().orEmpty(),
+                    archive = Bool(current.isArchive).toString(),
+                    delete = Bool.TRUE.toString(),
+                ),
             )
         }
     }
