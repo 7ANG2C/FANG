@@ -12,7 +12,9 @@ internal data class PaybackEdit(
 ) {
     val savable
         get() =
-            boss != null && payback != null && millis != null &&
+            boss != null &&
+                payback != null &&
+                millis != null &&
                 payback.toIntOrNull()?.let { p ->
                     records.sumOf { it.payback?.toIntOrNull() ?: 0 } <= p
                 } ?: false

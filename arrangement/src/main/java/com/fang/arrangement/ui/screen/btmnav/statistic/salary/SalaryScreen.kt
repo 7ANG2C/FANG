@@ -24,7 +24,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import com.fang.arrangement.R
 import com.fang.arrangement.foundation.DASH
 import com.fang.arrangement.ui.screen.btmnav.statistic.pdf.PDFDialog
@@ -47,6 +46,7 @@ import com.fang.cosmos.foundation.ui.ext.clickableNoRipple
 import com.fang.cosmos.foundation.ui.ext.color
 import com.fang.cosmos.foundation.ui.ext.fontSize
 import com.fang.cosmos.foundation.ui.ext.stateValue
+import com.fang.cosmos.foundation.ui.ext.textDp
 import org.koin.androidx.compose.koinViewModel
 import java.math.BigDecimal
 
@@ -85,9 +85,11 @@ internal fun SalaryScreen(
                                 MaterialTypography.titleLarge.color(primary)
                             }
                             val salary =
-                                yearSalaries.mapNotNull { s ->
-                                    s.salary ?.let { BigDecimal.valueOf(it) }
-                                }.takeIf { it.isNotEmpty() }?.sumOf { it }
+                                yearSalaries
+                                    .mapNotNull { s ->
+                                        s.salary ?.let { BigDecimal.valueOf(it) }
+                                    }.takeIf { it.isNotEmpty() }
+                                    ?.sumOf { it }
                             ArrText(text = NumberFormat(salary, 0, invalidText = DASH)) {
                                 MaterialTypography.titleLarge.color(primary)
                             }
@@ -227,7 +229,7 @@ internal fun SalaryScreen(
                                                         val color = ContentText.color
                                                         val textSize =
                                                             MaterialTypography.bodyMedium
-                                                                .fontSize(15.2.sp)
+                                                                .fontSize(15.2.textDp)
                                                         val style =
                                                             textSize
                                                                 .color(color.copy(alpha = 0.94f))

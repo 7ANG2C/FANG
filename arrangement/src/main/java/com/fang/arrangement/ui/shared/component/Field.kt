@@ -86,7 +86,8 @@ internal fun FieldLabelText(
         text = text,
         modifier = modifier,
         style =
-            MaterialTypography.labelLarge.color(color)
+            MaterialTypography.labelLarge
+                .color(color)
                 .copy(platformStyle = PlatformTextStyle(includeFontPadding = false)),
     )
 }

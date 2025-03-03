@@ -10,8 +10,8 @@ plugins {
     alias(libs.plugins.androidApplication) apply false
     alias(libs.plugins.androidLibrary) apply false
     alias(libs.plugins.jetbrainsKotlinAndroid) apply false
-    alias(libs.plugins.jetbrainsKotlinParcelize) apply false
     alias(libs.plugins.compose.compiler) apply false
+    alias(libs.plugins.jetbrainsKotlinParcelize) apply false
     alias(libs.plugins.spotless)
     alias(libs.plugins.detekt)
 }
@@ -24,14 +24,14 @@ allprojects {
             target("**/*.kt")
             ktlint().setEditorConfigPath("${rootProject.rootDir}/.editorconfig")
             trimTrailingWhitespace()
-            indentWithSpaces()
+            leadingTabsToSpaces()
             endWithNewline()
         }
         kotlinGradle {
             target("*.gradle.kts")
             ktlint()
             trimTrailingWhitespace()
-            indentWithSpaces()
+            leadingTabsToSpaces()
             endWithNewline()
         }
     }
@@ -54,10 +54,20 @@ subprojects {
 
     plugins.withType<AndroidBasePlugin> {
         configure<BaseExtension> {
-            compileSdkVersion(libs.versions.compileSdk.get().toInt())
+            compileSdkVersion(
+                libs.versions.compileSdk
+                    .get()
+                    .toInt(),
+            )
             defaultConfig {
-                minSdk = libs.versions.minSdk.get().toInt()
-                targetSdk = libs.versions.compileSdk.get().toInt()
+                minSdk =
+                    libs.versions.minSdk
+                        .get()
+                        .toInt()
+                targetSdk =
+                    libs.versions.compileSdk
+                        .get()
+                        .toInt()
             }
             compileOptions {
                 sourceCompatibility = JavaVersion.VERSION_17

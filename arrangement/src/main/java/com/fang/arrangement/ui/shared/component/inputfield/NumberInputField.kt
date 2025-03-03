@@ -31,8 +31,7 @@ private val trim: TextFieldBuffer.(Boolean) -> Unit by lazy {
                 (
                     indexOfFirstOrNull { it != '0' }?.takeIf { it < dotIndex }
                         ?: dotIndex.takeIf { it > 1 }?.let { it - 1 }
-                )
-                    ?.let { delete(0, it) }
+                )?.let { delete(0, it) }
             }
         } else {
             with(toString()) {

@@ -106,8 +106,7 @@ internal fun EmployeeAttendanceScreen(
                                                 .fillMaxWidth()
                                                 .clickable {
                                                     showMonths.value = summary
-                                                }
-                                                .padding(horizontal = 14.dp, vertical = 2.8.dp),
+                                                }.padding(horizontal = 14.dp, vertical = 2.8.dp),
                                         verticalAlignment = Alignment.CenterVertically,
                                     ) {
                                         AttendanceChip(
@@ -180,7 +179,8 @@ private fun MonthlyDialog(ySummary: MutableState<YearAttendance.Summary?>) {
                             ) {
                                 val fulls = month.fullDays.map { it to true }
                                 val halfs = month.halfDays.map { it to false }
-                                (fulls + halfs).sortedBy { it.first }
+                                (fulls + halfs)
+                                    .sortedBy { it.first }
                                     .forEachIndexed { i, pair ->
                                         val (day, isFull) = pair
                                         Row {

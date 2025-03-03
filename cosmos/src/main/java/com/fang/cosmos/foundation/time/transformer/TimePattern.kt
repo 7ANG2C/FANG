@@ -12,8 +12,6 @@ interface TimePattern {
          */
         val default by lazy { yyyyMMdd("-") }
 
-        fun yyyyMMdd(separator: String = ""): String {
-            return "yyyy${separator}MM${separator}dd"
-        }
+        fun yyyyMMdd(separator: String = ""): String = "yyyy${separator}MM${separator}dd"
     }
 }

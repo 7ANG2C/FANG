@@ -5,11 +5,14 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 
-val Float.textDp: TextUnit
+val Double.textDp: TextUnit
     @Composable get() =
         with(LocalDensity.current) {
             this@textDp.dp.toSp()
         }
 
+val Float.textDp: TextUnit
+    @Composable get() = toDouble().textDp
+
 val Int.textDp: TextUnit
-    @Composable get() = toFloat().textDp
+    @Composable get() = toDouble().textDp

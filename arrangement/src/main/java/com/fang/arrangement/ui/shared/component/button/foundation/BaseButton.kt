@@ -9,7 +9,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import com.fang.arrangement.ui.shared.dsl.ContentText
 import com.fang.arrangement.ui.shared.ext.clickRipple
 import com.fang.cosmos.foundation.Invoke
@@ -19,6 +18,7 @@ import com.fang.cosmos.foundation.ui.dsl.MaterialShape
 import com.fang.cosmos.foundation.ui.ext.bg
 import com.fang.cosmos.foundation.ui.ext.color
 import com.fang.cosmos.foundation.ui.ext.fontSize
+import com.fang.cosmos.foundation.ui.ext.textDp
 
 @Composable
 internal fun BaseButton(
@@ -38,8 +38,7 @@ internal fun BaseButton(
                     .clip(shape)
                     .then(
                         bgColor?.let { Modifier.bg(shape, it) } ?: Modifier,
-                    )
-                    .then(
+                    ).then(
                         borderColor?.let {
                             Modifier.border(
                                 1.dp,
@@ -47,11 +46,10 @@ internal fun BaseButton(
                                 shape,
                             )
                         } ?: Modifier,
-                    )
-                    .clickRipple(onClick = onClick)
+                    ).clickRipple(onClick = onClick)
                     .padding(horizontal = 16.dp, vertical = 6.dp),
             style =
-                ContentText.style.color(textColor).fontSize(15.2.sp),
+                ContentText.style.color(textColor).fontSize(15.2.textDp),
         )
     }
 }

@@ -31,35 +31,39 @@ internal class EmployeeLoanViewModel(
                 .workSheets
                 .mapLatest { workSheets ->
                     val employees = workSheets?.sheetEmployee()?.values
-                    workSheets?.sheetLoan()?.values?.groupBy {
-                        it.employeeId
-                    }?.mapNotNull { (employeeId, loans) ->
-                        loans.groupBy {
-                            val calendar = today(it.millis)
-                            calendar.year to calendar.month
-                        }.mapNotNull { (ym, ymLoans) ->
-                            val loan = ymLoans.sumOf { it.remain }
-                            loan.takeIf { it > 0 }?.let {
-                                EmployeeLoan.YMLoan(
-                                    year = ym.first,
-                                    month = ym.second,
-                                    loan = loan,
-                                )
-                            }
-                        }.takeIf { it.isNotEmpty() }?.let { ymLoans ->
-                            EmployeeLoan(
-                                employeeId = employeeId,
-                                employee = employees?.find { it.id == employeeId },
-                                loans =
-                                    ymLoans.sortedWith(
-                                        compareByDescending<EmployeeLoan.YMLoan> { it.year }
-                                            .thenByDescending { it.month },
-                                    ),
-                            )
+                    workSheets
+                        ?.sheetLoan()
+                        ?.values
+                        ?.groupBy {
+                            it.employeeId
+                        }?.mapNotNull { (employeeId, loans) ->
+                            loans
+                                .groupBy {
+                                    val calendar = today(it.millis)
+                                    calendar.year to calendar.month
+                                }.mapNotNull { (ym, ymLoans) ->
+                                    val loan = ymLoans.sumOf { it.remain }
+                                    loan.takeIf { it > 0 }?.let {
+                                        EmployeeLoan.YMLoan(
+                                            year = ym.first,
+                                            month = ym.second,
+                                            loan = loan,
+                                        )
+                                    }
+                                }.takeIf { it.isNotEmpty() }
+                                ?.let { ymLoans ->
+                                    EmployeeLoan(
+                                        employeeId = employeeId,
+                                        employee = employees?.find { it.id == employeeId },
+                                        loans =
+                                            ymLoans.sortedWith(
+                                                compareByDescending<EmployeeLoan.YMLoan> { it.year }
+                                                    .thenByDescending { it.month },
+                                            ),
+                                    )
+                                }
                         }
-                    }
-                }
-                .filterNotNull()
+                }.filterNotNull()
                 .flowOn(Dispatchers.Default)
                 .collectLatest {
                     _loans.value = it

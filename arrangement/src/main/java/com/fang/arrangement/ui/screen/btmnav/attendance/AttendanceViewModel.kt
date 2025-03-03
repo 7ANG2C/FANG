@@ -35,7 +35,8 @@ import kotlinx.coroutines.launch
 internal class AttendanceViewModel(
     private val sheetRepository: SheetRepository,
     private val gson: Gson,
-) : ViewModel(), WorkState by WorkStateImpl() {
+) : ViewModel(),
+    WorkState by WorkStateImpl() {
     private val _bundle =
         MutableStateFlow(
             AttBundle(
@@ -58,7 +59,10 @@ internal class AttendanceViewModel(
                 .mapLatest { workSheets ->
                     val sites = workSheets?.sheetSite()?.values.orEmpty()
                     val employees =
-                        workSheets?.sheetEmployee()?.values.orEmpty()
+                        workSheets
+                            ?.sheetEmployee()
+                            ?.values
+                            .orEmpty()
                             .sortedWith(
                                 compareBy<Employee>(
                                     { it.isDelete },
@@ -68,40 +72,44 @@ internal class AttendanceViewModel(
                     val findEmployee = { id: Long ->
                         employees.find { it.id == id }
                     }
-                    workSheets?.sheetAttendance()?.values?.sortedByDescending { it.id }
+                    workSheets
+                        ?.sheetAttendance()
+                        ?.values
+                        ?.sortedByDescending { it.id }
                         ?.map { attAll ->
                             MAttendanceAll(
                                 id = attAll.id,
                                 attendances =
-                                    attAll.attendances.map { att ->
-                                        MAttendance(
-                                            siteId = att.siteId,
-                                            site = sites.find { att.siteId == it.id },
-                                            fulls =
-                                                att.fulls.map { id ->
-                                                    MEmployee(id, findEmployee(id))
-                                                }
-                                                    .sortedWith(
-                                                        compareBy<MEmployee>(
-                                                            { it.employee == null },
-                                                            { it.employee?.isDelete == true },
-                                                            { it.employee?.isExpire == true },
-                                                        ).thenByDescending { it.employee?.id },
-                                                    ),
-                                            halfs =
-                                                att.halfs.map { id ->
-                                                    MEmployee(id, findEmployee(id))
-                                                }.sortedWith(
-                                                    compareBy<MEmployee>(
-                                                        { it.employee == null },
-                                                        { it.employee?.isDelete == true },
-                                                        { it.employee?.isExpire == true },
-                                                    ).thenByDescending { it.employee?.id },
-                                                ),
-                                            remark = att.remark.takeIfNotBlank,
-                                        )
-                                    }
-                                        .sortedWith(
+                                    attAll.attendances
+                                        .map { att ->
+                                            MAttendance(
+                                                siteId = att.siteId,
+                                                site = sites.find { att.siteId == it.id },
+                                                fulls =
+                                                    att.fulls
+                                                        .map { id ->
+                                                            MEmployee(id, findEmployee(id))
+                                                        }.sortedWith(
+                                                            compareBy<MEmployee>(
+                                                                { it.employee == null },
+                                                                { it.employee?.isDelete == true },
+                                                                { it.employee?.isExpire == true },
+                                                            ).thenByDescending { it.employee?.id },
+                                                        ),
+                                                halfs =
+                                                    att.halfs
+                                                        .map { id ->
+                                                            MEmployee(id, findEmployee(id))
+                                                        }.sortedWith(
+                                                            compareBy<MEmployee>(
+                                                                { it.employee == null },
+                                                                { it.employee?.isDelete == true },
+                                                                { it.employee?.isExpire == true },
+                                                            ).thenByDescending { it.employee?.id },
+                                                        ),
+                                                remark = att.remark.takeIfNotBlank,
+                                            )
+                                        }.sortedWith(
                                             compareBy<MAttendance>(
                                                 { it.site == null },
                                                 { it.site?.isDelete == true },
@@ -109,12 +117,10 @@ internal class AttendanceViewModel(
                                             ).thenByDescending { it.site?.id },
                                         ),
                             )
-                        }
-                        ?.let {
+                        }?.let {
                             AttBundle(sites = sites, employees = employees, attAlls = it)
                         }
-                }
-                .filterNotNull()
+                }.filterNotNull()
                 .flowOn(Dispatchers.Default)
                 .collectLatest {
                     _bundle.value = it
@@ -175,8 +181,7 @@ internal class AttendanceViewModel(
                                 .sortedWith(
                                     compareByDescending<MAttendance> {
                                         (it.fulls.size + it.halfs.size * 0.5) > 0
-                                    }
-                                        .thenByDescending { it.site == null }
+                                    }.thenByDescending { it.site == null }
                                         .thenByDescending { it.site?.isDelete == true }
                                         .thenByDescending { it.site?.isArchive == true }
                                         .thenByDescending { it.site?.id },
@@ -272,18 +277,20 @@ internal class AttendanceViewModel(
                         AttendanceKey.fold(
                             id = edit.id.toString(),
                             attendances =
-                                gson.json(
-                                    edit.attSiteEdits.mapNoNull({
-                                        it.fulls.isNotEmpty() || it.halfs.isNotEmpty()
-                                    }) { siteEdit ->
-                                        Attendance(
-                                            siteId = siteEdit.siteId,
-                                            fulls = siteEdit.fulls.map { it.id },
-                                            halfs = siteEdit.halfs.map { it.id },
-                                            remark = siteEdit.remark.orEmpty().trim(),
-                                        )
-                                    },
-                                ).getOrNull()?.noBreathing ?: "[]",
+                                gson
+                                    .json(
+                                        edit.attSiteEdits.mapNoNull({
+                                            it.fulls.isNotEmpty() || it.halfs.isNotEmpty()
+                                        }) { siteEdit ->
+                                            Attendance(
+                                                siteId = siteEdit.siteId,
+                                                fulls = siteEdit.fulls.map { it.id },
+                                                halfs = siteEdit.halfs.map { it.id },
+                                                remark = siteEdit.remark.orEmpty().trim(),
+                                            )
+                                        },
+                                    ).getOrNull()
+                                    ?.noBreathing ?: "[]",
                         ),
                 )
             }
@@ -302,18 +309,20 @@ internal class AttendanceViewModel(
                         AttendanceKey.fold(
                             id = edit.id?.toString().orEmpty(),
                             attendances =
-                                gson.json(
-                                    edit.attSiteEdits.mapNoNull({
-                                        it.fulls.isNotEmpty() || it.halfs.isNotEmpty()
-                                    }) { siteEdit ->
-                                        Attendance(
-                                            siteId = siteEdit.siteId,
-                                            fulls = siteEdit.fulls.map { it.id },
-                                            halfs = siteEdit.halfs.map { it.id },
-                                            remark = siteEdit.remark.orEmpty().trim(),
-                                        )
-                                    },
-                                ).getOrNull()?.noBreathing ?: "[]",
+                                gson
+                                    .json(
+                                        edit.attSiteEdits.mapNoNull({
+                                            it.fulls.isNotEmpty() || it.halfs.isNotEmpty()
+                                        }) { siteEdit ->
+                                            Attendance(
+                                                siteId = siteEdit.siteId,
+                                                fulls = siteEdit.fulls.map { it.id },
+                                                halfs = siteEdit.halfs.map { it.id },
+                                                remark = siteEdit.remark.orEmpty().trim(),
+                                            )
+                                        },
+                                    ).getOrNull()
+                                    ?.noBreathing ?: "[]",
                         ),
                 )
             }
@@ -329,9 +338,10 @@ internal class AttendanceViewModel(
     private fun <T> execute(block: suspend CoroutineScope.() -> Result<T>) {
         loading()
         viewModelScope.launch {
-            block().onSuccess {
-                clearEdit()
-            }.onFailure(::throwable)
+            block()
+                .onSuccess {
+                    clearEdit()
+                }.onFailure(::throwable)
             noLoading()
         }
     }

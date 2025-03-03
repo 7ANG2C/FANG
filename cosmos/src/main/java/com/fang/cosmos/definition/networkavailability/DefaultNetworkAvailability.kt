@@ -48,8 +48,7 @@ abstract class DefaultNetworkAvailability(
                 awaitClose {
                     connectivityManager?.unregisterNetworkCallback(networkCallback)
                 }
-            }
-                .flowOn(Dispatchers.Default)
+            }.flowOn(Dispatchers.Default)
                 .collectLatest {
                     _availableState.value = it
                 }

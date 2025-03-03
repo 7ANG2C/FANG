@@ -3,6 +3,7 @@ package com.fang.cosmos.foundation.ui.ext
 import androidx.compose.foundation.Indication
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.material3.ColorScheme
 import androidx.compose.runtime.Composable
@@ -12,7 +13,9 @@ import androidx.compose.ui.composed
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.layout
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -44,15 +47,13 @@ fun Modifier.clickableRipple(
     role: Role? = null,
     onClick: Invoke,
 ) = composed {
-    then(
-        Modifier.clickable(
-            interactionSource = interactionSource ?: remember { MutableInteractionSource() },
-            indication = indication,
-            enabled = enabled,
-            onClickLabel = onClickLabel,
-            role = role,
-            onClick = onClick,
-        ),
+    Modifier.clickable(
+        interactionSource = interactionSource ?: remember { MutableInteractionSource() },
+        indication = indication,
+        enabled = enabled,
+        onClickLabel = onClickLabel,
+        role = role,
+        onClick = onClick,
     )
 }
 
@@ -60,9 +61,7 @@ fun Modifier.bg(
     shape: Shape = RectangleShape,
     color: @Composable ColorScheme.() -> Color,
 ) = composed {
-    then(
-        Modifier.background(color(MaterialColor), shape),
-    )
+    Modifier.background(color(MaterialColor), shape)
 }
 
 fun Modifier.crop(
@@ -79,3 +78,11 @@ fun Modifier.crop(
         placeable.placeRelative(-horizontal.toPxInt(), -vertical.toPxInt())
     }
 }
+
+fun Modifier.tapClearFocus() =
+    composed {
+        val focusManager = LocalFocusManager.current
+        Modifier.pointerInput(Unit) {
+            detectTapGestures(onTap = { focusManager.clearFocus() })
+        }
+    }

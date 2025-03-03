@@ -34,7 +34,6 @@ import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import com.fang.arrangement.R
 import com.fang.arrangement.foundation.orDash
 import com.fang.arrangement.ui.shared.component.ArrText
@@ -70,6 +69,7 @@ import com.fang.cosmos.foundation.ui.ext.bg
 import com.fang.cosmos.foundation.ui.ext.color
 import com.fang.cosmos.foundation.ui.ext.fontSize
 import com.fang.cosmos.foundation.ui.ext.stateValue
+import com.fang.cosmos.foundation.ui.ext.textDp
 import org.koin.androidx.compose.koinViewModel
 
 @OptIn(ExperimentalLayoutApi::class)
@@ -155,7 +155,7 @@ internal fun AttendanceScreen(
                                 }
                                 val style =
                                     TextStyle(
-                                        fontSize = 14.4.sp,
+                                        fontSize = 14.4.textDp,
                                         fontWeight = FontWeight.W400,
                                         color =
                                             MaterialColor.onSurfaceVariant.copy(
@@ -366,7 +366,8 @@ internal fun AttendanceScreen(
                         it.notDelete && it.notExpire
                     }) { MEmployee(it.id, it) }
                 val employees =
-                    (mEmployees + fulls + halfs).distinctBy { it.id }
+                    (mEmployees + fulls + halfs)
+                        .distinctBy { it.id }
                         .sortedWith(
                             compareBy<MEmployee>(
                                 { it.employee == null },
@@ -399,11 +400,9 @@ internal fun AttendanceScreen(
                                                 } else {
                                                     Color.Transparent
                                                 }
-                                            }
-                                            .clickRipple {
+                                            }.clickRipple {
                                                 viewModel.editSingleSiteEmployee(isFull, employee)
-                                            }
-                                            .padding(vertical = 4.dp),
+                                            }.padding(vertical = 4.dp),
                                     horizontalArrangement = Arrangement.Center,
                                 ) {
                                     Row(verticalAlignment = Alignment.CenterVertically) {
@@ -489,21 +488,23 @@ private fun AttEditDialog(
             },
     ) {
         Row(verticalAlignment = Alignment.CenterVertically) {
-            edit?.attSiteEdits?.sumOf {
-                it.fulls.size + it.halfs.size * 0.5
-            }?.let {
-                AttendanceChip(
-                    attendance = it,
-                    bgColor = {
-                        ContentText.color.copy(alpha = 0.2f)
-                    },
-                    textStyle = {
-                        MaterialTypography.headlineSmall.color(onPrimaryContainer)
-                    },
-                    placeHolder = false,
-                )
-                HorizontalSpacer(16)
-            }
+            edit
+                ?.attSiteEdits
+                ?.sumOf {
+                    it.fulls.size + it.halfs.size * 0.5
+                }?.let {
+                    AttendanceChip(
+                        attendance = it,
+                        bgColor = {
+                            ContentText.color.copy(alpha = 0.2f)
+                        },
+                        textStyle = {
+                            MaterialTypography.headlineSmall.color(onPrimaryContainer)
+                        },
+                        placeHolder = false,
+                    )
+                    HorizontalSpacer(16)
+                }
             DateSelector(
                 modifier = Modifier.weight(1f),
                 titleText = "日期",
@@ -529,12 +530,10 @@ private fun AttEditDialog(
                         } else {
                             surfaceBright
                         }
-                    }
-                    .clickRipple {
+                    }.clickRipple {
                         focusManager.clearFocus()
                         viewModel.editSingleSite(mAtt)
-                    }
-                    .padding(horizontal = 13.2.dp, vertical = 6.dp),
+                    }.padding(horizontal = 13.2.dp, vertical = 6.dp),
             ) {
                 // 工地名
                 Row {
@@ -545,7 +544,8 @@ private fun AttEditDialog(
                                 onSecondaryContainer.copy(alpha = 0.28f)
                             },
                             textStyle = {
-                                ContentText.style.color(onSecondaryContainer)
+                                ContentText.style
+                                    .color(onSecondaryContainer)
                                     .copy(fontWeight = FontWeight.W500)
                             },
                             placeHolder = false,
@@ -620,7 +620,7 @@ private fun AttEditDialog(
                                 HorizontalSpacer(3.8f)
                                 FlowRow {
                                     employees.forEachIndexed { i, it ->
-                                        val textStyle = ContentText.style.fontSize(13.2.sp)
+                                        val textStyle = ContentText.style.fontSize(13.2.textDp)
                                         val color = ContentText.color
                                         Row {
                                             ArrText(
@@ -653,8 +653,10 @@ private fun AttEditDialog(
                             HorizontalSpacer(it)
                         }
                         ArrText(text = rmk) {
-                            ContentText.style.fontSize(13.2.sp).color(ContentText.color)
-                                .copy(lineHeight = 13.6.sp)
+                            ContentText.style
+                                .fontSize(13.2.textDp)
+                                .color(ContentText.color)
+                                .copy(lineHeight = 13.6.textDp)
                         }
                     }
                 }

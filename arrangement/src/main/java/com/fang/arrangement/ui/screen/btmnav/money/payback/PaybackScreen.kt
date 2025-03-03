@@ -38,7 +38,6 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import com.fang.arrangement.R
 import com.fang.arrangement.definition.Boss
 import com.fang.arrangement.foundation.orDash
@@ -80,6 +79,7 @@ import com.fang.cosmos.foundation.ui.ext.clickableNoRipple
 import com.fang.cosmos.foundation.ui.ext.color
 import com.fang.cosmos.foundation.ui.ext.fontSize
 import com.fang.cosmos.foundation.ui.ext.stateValue
+import com.fang.cosmos.foundation.ui.ext.textDp
 import org.koin.androidx.compose.koinViewModel
 
 @OptIn(ExperimentalLayoutApi::class)
@@ -99,8 +99,7 @@ internal fun PaybackScreen(
                     .align(Alignment.CenterHorizontally)
                     .clickableNoRipple {
                         expandedState = !expandedState
-                    }
-                    .padding(horizontal = 12.dp)
+                    }.padding(horizontal = 12.dp)
                     .padding(top = 8.dp),
             tint = MaterialColor.primary,
         )
@@ -159,9 +158,11 @@ internal fun PaybackScreen(
                     Row {
                         val alpha = if (isClear) AlphaColor.DEFAULT else 0.72f
                         val style =
-                            HighlightText.style.color(
-                                HighlightText.color.copy(alpha = alpha),
-                            ).fontSize(12.8.sp).copy(lineHeight = 13.2.sp)
+                            HighlightText.style
+                                .color(
+                                    HighlightText.color.copy(alpha = alpha),
+                                ).fontSize(12.8.textDp)
+                                .copy(lineHeight = 13.2.textDp)
                         Box(contentAlignment = Alignment.CenterStart) {
                             ArrText(
                                 text = "註",
@@ -210,8 +211,8 @@ internal fun PaybackScreen(
                                             }
                                         val style =
                                             ContentText.style.color(color).copy(
-                                                fontSize = 13.2.sp,
-                                                lineHeight = 13.2.sp,
+                                                fontSize = 13.2.textDp,
+                                                lineHeight = 13.2.textDp,
                                                 platformStyle = PlatformTextStyle(includeFontPadding = false),
                                             )
                                         Box(contentAlignment = Alignment.CenterStart) {
@@ -251,8 +252,7 @@ internal fun PaybackScreen(
                                     .fillMaxWidth()
                                     .bg(RoundedCornerShape(bottomStart = 16.dp, bottomEnd = 16.dp)) {
                                         surfaceContainerLowest
-                                    }
-                                    .heightIn(1.dp, screenHeightDp * 0.58f)
+                                    }.heightIn(1.dp, screenHeightDp * 0.58f)
                                     .padding(horizontal = 18.dp)
                                     .padding(bottom = 16.dp)
                                     .verticalScroll(rememberScrollState()),
@@ -400,7 +400,7 @@ private fun PaybackEditDialog(
                     text = "欠款",
                     bgColor = { primary },
                     textStyle = {
-                        TextStyle(fontSize = 16.8.sp, fontWeight = FontWeight.W600)
+                        TextStyle(fontSize = 16.8.textDp, fontWeight = FontWeight.W600)
                             .color(surface)
                     },
                     placeHolder = false,
@@ -517,7 +517,7 @@ private fun PaybackEditDialog(
                     text = "還款",
                     bgColor = { primary },
                     textStyle = {
-                        TextStyle(fontSize = 16.8.sp, fontWeight = FontWeight.W600)
+                        TextStyle(fontSize = 16.8.textDp, fontWeight = FontWeight.W600)
                             .color(surface)
                     },
                     placeHolder = false,
@@ -601,8 +601,8 @@ private fun PaybackEditDialog(
                                         val style =
                                             ContentText.style
                                                 .copy(
-                                                    fontSize = 13.2.sp,
-                                                    lineHeight = 13.2.sp,
+                                                    fontSize = 13.2.textDp,
+                                                    lineHeight = 13.2.textDp,
                                                     platformStyle =
                                                         PlatformTextStyle(includeFontPadding = false),
                                                 )

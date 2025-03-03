@@ -109,11 +109,12 @@ interface TimeConverter {
         ): SimpleDateFormat {
             val newPattern =
                 if (pattern == TimePattern.SYSTEM_Y_M_D) {
-                    kotlin.runCatching {
-                        context.resources.configuration.setLocale(locale)
-                        val systemSdf = DateFormat.getDateFormat(context) as? SimpleDateFormat
-                        systemSdf?.toLocalizedPattern()
-                    }.getOrNull() ?: TimePattern.default
+                    kotlin
+                        .runCatching {
+                            context.resources.configuration.setLocale(locale)
+                            val systemSdf = DateFormat.getDateFormat(context) as? SimpleDateFormat
+                            systemSdf?.toLocalizedPattern()
+                        }.getOrNull() ?: TimePattern.default
                 } else {
                     pattern
                 }

@@ -12,6 +12,9 @@ import com.fang.arrangement.foundation.Bool
 import com.fang.cosmos.definition.workstate.WorkState
 import com.fang.cosmos.definition.workstate.WorkStateImpl
 import com.fang.cosmos.foundation.takeIfNotBlank
+import com.fang.cosmos.foundation.time.calendar.month
+import com.fang.cosmos.foundation.time.calendar.today
+import com.fang.cosmos.foundation.time.calendar.year
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -28,7 +31,8 @@ import kotlinx.coroutines.launch
 @OptIn(ExperimentalCoroutinesApi::class)
 internal class SiteViewModel(
     private val sheetRepository: SheetRepository,
-) : ViewModel(), WorkState by WorkStateImpl() {
+) : ViewModel(),
+    WorkState by WorkStateImpl() {
     private val _sites = MutableStateFlow(emptyList<Site>())
     val sites = _sites.asStateFlow()
 
@@ -44,7 +48,9 @@ internal class SiteViewModel(
                 .mapLatest { workSheets ->
                     val (sitesDeferred, attMapDeferred) =
                         async(Dispatchers.Default) {
-                            workSheets?.sheetSite()?.values
+                            workSheets
+                                ?.sheetSite()
+                                ?.values
                                 ?.filterNot { it.isDelete }
                                 ?.sortedWith(
                                     compareBy<Site> { it.archive }
@@ -53,36 +59,82 @@ internal class SiteViewModel(
                         } to
                             async(Dispatchers.Default) {
                                 val employees = workSheets?.sheetEmployee()?.values
-                                workSheets?.sheetAttendance()?.values?.flatMap { all ->
-                                    all.attendances.map { all.id to it }
-                                }?.groupBy { it.second.siteId }?.mapValues { (_, atts) ->
-                                    val full =
-                                        atts.sumOf { p ->
-                                            p.second.fulls.sumOf { eId ->
-                                                employees?.find { it.id == eId }?.salaries?.find { s ->
-                                                    p.first >= s.millis
-                                                }?.salary ?: 0
-                                            }
-                                        }.toDouble()
-                                    val half =
-                                        atts.sumOf { p ->
-                                            p.second.halfs.sumOf { eId ->
-                                                employees?.find { it.id == eId }?.salaries?.find { s ->
-                                                    p.first >= s.millis
-                                                }?.salary ?: 0
-                                            }
-                                        } * 0.5
-                                    SiteMoney(
-                                        att = atts.sumOf { it.second.total }.takeIf { it > 0.0 },
-                                        (full + half).takeIf { it > 0.0 },
-                                    )
-                                }.orEmpty()
+                                workSheets
+                                    ?.sheetAttendance()
+                                    ?.values
+                                    ?.flatMap { all ->
+                                        all.attendances.map { all.id to it }
+                                    }?.groupBy { it.second.siteId }
+                                    ?.mapValues { (_, atts) ->
+                                        val full =
+                                            atts
+                                                .sumOf { p ->
+                                                    p.second.fulls.sumOf { eId ->
+                                                        employees
+                                                            ?.find { it.id == eId }
+                                                            ?.salaries
+                                                            ?.find { s ->
+                                                                p.first >= s.millis
+                                                            }?.salary ?: 0
+                                                    }
+                                                }.toDouble()
+                                        val half =
+                                            atts.sumOf { p ->
+                                                p.second.halfs.sumOf { eId ->
+                                                    employees
+                                                        ?.find { it.id == eId }
+                                                        ?.salaries
+                                                        ?.find { s ->
+                                                            p.first >= s.millis
+                                                        }?.salary ?: 0
+                                                }
+                                            } * 0.5
+                                        SiteMoney(
+                                            att = atts.sumOf { it.second.total }.takeIf { it > 0.0 },
+                                            years =
+                                                atts
+                                                    .sortedByDescending { it.first }
+                                                    .groupBy {
+                                                        today(it.first).year
+                                                    }.map { (year, yearAtts) ->
+                                                        SiteMoney.Year(
+                                                            year = year,
+                                                            months =
+                                                                yearAtts
+                                                                    .groupBy {
+                                                                        today(it.first).month
+                                                                    }.map { (month, monthAtts) ->
+                                                                        SiteMoney.Month(
+                                                                            month = month,
+                                                                            days =
+                                                                                monthAtts.map { pair ->
+                                                                                    SiteMoney.Day(
+                                                                                        dateMillis = today(pair.first).timeInMillis,
+                                                                                        att = pair.second.total,
+                                                                                        fulls =
+                                                                                            pair.second.fulls
+                                                                                                .mapNotNull { eId ->
+                                                                                                    employees?.find { e -> e.id == eId }
+                                                                                                }.takeIf { it.isNotEmpty() },
+                                                                                        halfs =
+                                                                                            pair.second.halfs
+                                                                                                .mapNotNull { eId ->
+                                                                                                    employees?.find { e -> e.id == eId }
+                                                                                                }.takeIf { it.isNotEmpty() },
+                                                                                    )
+                                                                                },
+                                                                        )
+                                                                    },
+                                                        )
+                                                    },
+                                            salary = (full + half).takeIf { it > 0.0 },
+                                        )
+                                    }.orEmpty()
                             }
 
                     val (sites, attMap) = sitesDeferred.await() to attMapDeferred.await()
                     sites?.let { attMap to it }
-                }
-                .filterNotNull()
+                }.filterNotNull()
                 .flowOn(Dispatchers.Default)
                 .collectLatest { (attMap, sites) ->
                     _sites.value = sites
@@ -233,9 +285,10 @@ internal class SiteViewModel(
     private fun <T> execute(block: suspend CoroutineScope.() -> Result<T>) {
         loading()
         viewModelScope.launch {
-            block().onSuccess {
-                clearEdit()
-            }.onFailure(::throwable)
+            block()
+                .onSuccess {
+                    clearEdit()
+                }.onFailure(::throwable)
             noLoading()
         }
     }

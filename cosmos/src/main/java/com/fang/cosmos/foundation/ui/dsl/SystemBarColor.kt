@@ -26,11 +26,13 @@ fun SystemBarColor(
                     window.navigationBarColor = it.toArgb()
                 }
                 appearanceLightStatus?.let {
-                    WindowCompat.getInsetsController(window, view)
+                    WindowCompat
+                        .getInsetsController(window, view)
                         .isAppearanceLightStatusBars = it
                 }
                 appearanceLightNav?.let {
-                    WindowCompat.getInsetsController(window, view)
+                    WindowCompat
+                        .getInsetsController(window, view)
                         .isAppearanceLightNavigationBars = it
                 }
             }

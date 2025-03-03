@@ -15,5 +15,6 @@ internal val NavBackStackEntry?.currentIsBtmNavItem
 internal inline fun <reified T> NavBackStackEntry.getArgument(
     key: String? = null,
     gson: Gson = CosmosDef.Gson,
-) = gson.fromJsonTypeToken<T>(arguments?.getString(key ?: T::class.java.simpleName).orEmpty())
+) = gson
+    .fromJsonTypeToken<T>(arguments?.getString(key ?: T::class.java.simpleName).orEmpty())
     .getOrNull()
