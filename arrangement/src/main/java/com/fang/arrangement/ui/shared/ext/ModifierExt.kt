@@ -20,8 +20,9 @@ internal fun Modifier.clickRipple(
 ) = composed {
     Modifier.clickableRipple(
         interactionSource = interactionSource,
-        indication = indication
-            ?: ripple(color = MaterialColor.inversePrimary.copy(alpha = 0.35f)),
+        indication =
+            indication
+                ?: ripple(color = MaterialColor.inversePrimary.copy(alpha = 0.35f)),
         enabled = enabled,
         onClickLabel = onClickLabel,
         role = role,

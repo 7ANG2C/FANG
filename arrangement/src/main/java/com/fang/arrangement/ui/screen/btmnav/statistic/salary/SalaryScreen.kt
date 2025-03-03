@@ -36,7 +36,6 @@ import com.fang.arrangement.ui.shared.dsl.EmployeeTag
 import com.fang.arrangement.ui.shared.dsl.HighlightText
 import com.fang.arrangement.ui.shared.ext.clickRipple
 import com.fang.cosmos.foundation.NumberFormat
-import com.fang.cosmos.foundation.ui.ext.textDp
 import com.fang.cosmos.foundation.ui.component.CustomIcon
 import com.fang.cosmos.foundation.ui.component.HorizontalSpacer
 import com.fang.cosmos.foundation.ui.component.VerticalSpacer
@@ -47,8 +46,9 @@ import com.fang.cosmos.foundation.ui.ext.clickableNoRipple
 import com.fang.cosmos.foundation.ui.ext.color
 import com.fang.cosmos.foundation.ui.ext.fontSize
 import com.fang.cosmos.foundation.ui.ext.stateValue
-import java.math.BigDecimal
+import com.fang.cosmos.foundation.ui.ext.textDp
 import org.koin.androidx.compose.koinViewModel
+import java.math.BigDecimal
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
@@ -85,9 +85,11 @@ internal fun SalaryScreen(
                                 MaterialTypography.titleLarge.color(primary)
                             }
                             val salary =
-                                yearSalaries.mapNotNull { s ->
-                                    s.salary ?.let { BigDecimal.valueOf(it) }
-                                }.takeIf { it.isNotEmpty() }?.sumOf { it }
+                                yearSalaries
+                                    .mapNotNull { s ->
+                                        s.salary ?.let { BigDecimal.valueOf(it) }
+                                    }.takeIf { it.isNotEmpty() }
+                                    ?.sumOf { it }
                             ArrText(text = NumberFormat(salary, 0, invalidText = DASH)) {
                                 MaterialTypography.titleLarge.color(primary)
                             }

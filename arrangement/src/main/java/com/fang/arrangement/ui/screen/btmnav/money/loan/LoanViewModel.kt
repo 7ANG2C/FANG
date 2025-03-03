@@ -32,7 +32,8 @@ import kotlinx.coroutines.launch
 internal class LoanViewModel(
     private val sheetRepository: SheetRepository,
     private val gson: Gson,
-) : ViewModel(), WorkState by WorkStateImpl() {
+) : ViewModel(),
+    WorkState by WorkStateImpl() {
     private val _bundle = MutableStateFlow(LoanBundle(emptyList(), emptyList()))
     val bundle = _bundle.asStateFlow()
 
@@ -50,34 +51,38 @@ internal class LoanViewModel(
             sheetRepository.workSheets
                 .mapLatest { workSheets ->
                     val employees =
-                        workSheets?.sheetEmployee()?.values.orEmpty()
+                        workSheets
+                            ?.sheetEmployee()
+                            ?.values
+                            .orEmpty()
                             .sortedWith(
                                 compareBy<Employee> { it.delete }
                                     .thenByDescending { it.expiredMillis ?: Long.MAX_VALUE }
                                     .thenByDescending { it.id },
                             )
-                    workSheets?.sheetLoan()?.values
+                    workSheets
+                        ?.sheetLoan()
+                        ?.values
                         ?.map { loan ->
                             val records = loan.records
                             MLoan(
                                 id = loan.id,
                                 employee =
-                                employees.find {
-                                    it.id == loan.employeeId
-                                } ?: Employee(
-                                    id = loan.employeeId,
-                                    name = "",
-                                    salaries = emptyList(),
-                                    expiredMillis = null,
-                                    delete = 1,
-                                ),
+                                    employees.find {
+                                        it.id == loan.employeeId
+                                    } ?: Employee(
+                                        id = loan.employeeId,
+                                        name = "",
+                                        salaries = emptyList(),
+                                        expiredMillis = null,
+                                        delete = 1,
+                                    ),
                                 loan = loan.loan,
                                 millis = loan.millis,
                                 records = records,
                                 remark = loan.remark,
                             )
-                        }
-                        ?.sortedWith(
+                        }?.sortedWith(
                             compareBy<MLoan> { it.isClear }
                                 .thenByDescending { it.employee.id }
                                 .thenByDescending { it.millis }
@@ -85,8 +90,7 @@ internal class LoanViewModel(
                         )?.let {
                             LoanBundle(employees, it)
                         }
-                }
-                .flatMapLatest { bundle ->
+                }.flatMapLatest { bundle ->
                     filter.mapLatest { filter ->
                         bundle?.let { b ->
                             filter?.let {
@@ -94,8 +98,7 @@ internal class LoanViewModel(
                             } ?: b
                         }
                     }
-                }
-                .filterNotNull()
+                }.filterNotNull()
                 .flowOn(Dispatchers.Default)
                 .collectLatest {
                     _bundle.value = it
@@ -112,14 +115,14 @@ internal class LoanViewModel(
             LoanEditBundle(
                 current = null,
                 edit =
-                LoanEdit(
-                    id = -1,
-                    employee = null,
-                    loan = null,
-                    millis = null,
-                    records = emptyList(),
-                    remark = null,
-                ),
+                    LoanEdit(
+                        id = -1,
+                        employee = null,
+                        loan = null,
+                        millis = null,
+                        records = emptyList(),
+                        remark = null,
+                    ),
             )
     }
 
@@ -128,21 +131,21 @@ internal class LoanViewModel(
             LoanEditBundle(
                 current = current,
                 edit =
-                LoanEdit(
-                    id = current.id,
-                    employee = current.employee,
-                    loan = current.loan.toString(),
-                    millis = current.millis,
-                    records =
-                    current.records.map {
-                        RecordEdit(
-                            millis = it.millis,
-                            loan = it.loan.toString(),
-                            remark = it.remark,
-                        )
-                    },
-                    remark = current.remark,
-                ),
+                    LoanEdit(
+                        id = current.id,
+                        employee = current.employee,
+                        loan = current.loan.toString(),
+                        millis = current.millis,
+                        records =
+                            current.records.map {
+                                RecordEdit(
+                                    millis = it.millis,
+                                    loan = it.loan.toString(),
+                                    remark = it.remark,
+                                )
+                            },
+                        remark = current.remark,
+                    ),
             )
     }
 
@@ -198,9 +201,9 @@ internal class LoanViewModel(
         _editBundle.update { old ->
             old?.copy(
                 edit =
-                old.edit.copy(
-                    records = old.edit.records.filterNot { it.millis == millis },
-                ),
+                    old.edit.copy(
+                        records = old.edit.records.filterNot { it.millis == millis },
+                    ),
             )
         }
     }
@@ -226,14 +229,18 @@ internal class LoanViewModel(
             execute {
                 sheetRepository.insert<Loan>(
                     keyValues =
-                    LoanKey.fold(
-                        id = System.currentTimeMillis().toString(),
-                        employeeId = edit.employee?.id?.toString().orEmpty(),
-                        loan = edit.loan.orEmpty(),
-                        millis = edit.millis?.toString().orEmpty(),
-                        records = "[]",
-                        remark = "\"${edit.remark.takeIfNotBlank.orEmpty().trim()}\"",
-                    ),
+                        LoanKey.fold(
+                            id = System.currentTimeMillis().toString(),
+                            employeeId =
+                                edit.employee
+                                    ?.id
+                                    ?.toString()
+                                    .orEmpty(),
+                            loan = edit.loan.orEmpty(),
+                            millis = edit.millis?.toString().orEmpty(),
+                            records = "[]",
+                            remark = "\"${edit.remark.takeIfNotBlank.orEmpty().trim()}\"",
+                        ),
                 )
             }
         }
@@ -248,14 +255,18 @@ internal class LoanViewModel(
                     key = LoanKey.ID,
                     value = id,
                     keyValues =
-                    LoanKey.fold(
-                        id = id,
-                        employeeId = edit.employee?.id?.toString().orEmpty(),
-                        loan = edit.loan.orEmpty(),
-                        millis = edit.millis?.toString().orEmpty(),
-                        records = gson.json(edit.records).getOrNull()?.noBreathing ?: "[]",
-                        remark = "\"${edit.remark.takeIfNotBlank.orEmpty().trim()}\"",
-                    ),
+                        LoanKey.fold(
+                            id = id,
+                            employeeId =
+                                edit.employee
+                                    ?.id
+                                    ?.toString()
+                                    .orEmpty(),
+                            loan = edit.loan.orEmpty(),
+                            millis = edit.millis?.toString().orEmpty(),
+                            records = gson.json(edit.records).getOrNull()?.noBreathing ?: "[]",
+                            remark = "\"${edit.remark.takeIfNotBlank.orEmpty().trim()}\"",
+                        ),
                 )
             }
         }
@@ -270,9 +281,10 @@ internal class LoanViewModel(
     private fun <T> execute(block: suspend CoroutineScope.() -> Result<T>) {
         loading()
         viewModelScope.launch {
-            block().onSuccess {
-                clearEdit()
-            }.onFailure(::throwable)
+            block()
+                .onSuccess {
+                    clearEdit()
+                }.onFailure(::throwable)
             noLoading()
         }
     }

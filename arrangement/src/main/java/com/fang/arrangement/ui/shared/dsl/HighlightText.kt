@@ -10,10 +10,11 @@ import com.fang.cosmos.foundation.ui.ext.textDp
 
 internal interface HighlightText {
     companion object {
-        val style @Composable get() = MaterialTypography.titleMedium.copy(
-            fontSize = 16.textDp,
-            lineHeight = 24.textDp,
-        )
+        val style @Composable get() =
+            MaterialTypography.titleMedium.copy(
+                fontSize = 16.textDp,
+                lineHeight = 24.textDp,
+            )
         val color @Composable get() = MaterialColor.tertiary
     }
 }

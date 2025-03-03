@@ -8,12 +8,16 @@ import androidx.compose.ui.platform.LocalContext
 fun getStringRes(
     name: String,
     pkgName: String,
-) = LocalContext.current.createConfigurationContext(LocalConfiguration.current)
-    .resources.getString(getStringResource(name, pkgName))
+) = LocalContext.current
+    .createConfigurationContext(LocalConfiguration.current)
+    .resources
+    .getString(getStringResource(name, pkgName))
 
 fun getStringResource(
     name: String,
     pkgName: String,
-) = Class.forName(
-    "$pkgName.R\$string",
-).getDeclaredField(name).get(null) as Int
+) = Class
+    .forName(
+        "$pkgName.R\$string",
+    ).getDeclaredField(name)
+    .get(null) as Int

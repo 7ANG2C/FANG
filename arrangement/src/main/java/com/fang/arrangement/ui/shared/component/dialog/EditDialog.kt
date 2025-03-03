@@ -44,7 +44,8 @@ internal fun EditDialog(
             VerticalSpacer(20)
             Column(
                 modifier =
-                    Modifier.fillMaxWidth()
+                    Modifier
+                        .fillMaxWidth()
                         .padding(horizontal = DialogShared.editHPaddingDp)
                         .weight(1f, false)
                         .verticalScroll(rememberScrollState()),

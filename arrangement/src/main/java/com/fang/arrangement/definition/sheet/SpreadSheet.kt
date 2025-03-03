@@ -26,7 +26,13 @@ internal interface SpreadSheet {
         operator fun invoke(vararg name: String) = all.filter { it.name in name }
     }
 
-    data class Request(val name: String, val clazz: Class<out Any>)
+    data class Request(
+        val name: String,
+        val clazz: Class<out Any>,
+    )
 
-    data class Property(val id: Int, val name: String)
+    data class Property(
+        val id: Int,
+        val name: String,
+    )
 }

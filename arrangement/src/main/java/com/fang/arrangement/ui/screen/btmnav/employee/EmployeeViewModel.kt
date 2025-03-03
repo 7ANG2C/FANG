@@ -29,7 +29,8 @@ import kotlinx.coroutines.launch
 internal class EmployeeViewModel(
     private val sheetRepository: SheetRepository,
     private val gson: Gson,
-) : ViewModel(), WorkState by WorkStateImpl() {
+) : ViewModel(),
+    WorkState by WorkStateImpl() {
     private val _employees = MutableStateFlow(emptyList<Employee>())
     val employees = _employees.asStateFlow()
 
@@ -42,15 +43,16 @@ internal class EmployeeViewModel(
         viewModelScope.launch {
             sheetRepository.workSheets
                 .mapLatest { workSheets ->
-                    workSheets?.sheetEmployee()?.values
+                    workSheets
+                        ?.sheetEmployee()
+                        ?.values
                         ?.filterNot { it.isDelete }
                         ?.sortedWith(
                             compareByDescending<Employee> {
                                 it.expiredMillis ?: Long.MAX_VALUE
                             }.thenByDescending { it.id },
                         )
-                }
-                .filterNotNull()
+                }.filterNotNull()
                 .flowOn(Dispatchers.Default)
                 .collectLatest {
                     _employees.value = it
@@ -209,9 +211,10 @@ internal class EmployeeViewModel(
     private fun <T> execute(block: suspend CoroutineScope.() -> Result<T>) {
         loading()
         viewModelScope.launch {
-            block().onSuccess {
-                clearEdit()
-            }.onFailure(::throwable)
+            block()
+                .onSuccess {
+                    clearEdit()
+                }.onFailure(::throwable)
             noLoading()
         }
     }

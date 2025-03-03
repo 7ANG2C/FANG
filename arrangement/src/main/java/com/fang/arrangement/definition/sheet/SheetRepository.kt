@@ -64,24 +64,29 @@ internal class SheetRepository(
     private val service by lazy {
         val credentials =
             runBlocking(Dispatchers.IO) {
-                ServiceAccountCredentials.fromStream(
-                    context.assets.open("service-account.json"),
-                ).createScoped(SheetsScopes.SPREADSHEETS)
+                ServiceAccountCredentials
+                    .fromStream(
+                        context.assets.open("service-account.json"),
+                    ).createScoped(SheetsScopes.SPREADSHEETS)
             }
-        Sheets.Builder(
-            NetHttpTransport(),
-            GsonFactory.getDefaultInstance(),
-            HttpCredentialsAdapter(credentials),
-        )
-            .setApplicationName("Arrangement")
+        Sheets
+            .Builder(
+                NetHttpTransport(),
+                GsonFactory.getDefaultInstance(),
+                HttpCredentialsAdapter(credentials),
+            ).setApplicationName("Arrangement")
             .build()
             .spreadsheets()
     }
 
     private sealed interface Type {
-        data class Property(val properties: List<SpreadSheet.Property>) : Type
+        data class Property(
+            val properties: List<SpreadSheet.Property>,
+        ) : Type
 
-        data class Sheet(val sheets: List<Mediator>) : Type
+        data class Sheet(
+            val sheets: List<Mediator>,
+        ) : Type
     }
 
     private val refreshProperty = MutableStateFlow<Long?>(null)
@@ -95,26 +100,28 @@ internal class SheetRepository(
         coroutineScope.launch {
             refreshSheet(SpreadSheet.all)
             val propertyFlow =
-                refreshProperty.filterNotNull()
+                refreshProperty
+                    .filterNotNull()
                     .throttleLatest(1.seconds)
                     .flowOn(Dispatchers.Default)
                     .flatMapLatest {
                         flow {
                             val properties =
-                                service.get(SPREAD_SHEET_ID).execute()
-                                    .sheets.map {
+                                service
+                                    .get(SPREAD_SHEET_ID)
+                                    .execute()
+                                    .sheets
+                                    .map {
                                         SpreadSheet.Property(
                                             id = it.properties.sheetId,
                                             name = it.properties.title,
                                         )
                                     }
                             emit(Type.Property(properties))
-                        }
-                            .flowOn(Dispatchers.IO)
+                        }.flowOn(Dispatchers.IO)
                             .retryExponentialWhen { _, attempt ->
                                 attempt < 3
-                            }
-                            .flowOn(Dispatchers.Default)
+                            }.flowOn(Dispatchers.Default)
                     }
             val invalidSheetId = -1
             merge(propertyFlow, refreshSheet.filterNotNull())
@@ -153,14 +160,12 @@ internal class SheetRepository(
                                 )
                             }
                     }
-                }
-                .mapLatest { sheets ->
+                }.mapLatest { sheets ->
                     sheets?.takeIf {
                         val sheet = it.firstOrNull()
                         sheet?.id != invalidSheetId && !sheet?.keys.isNullOrEmpty()
                     }
-                }
-                .filterNotNull()
+                }.filterNotNull()
                 .flowOn(Dispatchers.Default)
                 .collectLatest {
                     _workSheets.value = it
@@ -202,22 +207,26 @@ internal class SheetRepository(
     ) = workSheets.value.orEmpty().sheet<T>()?.let { sheet ->
         sheet.getSpreedSheetValues().getOrNull()?.let { data ->
             withDefaultCoroutine {
-                data.firstOrNull()?.indexOfFirstOrNull {
-                    it.toString() == key
-                }?.let { keyIndex ->
-                    values.mapNotNull { value ->
-                        data.indexOfFirstOrNull { row ->
-                            row.getOrNull(keyIndex) == value
+                data
+                    .firstOrNull()
+                    ?.indexOfFirstOrNull {
+                        it.toString() == key
+                    }?.let { keyIndex ->
+                        values.mapNotNull { value ->
+                            data.indexOfFirstOrNull { row ->
+                                row.getOrNull(keyIndex) == value
+                            }
                         }
+                    }?.takeIf { it.isNotEmpty() }
+                    ?.sortedDescending()
+                    ?.map {
+                        Request().setDeleteDimension(
+                            DeleteDimensionRequest()
+                                .setRange(range(sheet, it)),
+                        )
+                    }?.let { requests ->
+                        sheet.batchUpdate(requests)
                     }
-                }?.takeIf { it.isNotEmpty() }?.sortedDescending()?.map {
-                    Request().setDeleteDimension(
-                        DeleteDimensionRequest()
-                            .setRange(range(sheet, it)),
-                    )
-                }?.let { requests ->
-                    sheet.batchUpdate(requests)
-                }
             }
         } ?: Result.failure(NoRowIdException(sheet.name, key, values.toString()))
     } ?: Result.failure(NoSheetException(T::class.java))
@@ -229,63 +238,68 @@ internal class SheetRepository(
     private suspend fun refreshSheet(requests: List<SpreadSheet.Request>) {
         retry {
             ioCatching {
-                service.values()
+                service
+                    .values()
                     .batchGet(SPREAD_SHEET_ID)
-                    .setRanges(requests.map { it.name }).execute()
+                    .setRanges(requests.map { it.name })
+                    .execute()
             }
         }.mapCatching { res ->
             withDefaultCoroutine {
-                res.valueRanges.mapNotNull { valueRange ->
-                    async(Dispatchers.Default) {
-                        val valueRanges = valueRange.getValues()
-                        val request = requests.find { it.name in valueRange.range }
-                        val keys =
-                            valueRanges.firstOrNull()?.mapNotNull { it.toString().takeIfNotBlank }
-                        val valueList = valueRanges.drop(1)
-                        if (request != null && !keys.isNullOrEmpty()) {
-                            val jsonString =
-                                "[" +
-                                    valueList.fold("") { acc, values ->
-                                        val pairs =
-                                            values.foldIndexed("") { i, old, value ->
-                                                val key = keys.getOrNull(i).takeIfNotBlank
-                                                val validValue =
-                                                    value?.toString().takeIfNotBlank
-                                                val pair =
-                                                    if (key != null && validValue != null) {
-                                                        val t =
-                                                            if (validValue.startsWith("[")) {
-                                                                validValue
-                                                            } else {
-                                                                "\"$validValue\""
-                                                            }
-                                                        "\"$key\":$t,"
+                res.valueRanges
+                    .mapNotNull { valueRange ->
+                        async(Dispatchers.Default) {
+                            val valueRanges = valueRange.getValues()
+                            val request = requests.find { it.name in valueRange.range }
+                            val keys =
+                                valueRanges.firstOrNull()?.mapNotNull { it.toString().takeIfNotBlank }
+                            val valueList = valueRanges.drop(1)
+                            if (request != null && !keys.isNullOrEmpty()) {
+                                val jsonString =
+                                    "[" +
+                                        valueList
+                                            .fold("") { acc, values ->
+                                                val pairs =
+                                                    values
+                                                        .foldIndexed("") { i, old, value ->
+                                                            val key = keys.getOrNull(i).takeIfNotBlank
+                                                            val validValue =
+                                                                value?.toString().takeIfNotBlank
+                                                            val pair =
+                                                                if (key != null && validValue != null) {
+                                                                    val t =
+                                                                        if (validValue.startsWith("[")) {
+                                                                            validValue
+                                                                        } else {
+                                                                            "\"$validValue\""
+                                                                        }
+                                                                    "\"$key\":$t,"
+                                                                } else {
+                                                                    ""
+                                                                }
+                                                            old + pair
+                                                        }.dropLastWhile { it == ',' }
+                                                val type =
+                                                    if (pairs.isNotBlank()) {
+                                                        "{$pairs},"
                                                     } else {
                                                         ""
                                                     }
-                                                old + pair
-                                            }.dropLastWhile { it == ',' }
-                                        val type =
-                                            if (pairs.isNotBlank()) {
-                                                "{$pairs},"
-                                            } else {
-                                                ""
-                                            }
-                                        acc + type
-                                    }.dropLastWhile { it == ',' } + "]"
-                            gson.fromJsonTypeList(jsonString, request.clazz).getOrNull()?.let {
-                                Mediator(
-                                    name = request.name,
-                                    keys = keys,
-                                    values = it,
-                                    clazz = request.clazz,
-                                )
+                                                acc + type
+                                            }.dropLastWhile { it == ',' } + "]"
+                                gson.fromJsonTypeList(jsonString, request.clazz).getOrNull()?.let {
+                                    Mediator(
+                                        name = request.name,
+                                        keys = keys,
+                                        values = it,
+                                        clazz = request.clazz,
+                                    )
+                                }
+                            } else {
+                                null
                             }
-                        } else {
-                            null
                         }
-                    }
-                }.awaitAll()
+                    }.awaitAll()
             }
         }.onSuccess { mediators ->
             mediators.filterNotNull().takeIf { it.isNotEmpty() }?.let {
@@ -301,13 +315,16 @@ internal class SheetRepository(
         keyValue?.let { kv ->
             sheet.getSpreedSheetValues().getOrNull()?.let { data ->
                 withDefaultCoroutine {
-                    data.firstOrNull()?.indexOfFirstOrNull {
-                        it.toString() == kv.key
-                    }?.let { keyIndex ->
-                        data.indexOfFirstOrNull { row ->
-                            row.getOrNull(keyIndex) == kv.value
-                        }?.let { i -> sheet.batchUpdate(requests.map { it(Request(), sheet, i) }) }
-                    }
+                    data
+                        .firstOrNull()
+                        ?.indexOfFirstOrNull {
+                            it.toString() == kv.key
+                        }?.let { keyIndex ->
+                            data
+                                .indexOfFirstOrNull { row ->
+                                    row.getOrNull(keyIndex) == kv.value
+                                }?.let { i -> sheet.batchUpdate(requests.map { it(Request(), sheet, i) }) }
+                        }
                 }
             } ?: Result.failure(NoRowIdException(sheet.name, kv.key, kv.value))
         } ?: sheet.batchUpdate(requests.map { it(Request(), sheet, -1) })
@@ -316,17 +333,21 @@ internal class SheetRepository(
     private suspend inline fun <reified T> Sheet<T>.getSpreedSheetValues() =
         retry {
             ioCatching {
-                service.values().get(SPREAD_SHEET_ID, name)
-                    .execute()?.getValues()
+                service
+                    .values()
+                    .get(SPREAD_SHEET_ID, name)
+                    .execute()
+                    ?.getValues()
             }
         }
 
     private suspend inline fun <reified T> Sheet<T>.batchUpdate(requests: List<Request>) =
         ioCatching {
-            service.batchUpdate(
-                SPREAD_SHEET_ID,
-                BatchUpdateSpreadsheetRequest().setRequests(requests),
-            ).execute()
+            service
+                .batchUpdate(
+                    SPREAD_SHEET_ID,
+                    BatchUpdateSpreadsheetRequest().setRequests(requests),
+                ).execute()
         }.onSuccess {
             refreshSheet(SpreadSheet(name))
         }
@@ -345,14 +366,15 @@ internal class SheetRepository(
         sheet: Sheet<T>,
         index: Int,
     ) = setPasteData(
-        PasteDataRequest().setDelimiter("\t")
+        PasteDataRequest()
+            .setDelimiter("\t")
             .setData(
                 sheet.keys.joinToString("\t") { key ->
                     keyValues.find { it.key == key }?.value.orEmpty()
                 },
-            )
-            .setCoordinate(
-                GridCoordinate().setSheetId(sheet.id)
+            ).setCoordinate(
+                GridCoordinate()
+                    .setSheetId(sheet.id)
                     .setColumnIndex(0)
                     .setRowIndex(index),
             ),

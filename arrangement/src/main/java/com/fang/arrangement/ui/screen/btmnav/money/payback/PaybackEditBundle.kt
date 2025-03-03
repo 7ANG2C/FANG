@@ -14,12 +14,15 @@ internal data class PaybackEditBundle(
                 current?.payback != edit.payback?.toIntOrNull() ||
                 current?.millis != edit.millis ||
                 current?.remark?.trim().takeIfNotBlank != edit.remark?.trim().takeIfNotBlank ||
-                current?.records.orEmpty()
+                current
+                    ?.records
+                    .orEmpty()
                     .map { it.millis to it.payback to it.remark?.trim().takeIfNotBlank }
                     .toString() !=
-                edit.records.mapNoNull({
-                    it.millis != null && it.payback != null
-                }) {
-                    it.millis to it.payback to it.remark?.trim().takeIfNotBlank
-                }.toString()
+                edit.records
+                    .mapNoNull({
+                        it.millis != null && it.payback != null
+                    }) {
+                        it.millis to it.payback to it.remark?.trim().takeIfNotBlank
+                    }.toString()
 }

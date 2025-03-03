@@ -33,7 +33,8 @@ import kotlinx.coroutines.launch
 internal class PaybackViewModel(
     private val sheetRepository: SheetRepository,
     private val gson: Gson,
-) : ViewModel(), WorkState by WorkStateImpl() {
+) : ViewModel(),
+    WorkState by WorkStateImpl() {
     private val _bundle = MutableStateFlow(PaybackBundle(emptyList(), emptyList()))
     val bundle = _bundle.asStateFlow()
 
@@ -48,12 +49,17 @@ internal class PaybackViewModel(
             sheetRepository.workSheets
                 .mapLatest { workSheets ->
                     val bosses =
-                        workSheets?.sheetBoss()?.values.orEmpty()
+                        workSheets
+                            ?.sheetBoss()
+                            ?.values
+                            .orEmpty()
                             .sortedWith(
                                 compareBy<Boss> { it.delete }
                                     .thenByDescending { it.id },
                             )
-                    workSheets?.sheetPayback()?.values
+                    workSheets
+                        ?.sheetPayback()
+                        ?.values
                         ?.map { payback ->
                             val records = payback.records
                             MPayback(
@@ -71,8 +77,7 @@ internal class PaybackViewModel(
                                 records = records,
                                 remark = payback.remark,
                             )
-                        }
-                        ?.sortedWith(
+                        }?.sortedWith(
                             compareBy<MPayback> { it.isClear }
                                 .thenByDescending { it.millis }
                                 .thenByDescending { it.payback }
@@ -80,8 +85,7 @@ internal class PaybackViewModel(
                         )?.let {
                             PaybackBundle(bosses, it)
                         }
-                }
-                .filterNotNull()
+                }.filterNotNull()
                 .flowOn(Dispatchers.Default)
                 .collectLatest {
                     _bundle.value = it
@@ -210,7 +214,11 @@ internal class PaybackViewModel(
                     keyValues =
                         PaybackKey.fold(
                             id = System.currentTimeMillis().toString(),
-                            bossId = edit.boss?.id?.toString().orEmpty(),
+                            bossId =
+                                edit.boss
+                                    ?.id
+                                    ?.toString()
+                                    .orEmpty(),
                             payback = edit.payback.orEmpty(),
                             millis = edit.millis?.toString().orEmpty(),
                             records = "[]",
@@ -232,7 +240,11 @@ internal class PaybackViewModel(
                     keyValues =
                         PaybackKey.fold(
                             id = id,
-                            bossId = edit.boss?.id?.toString().orEmpty(),
+                            bossId =
+                                edit.boss
+                                    ?.id
+                                    ?.toString()
+                                    .orEmpty(),
                             payback = edit.payback.orEmpty(),
                             millis = edit.millis?.toString().orEmpty(),
                             records = gson.json(edit.records).getOrNull()?.noBreathing ?: "[]",
@@ -252,9 +264,10 @@ internal class PaybackViewModel(
     private fun <T> execute(block: suspend CoroutineScope.() -> Result<T>) {
         loading()
         viewModelScope.launch {
-            block().onSuccess {
-                clearEdit()
-            }.onFailure(::throwable)
+            block()
+                .onSuccess {
+                    clearEdit()
+                }.onFailure(::throwable)
             noLoading()
         }
     }
@@ -349,9 +362,10 @@ internal class PaybackViewModel(
     private fun <T> bossExecute(block: suspend CoroutineScope.() -> Result<T>) {
         loading()
         viewModelScope.launch {
-            block().onSuccess {
-                bossClearEdit()
-            }.onFailure(::throwable)
+            block()
+                .onSuccess {
+                    bossClearEdit()
+                }.onFailure(::throwable)
             noLoading()
         }
     }

@@ -31,7 +31,8 @@ import kotlinx.coroutines.launch
 @OptIn(ExperimentalCoroutinesApi::class)
 internal class FundViewModel(
     private val sheetRepository: SheetRepository,
-) : ViewModel(), WorkState by WorkStateImpl() {
+) : ViewModel(),
+    WorkState by WorkStateImpl() {
     private val _ymFunds = MutableStateFlow(emptyList<YearMonthFund>())
     val ymFunds = _ymFunds.asStateFlow()
 
@@ -42,7 +43,9 @@ internal class FundViewModel(
         viewModelScope.launch {
             sheetRepository.workSheets
                 .mapLatest { workSheets ->
-                    workSheets?.sheetFund()?.values
+                    workSheets
+                        ?.sheetFund()
+                        ?.values
                         ?.map {
                             MFund(
                                 selected = false,
@@ -51,8 +54,7 @@ internal class FundViewModel(
                                 millis = it.millis,
                                 remark = it.remark,
                             )
-                        }
-                        ?.sortedWith(
+                        }?.sortedWith(
                             compareByDescending<MFund> { it.millis }
                                 .thenByDescending { it.id },
                         )?.groupBy {
@@ -60,15 +62,15 @@ internal class FundViewModel(
                         }?.map { (pair, yFunds) ->
                             val (year, month) = pair
                             val dayFunds =
-                                yFunds.groupBy {
-                                    today(it.millis).dayOfMonth
-                                }.map { (day, funds) ->
-                                    DayFund(day = day, funds = funds)
-                                }
+                                yFunds
+                                    .groupBy {
+                                        today(it.millis).dayOfMonth
+                                    }.map { (day, funds) ->
+                                        DayFund(day = day, funds = funds)
+                                    }
                             YearMonthFund(year = year, month = month, dayFunds = dayFunds)
                         }
-                }
-                .filterNotNull()
+                }.filterNotNull()
                 .flowOn(Dispatchers.Default)
                 .collectLatest {
                     _ymFunds.value = it
@@ -244,9 +246,10 @@ internal class FundViewModel(
     private fun <T> execute(block: suspend CoroutineScope.() -> Result<T>) {
         loading()
         viewModelScope.launch {
-            block().onSuccess {
-                clearEdit()
-            }.onFailure(::throwable)
+            block()
+                .onSuccess {
+                    clearEdit()
+                }.onFailure(::throwable)
             noLoading()
         }
     }

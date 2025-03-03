@@ -69,9 +69,7 @@ private fun DatePicker(
                 yearRange = 2023..2050,
                 selectableDates =
                     object : SelectableDates {
-                        override fun isSelectableDate(utcTimeMillis: Long): Boolean {
-                            return selectable(utcTimeMillis)
-                        }
+                        override fun isSelectableDate(utcTimeMillis: Long): Boolean = selectable(utcTimeMillis)
                     },
             )
         DatePickerDialog(

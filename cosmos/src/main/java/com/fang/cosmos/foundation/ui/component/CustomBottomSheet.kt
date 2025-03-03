@@ -43,8 +43,7 @@ fun CustomBottomSheet(
                     } else {
                         Modifier
                     },
-                )
-                .background(
+                ).background(
                     animateColor("BottomSheetOverlayColor") {
                         if (isShow) overlayColor else Color.Transparent
                     },
