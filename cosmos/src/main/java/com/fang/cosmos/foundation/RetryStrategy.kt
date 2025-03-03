@@ -34,7 +34,9 @@ interface RequestConst {
 /**
  * 重試 n 次後仍失敗
  */
-class ApiRetryException(throwable: Throwable?) : Throwable(throwable)
+class ApiRetryException(
+    throwable: Throwable?,
+) : Throwable(throwable)
 
 /**
  * 無網路
@@ -96,7 +98,8 @@ private suspend fun <D> networkRetry(
 ): Result<D> =
     withDefaultCoroutine {
         networkAvailability
-            .availableState.mapLatest { available ->
+            .availableState
+            .mapLatest { available ->
                 if (available) {
                     predicate()
                 } else {

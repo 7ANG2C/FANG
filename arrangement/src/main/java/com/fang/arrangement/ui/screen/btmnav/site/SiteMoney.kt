@@ -9,23 +9,23 @@ internal data class SiteMoney(
 ) {
     data class YearSummary(
         val name: String,
-        val years: List<Year>
+        val years: List<Year>,
     )
 
     data class Year(
         val year: Int,
-        val months: List<Month>
+        val months: List<Month>,
     )
 
     data class Month(
         val month: Int,
-        val days: List<Day>
+        val days: List<Day>,
     )
 
     data class Day(
         val dateMillis: Long,
         val att: Double,
         val fulls: List<Employee>?,
-        val halfs: List<Employee>?
+        val halfs: List<Employee>?,
     )
 }

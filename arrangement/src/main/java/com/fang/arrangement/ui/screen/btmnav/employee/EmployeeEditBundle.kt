@@ -12,9 +12,15 @@ internal data class EmployeeEditBundle(
     val anyDiff
         get() =
             current?.name?.trim().takeIfNotBlank != edit.name?.trim().takeIfNotBlank ||
-                current?.salaries.orEmpty().map { it.millis to it.salary }.toString() !=
-                edit.salaries.mapNoNull({
-                    it.millis != null && it.salary != null
-                }) { it.millis to it.salary }.toString() ||
+                current
+                    ?.salaries
+                    .orEmpty()
+                    .map { it.millis to it.salary }
+                    .toString() !=
+                edit.salaries
+                    .mapNoNull({
+                        it.millis != null && it.salary != null
+                    }) { it.millis to it.salary }
+                    .toString() ||
                 current?.expiredMillis != edit.expire
 }

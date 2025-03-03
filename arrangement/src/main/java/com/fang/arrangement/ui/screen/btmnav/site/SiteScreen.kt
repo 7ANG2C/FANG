@@ -95,7 +95,13 @@ internal fun SiteScreen(
                 allAtt?.let {
                     Box(contentAlignment = Alignment.Center) {
                         AttAllChip(it, fill = true, false)
-                        ArrText(text = item.name.firstOrNull()?.toString().orDash) {
+                        ArrText(
+                            text =
+                                item.name
+                                    .firstOrNull()
+                                    ?.toString()
+                                    .orDash,
+                        ) {
                             HighlightText.style.color(Color.Transparent)
                         }
                     }
@@ -103,10 +109,11 @@ internal fun SiteScreen(
                 Row(modifier = Modifier.fillMaxWidth()) {
                     allAtt?.let {
                         Row(
-                            modifier = Modifier.clickableNoRipple {
-                                showMonths.value =
-                                    SiteMoney.YearSummary(item.name, attendanceMap.years)
-                            },
+                            modifier =
+                                Modifier.clickableNoRipple {
+                                    showMonths.value =
+                                        SiteMoney.YearSummary(item.name, attendanceMap.years)
+                                },
                         ) {
                             AttAllChip(it, fill = true, true)
                             HorizontalSpacer(6)
@@ -160,22 +167,23 @@ internal fun SiteScreen(
                 ArrText(
                     text = it,
                     modifier =
-                    Modifier
-                        .clickableNoRipple {
-                            context.startActivity(
-                                Intent(
-                                    Intent.ACTION_VIEW,
-                                    Uri.parse("geo:0,0?q=${Uri.encode(it)}"),
-                                ).setPackage("com.google.android.apps.maps"),
-                            )
-                        },
+                        Modifier
+                            .clickableNoRipple {
+                                context.startActivity(
+                                    Intent(
+                                        Intent.ACTION_VIEW,
+                                        Uri.parse("geo:0,0?q=${Uri.encode(it)}"),
+                                    ).setPackage("com.google.android.apps.maps"),
+                                )
+                            },
                 ) {
                     val color =
                         alphaColor(
                             color = Color(0xFF2191F3),
                             isAlpha = archive,
                         )
-                    ContentText.style.color(color)
+                    ContentText.style
+                        .color(color)
                         .copy(textDecoration = TextDecoration.Underline)
                 }
             }
@@ -200,31 +208,30 @@ private fun MonthlyDialog(ySummary: MutableState<SiteMoney.YearSummary?>) {
     DialogThemedScreen(isShow = ySummary.value != null) {
         Column(
             modifier =
-            Modifier
-                .fillMaxWidth(DialogShared.EDIT_WIDTH_FRACTION)
-                .heightIn(min = 0.dp, max = screenHeightDp * 0.84f)
-                .dialogBg()
-                .animateContentSize(),
+                Modifier
+                    .fillMaxWidth(DialogShared.EDIT_WIDTH_FRACTION)
+                    .heightIn(min = 0.dp, max = screenHeightDp * 0.84f)
+                    .dialogBg()
+                    .animateContentSize(),
         ) {
             ySummary.value?.let { summary ->
                 var showAtt by rememberSaveable { mutableStateOf(false) }
                 ArrText(
                     text = summary.name,
                     modifier =
-                    Modifier
-                        .clickableNoRipple {
-                            showAtt = !showAtt
-                        }
-                        .align(Alignment.CenterHorizontally)
-                        .padding(16.dp),
+                        Modifier
+                            .clickableNoRipple {
+                                showAtt = !showAtt
+                            }.align(Alignment.CenterHorizontally)
+                            .padding(16.dp),
                 ) { MaterialTypography.titleMedium.color { onSecondaryContainer } }
                 Column(
                     modifier =
-                    Modifier
-                        .fillMaxWidth()
-                        .weight(1f, false)
-                        .padding(horizontal = 16.dp)
-                        .verticalScroll(rememberScrollState()),
+                        Modifier
+                            .fillMaxWidth()
+                            .weight(1f, false)
+                            .padding(horizontal = 16.dp)
+                            .verticalScroll(rememberScrollState()),
                     verticalArrangement = Arrangement.spacedBy(6.dp),
                 ) {
                     summary.years.forEach { year ->
@@ -237,21 +244,23 @@ private fun MonthlyDialog(ySummary: MutableState<SiteMoney.YearSummary?>) {
                                     ArrText(
                                         text = "$pre${month.month + 1}",
                                         modifier =
-                                        Modifier
-                                            .bg(MaterialShape.extraSmall) { primary.copy(alpha = 0.32f) }
-                                            .padding(horizontal = 2.dp),
+                                            Modifier
+                                                .bg(MaterialShape.extraSmall) { primary.copy(alpha = 0.32f) }
+                                                .padding(horizontal = 2.dp),
                                     ) { HighlightText.style.color(onSecondaryContainer) }
                                     HorizontalSpacer(4)
                                     FlowRow(
                                         modifier = Modifier.weight(1f),
                                         verticalArrangement = Arrangement.spacedBy(2.4.dp),
                                     ) {
-                                        month.days.sortedBy { it.dateMillis }
+                                        month.days
+                                            .sortedBy { it.dateMillis }
                                             .forEachIndexed { i, day ->
                                                 Row(
-                                                    modifier = Modifier.clickableNoRipple {
-                                                        showEmployee.value = day
-                                                    }
+                                                    modifier =
+                                                        Modifier.clickableNoRipple {
+                                                            showEmployee.value = day
+                                                        },
                                                 ) {
                                                     val style =
                                                         ContentText.style.color(ContentText.color)
@@ -265,7 +274,7 @@ private fun MonthlyDialog(ySummary: MutableState<SiteMoney.YearSummary?>) {
                                                     ) { style }
                                                     if (showAtt) {
                                                         ArrText(
-                                                            text = "(${AttendanceNumFormat(day.att)})"
+                                                            text = "(${AttendanceNumFormat(day.att)})",
                                                         ) { style.color(ContentText.color.copy(alpha = 0.6f)) }
                                                     }
                                                 }
@@ -279,9 +288,9 @@ private fun MonthlyDialog(ySummary: MutableState<SiteMoney.YearSummary?>) {
             }
             PositiveButton(
                 modifier =
-                Modifier
-                    .align(Alignment.CenterHorizontally)
-                    .padding(16.dp),
+                    Modifier
+                        .align(Alignment.CenterHorizontally)
+                        .padding(16.dp),
                 onClick = { ySummary.value = null },
             )
         }
@@ -294,27 +303,27 @@ private fun MonthlyEmployeeDialog(showEmployee: MutableState<SiteMoney.Day?>) {
     DialogThemedScreen(isShow = showEmployee.value != null) {
         Column(
             modifier =
-            Modifier
-                .fillMaxWidth(DialogShared.EDIT_WIDTH_FRACTION)
-                .heightIn(min = 0.dp, max = screenHeightDp * 0.84f)
-                .dialogBg()
-                .animateContentSize(),
+                Modifier
+                    .fillMaxWidth(DialogShared.EDIT_WIDTH_FRACTION)
+                    .heightIn(min = 0.dp, max = screenHeightDp * 0.84f)
+                    .dialogBg()
+                    .animateContentSize(),
         ) {
             showEmployee.value?.let { summary ->
                 ArrText(
                     text = YMDDayOfWeek(summary.dateMillis).orDash,
                     modifier =
-                    Modifier
-                        .align(Alignment.CenterHorizontally)
-                        .padding(16.dp),
+                        Modifier
+                            .align(Alignment.CenterHorizontally)
+                            .padding(16.dp),
                 ) { MaterialTypography.titleMedium.color { onSecondaryContainer } }
                 Column(
                     modifier =
-                    Modifier
-                        .fillMaxWidth()
-                        .weight(1f, false)
-                        .padding(horizontal = 16.dp)
-                        .verticalScroll(rememberScrollState()),
+                        Modifier
+                            .fillMaxWidth()
+                            .weight(1f, false)
+                            .padding(horizontal = 16.dp)
+                            .verticalScroll(rememberScrollState()),
                     verticalArrangement = Arrangement.spacedBy(6.dp),
                 ) {
                     summary.fulls?.joinToString("、") { it.name }?.let {
@@ -330,9 +339,9 @@ private fun MonthlyEmployeeDialog(showEmployee: MutableState<SiteMoney.Day?>) {
             }
             PositiveButton(
                 modifier =
-                Modifier
-                    .align(Alignment.CenterHorizontally)
-                    .padding(16.dp),
+                    Modifier
+                        .align(Alignment.CenterHorizontally)
+                        .padding(16.dp),
                 onClick = { showEmployee.value = null },
             )
         }
@@ -349,21 +358,21 @@ private fun SiteEditDialog(
     EditDialog(
         isShow = edit != null,
         onConfirm =
-        if (edit?.savable == true) {
-            if (editBundle.isInsert) {
-                { viewModel.insert(edit) }
+            if (edit?.savable == true) {
+                if (editBundle.isInsert) {
+                    { viewModel.insert(edit) }
+                } else {
+                    { viewModel.update(editBundle) }.takeIf { editBundle.anyDiff }
+                }
             } else {
-                { viewModel.update(editBundle) }.takeIf { editBundle.anyDiff }
-            }
-        } else {
-            null
-        },
+                null
+            },
         onDelete =
-        if (current != null) {
-            { viewModel.delete(current) }
-        } else {
-            null
-        },
+            if (current != null) {
+                { viewModel.delete(current) }
+            } else {
+                null
+            },
         onCancel = viewModel::clearEdit,
     ) {
         // 封存
@@ -468,8 +477,8 @@ private fun Archive(
         Spacer(modifier = Modifier.weight(1f))
         Box(
             modifier =
-            Modifier
-                .clickableNoRipple(onClick = click),
+                Modifier
+                    .clickableNoRipple(onClick = click),
         ) {
             if (archive) {
                 ArchivedTag(Modifier)

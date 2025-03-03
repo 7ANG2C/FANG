@@ -52,11 +52,12 @@ interface NumberFormat {
                     } else {
                         ""
                     }
-                DecimalFormat("$integer$decimal").apply {
-                    this.negativePrefix = negativePrefix
-                    if (bigDecimal.signum() > 0) this.positivePrefix = positivePrefix
-                    roundingMode?.let { this.roundingMode = it }
-                }.format(bigDecimal) + dot
+                DecimalFormat("$integer$decimal")
+                    .apply {
+                        this.negativePrefix = negativePrefix
+                        if (bigDecimal.signum() > 0) this.positivePrefix = positivePrefix
+                        roundingMode?.let { this.roundingMode = it }
+                    }.format(bigDecimal) + dot
             } else {
                 invalidText
             }

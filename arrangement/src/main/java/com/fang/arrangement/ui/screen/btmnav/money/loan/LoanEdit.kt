@@ -12,7 +12,9 @@ internal data class LoanEdit(
 ) {
     val savable
         get() =
-            employee != null && loan != null && millis != null &&
+            employee != null &&
+                loan != null &&
+                millis != null &&
                 loan.toIntOrNull()?.let { loan ->
                     records.sumOf { it.loan?.toIntOrNull() ?: 0 } <= loan
                 } ?: false

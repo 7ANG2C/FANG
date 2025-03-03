@@ -366,7 +366,8 @@ internal fun AttendanceScreen(
                         it.notDelete && it.notExpire
                     }) { MEmployee(it.id, it) }
                 val employees =
-                    (mEmployees + fulls + halfs).distinctBy { it.id }
+                    (mEmployees + fulls + halfs)
+                        .distinctBy { it.id }
                         .sortedWith(
                             compareBy<MEmployee>(
                                 { it.employee == null },
@@ -399,11 +400,9 @@ internal fun AttendanceScreen(
                                                 } else {
                                                     Color.Transparent
                                                 }
-                                            }
-                                            .clickRipple {
+                                            }.clickRipple {
                                                 viewModel.editSingleSiteEmployee(isFull, employee)
-                                            }
-                                            .padding(vertical = 4.dp),
+                                            }.padding(vertical = 4.dp),
                                     horizontalArrangement = Arrangement.Center,
                                 ) {
                                     Row(verticalAlignment = Alignment.CenterVertically) {
@@ -489,21 +488,23 @@ private fun AttEditDialog(
             },
     ) {
         Row(verticalAlignment = Alignment.CenterVertically) {
-            edit?.attSiteEdits?.sumOf {
-                it.fulls.size + it.halfs.size * 0.5
-            }?.let {
-                AttendanceChip(
-                    attendance = it,
-                    bgColor = {
-                        ContentText.color.copy(alpha = 0.2f)
-                    },
-                    textStyle = {
-                        MaterialTypography.headlineSmall.color(onPrimaryContainer)
-                    },
-                    placeHolder = false,
-                )
-                HorizontalSpacer(16)
-            }
+            edit
+                ?.attSiteEdits
+                ?.sumOf {
+                    it.fulls.size + it.halfs.size * 0.5
+                }?.let {
+                    AttendanceChip(
+                        attendance = it,
+                        bgColor = {
+                            ContentText.color.copy(alpha = 0.2f)
+                        },
+                        textStyle = {
+                            MaterialTypography.headlineSmall.color(onPrimaryContainer)
+                        },
+                        placeHolder = false,
+                    )
+                    HorizontalSpacer(16)
+                }
             DateSelector(
                 modifier = Modifier.weight(1f),
                 titleText = "日期",
@@ -529,12 +530,10 @@ private fun AttEditDialog(
                         } else {
                             surfaceBright
                         }
-                    }
-                    .clickRipple {
+                    }.clickRipple {
                         focusManager.clearFocus()
                         viewModel.editSingleSite(mAtt)
-                    }
-                    .padding(horizontal = 13.2.dp, vertical = 6.dp),
+                    }.padding(horizontal = 13.2.dp, vertical = 6.dp),
             ) {
                 // 工地名
                 Row {
@@ -545,7 +544,8 @@ private fun AttEditDialog(
                                 onSecondaryContainer.copy(alpha = 0.28f)
                             },
                             textStyle = {
-                                ContentText.style.color(onSecondaryContainer)
+                                ContentText.style
+                                    .color(onSecondaryContainer)
                                     .copy(fontWeight = FontWeight.W500)
                             },
                             placeHolder = false,
@@ -653,7 +653,9 @@ private fun AttEditDialog(
                             HorizontalSpacer(it)
                         }
                         ArrText(text = rmk) {
-                            ContentText.style.fontSize(13.2.textDp).color(ContentText.color)
+                            ContentText.style
+                                .fontSize(13.2.textDp)
+                                .color(ContentText.color)
                                 .copy(lineHeight = 13.6.textDp)
                         }
                     }

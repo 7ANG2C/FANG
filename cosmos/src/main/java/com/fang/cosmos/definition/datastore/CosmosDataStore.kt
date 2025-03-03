@@ -32,22 +32,23 @@ class CosmosDataStore(
     inline fun <reified T> dataStoreFlow(
         feature: String,
         vararg addition: String,
-    ) = context.cosmosDataStore.data.mapLatest { pref ->
-        val key = key(feature, *addition)
-        when (T::class) {
-            Int::class -> pref[intPreferencesKey(key)] as? T
-            Double::class -> pref[doublePreferencesKey(key)] as? T
-            String::class -> pref[stringPreferencesKey(key)] as? T
-            Boolean::class -> pref[booleanPreferencesKey(key)] as? T
-            Float::class -> pref[floatPreferencesKey(key)] as? T
-            Long::class -> pref[longPreferencesKey(key)] as? T
-            ByteArray::class -> pref[byteArrayPreferencesKey(key)] as? T
-            else ->
-                pref[stringPreferencesKey(key)]?.let {
-                    gson.fromJsonTypeToken<T>(it).getOrThrow()
-                }
-        }
-    }.flowOn(Dispatchers.IO)
+    ) = context.cosmosDataStore.data
+        .mapLatest { pref ->
+            val key = key(feature, *addition)
+            when (T::class) {
+                Int::class -> pref[intPreferencesKey(key)] as? T
+                Double::class -> pref[doublePreferencesKey(key)] as? T
+                String::class -> pref[stringPreferencesKey(key)] as? T
+                Boolean::class -> pref[booleanPreferencesKey(key)] as? T
+                Float::class -> pref[floatPreferencesKey(key)] as? T
+                Long::class -> pref[longPreferencesKey(key)] as? T
+                ByteArray::class -> pref[byteArrayPreferencesKey(key)] as? T
+                else ->
+                    pref[stringPreferencesKey(key)]?.let {
+                        gson.fromJsonTypeToken<T>(it).getOrThrow()
+                    }
+            }
+        }.flowOn(Dispatchers.IO)
 
     suspend inline fun <reified T> update(
         feature: String,

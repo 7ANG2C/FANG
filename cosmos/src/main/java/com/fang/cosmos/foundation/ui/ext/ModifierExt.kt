@@ -69,6 +69,7 @@ fun Modifier.crop(
     vertical: Dp = 0.dp,
 ) = layout { measurable, constraints ->
     val placeable = measurable.measure(constraints)
+
     fun Dp.toPxInt() = toPx().toInt()
     layout(
         placeable.width - (horizontal * 2).toPxInt(),
@@ -78,9 +79,10 @@ fun Modifier.crop(
     }
 }
 
-fun Modifier.tapClearFocus() = composed {
-    val focusManager = LocalFocusManager.current
-    Modifier.pointerInput(Unit) {
-        detectTapGestures(onTap = { focusManager.clearFocus() })
+fun Modifier.tapClearFocus() =
+    composed {
+        val focusManager = LocalFocusManager.current
+        Modifier.pointerInput(Unit) {
+            detectTapGestures(onTap = { focusManager.clearFocus() })
+        }
     }
-}

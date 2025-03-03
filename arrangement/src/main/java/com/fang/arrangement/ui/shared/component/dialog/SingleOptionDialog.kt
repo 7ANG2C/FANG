@@ -35,7 +35,8 @@ internal fun SingleOptionDialog(
                     .clickRipple(onClick = onDismiss)
                     .padding(horizontal = 20.dp, vertical = 16.dp),
             style =
-                style.color(ContentText.color)
+                style
+                    .color(ContentText.color)
                     .textAlign(TextAlign.Center),
         )
     },

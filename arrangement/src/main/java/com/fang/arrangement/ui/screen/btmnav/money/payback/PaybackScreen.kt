@@ -67,7 +67,6 @@ import com.fang.arrangement.ui.shared.dsl.YMDDayOfWeek
 import com.fang.arrangement.ui.shared.dsl.alphaColor
 import com.fang.cosmos.foundation.NumberFormat
 import com.fang.cosmos.foundation.takeIfNotBlank
-import com.fang.cosmos.foundation.ui.ext.textDp
 import com.fang.cosmos.foundation.ui.component.CustomIcon
 import com.fang.cosmos.foundation.ui.component.HorizontalSpacer
 import com.fang.cosmos.foundation.ui.component.VerticalSpacer
@@ -80,6 +79,7 @@ import com.fang.cosmos.foundation.ui.ext.clickableNoRipple
 import com.fang.cosmos.foundation.ui.ext.color
 import com.fang.cosmos.foundation.ui.ext.fontSize
 import com.fang.cosmos.foundation.ui.ext.stateValue
+import com.fang.cosmos.foundation.ui.ext.textDp
 import org.koin.androidx.compose.koinViewModel
 
 @OptIn(ExperimentalLayoutApi::class)
@@ -99,8 +99,7 @@ internal fun PaybackScreen(
                     .align(Alignment.CenterHorizontally)
                     .clickableNoRipple {
                         expandedState = !expandedState
-                    }
-                    .padding(horizontal = 12.dp)
+                    }.padding(horizontal = 12.dp)
                     .padding(top = 8.dp),
             tint = MaterialColor.primary,
         )
@@ -159,9 +158,11 @@ internal fun PaybackScreen(
                     Row {
                         val alpha = if (isClear) AlphaColor.DEFAULT else 0.72f
                         val style =
-                            HighlightText.style.color(
-                                HighlightText.color.copy(alpha = alpha),
-                            ).fontSize(12.8.textDp).copy(lineHeight = 13.2.textDp)
+                            HighlightText.style
+                                .color(
+                                    HighlightText.color.copy(alpha = alpha),
+                                ).fontSize(12.8.textDp)
+                                .copy(lineHeight = 13.2.textDp)
                         Box(contentAlignment = Alignment.CenterStart) {
                             ArrText(
                                 text = "註",
@@ -251,8 +252,7 @@ internal fun PaybackScreen(
                                     .fillMaxWidth()
                                     .bg(RoundedCornerShape(bottomStart = 16.dp, bottomEnd = 16.dp)) {
                                         surfaceContainerLowest
-                                    }
-                                    .heightIn(1.dp, screenHeightDp * 0.58f)
+                                    }.heightIn(1.dp, screenHeightDp * 0.58f)
                                     .padding(horizontal = 18.dp)
                                     .padding(bottom = 16.dp)
                                     .verticalScroll(rememberScrollState()),

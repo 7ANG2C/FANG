@@ -14,12 +14,15 @@ internal data class LoanEditBundle(
                 current?.loan != edit.loan?.toIntOrNull() ||
                 current?.millis != edit.millis ||
                 current?.remark?.trim().takeIfNotBlank != edit.remark?.trim().takeIfNotBlank ||
-                current?.records.orEmpty()
+                current
+                    ?.records
+                    .orEmpty()
                     .map { it.millis to it.loan to it.remark?.trim().takeIfNotBlank }
                     .toString() !=
-                edit.records.mapNoNull({
-                    it.millis != null && it.loan != null
-                }) {
-                    it.millis to it.loan to it.remark?.trim().takeIfNotBlank
-                }.toString()
+                edit.records
+                    .mapNoNull({
+                        it.millis != null && it.loan != null
+                    }) {
+                        it.millis to it.loan to it.remark?.trim().takeIfNotBlank
+                    }.toString()
 }

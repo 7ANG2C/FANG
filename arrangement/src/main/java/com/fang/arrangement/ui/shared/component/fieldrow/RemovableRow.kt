@@ -35,8 +35,7 @@ fun RemovableRow(
                 .clickableNoRipple {
                     focusManager.clearFocus()
                     onRemove()
-                }
-                .padding(start = 4.dp),
+                }.padding(start = 4.dp),
     ) {
         ArrText(text = "1") {
             ContentText.style.color(Color.Transparent)

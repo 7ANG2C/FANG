@@ -47,8 +47,7 @@ fun DialogThemedScreen(
                     } else {
                         Modifier
                     },
-                )
-                .bg { overlayColor(this) },
+                ).bg { overlayColor(this) },
         contentAlignment = Alignment.Center,
     ) {
         AnimatedVisibility(

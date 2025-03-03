@@ -80,7 +80,8 @@ private fun ColorItem(
                     .weight(1f)
                     .background(it.second),
             style =
-                MaterialTypography.bodyMedium.color(color(it.first))
+                MaterialTypography.bodyMedium
+                    .color(color(it.first))
                     .textAlign(TextAlign.Center),
         )
     }

@@ -54,10 +54,20 @@ subprojects {
 
     plugins.withType<AndroidBasePlugin> {
         configure<BaseExtension> {
-            compileSdkVersion(libs.versions.compileSdk.get().toInt())
+            compileSdkVersion(
+                libs.versions.compileSdk
+                    .get()
+                    .toInt(),
+            )
             defaultConfig {
-                minSdk = libs.versions.minSdk.get().toInt()
-                targetSdk = libs.versions.compileSdk.get().toInt()
+                minSdk =
+                    libs.versions.minSdk
+                        .get()
+                        .toInt()
+                targetSdk =
+                    libs.versions.compileSdk
+                        .get()
+                        .toInt()
             }
             compileOptions {
                 sourceCompatibility = JavaVersion.VERSION_17

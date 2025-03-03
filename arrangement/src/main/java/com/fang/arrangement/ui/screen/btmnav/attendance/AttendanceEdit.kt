@@ -8,7 +8,9 @@ internal data class AttEditBundle(
     val anyDiff
         get() =
             current?.id != edit.id ||
-                current?.attendances.orEmpty()
+                current
+                    ?.attendances
+                    .orEmpty()
                     .filter { it.fulls.isNotEmpty() || it.halfs.isNotEmpty() } !=
                 edit.attSiteEdits.filter { it.fulls.isNotEmpty() || it.halfs.isNotEmpty() }
 }

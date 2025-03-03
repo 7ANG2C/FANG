@@ -81,7 +81,9 @@ fun AutoSizedText(
             paragraph = calculateIntrinsics()
             canShrink = minFontSize.isUnspecified || shrunkFontSize > minFontSize
             shouldShrink =
-                paragraph.height > constraints.maxHeight || paragraph.width > constraints.maxWidth || paragraph.lineCount > maxLines
+                paragraph.height > constraints.maxHeight ||
+                paragraph.width > constraints.maxWidth ||
+                paragraph.lineCount > maxLines
         }
         Text(
             text = text,
