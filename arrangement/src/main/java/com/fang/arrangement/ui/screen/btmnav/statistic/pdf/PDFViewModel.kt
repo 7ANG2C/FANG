@@ -11,6 +11,7 @@ import com.fang.arrangement.definition.sheet.sheetAttendance
 import com.fang.arrangement.definition.sheet.sheetEmployee
 import com.fang.arrangement.definition.sheet.sheetSite
 import com.fang.arrangement.foundation.DASH
+import com.fang.arrangement.foundation.orDash
 import com.fang.arrangement.ui.shared.dsl.AttendanceNumFormat
 import com.fang.arrangement.ui.shared.dsl.YMDDayOfWeek
 import com.fang.cosmos.definition.workstate.WorkState
@@ -310,9 +311,8 @@ internal class PDFViewModel(
                                                             text = "$${
                                                                 NumberFormat(
                                                                     t.salary,
-                                                                    decimalCount = 0,
-                                                                    invalidText = DASH,
-                                                                )
+                                                                    decimal = 0,
+                                                                ).orDash
                                                             }",
                                                             paint = contentPaint,
                                                             x =
@@ -339,7 +339,7 @@ internal class PDFViewModel(
                                                 invalidText = DASH,
                                             )
                                         val allSalary =
-                                            NumberFormat(salary, decimalCount = 0, invalidText = DASH)
+                                            NumberFormat(salary, decimal = 0).orDash
                                         draw(
                                             Draw(
                                                 text = "工數總計 $allAtt ／薪資總計 $$allSalary",

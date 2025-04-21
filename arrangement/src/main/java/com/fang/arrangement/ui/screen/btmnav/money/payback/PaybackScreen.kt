@@ -590,7 +590,7 @@ private fun PaybackEditDialog(
                                 Average2Row(
                                     modifier = Modifier.fillMaxWidth(),
                                     first = {
-                                        ContentText(text = NumberFormat(record.payback))
+                                        ContentText(text = NumberFormat(record.payback).orDash)
                                     },
                                 ) {
                                     ContentText(text = YMDDayOfWeek(record.millis).orDash)

@@ -590,7 +590,7 @@ private fun LoanEditDialog(
                                 Average2Row(
                                     modifier = Modifier.fillMaxWidth(),
                                     first = {
-                                        ContentText(text = NumberFormat(record.loan))
+                                        ContentText(text = NumberFormat(record.loan).orDash)
                                     },
                                 ) {
                                     ContentText(text = YMDDayOfWeek(record.millis).orDash)

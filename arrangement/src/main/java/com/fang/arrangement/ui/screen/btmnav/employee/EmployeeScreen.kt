@@ -223,7 +223,7 @@ private fun EmployeeEditDialog(
                     content = {
                         Column(Modifier.fillMaxWidth()) {
                             Average2Row(modifier = Modifier.fillMaxWidth(), first = {
-                                ContentText(text = NumberFormat(salary.salary))
+                                ContentText(text = NumberFormat(salary.salary).orDash)
                             }) {
                                 ContentText(
                                     text = YMDDayOfWeek(salary.millis).orDash,
