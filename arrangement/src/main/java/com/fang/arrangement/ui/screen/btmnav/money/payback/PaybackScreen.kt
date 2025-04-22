@@ -19,6 +19,8 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.input.clearText
+import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.runtime.Composable
@@ -56,6 +58,8 @@ import com.fang.arrangement.ui.shared.component.dialog.TwoOptionDialog
 import com.fang.arrangement.ui.shared.component.fieldrow.AddableRow
 import com.fang.arrangement.ui.shared.component.fieldrow.Average2Row
 import com.fang.arrangement.ui.shared.component.fieldrow.RemovableRow
+import com.fang.arrangement.ui.shared.component.inputfield.EMPTY_NUM_HOLDER
+import com.fang.arrangement.ui.shared.component.inputfield.EMPTY_STRING_HOLDER
 import com.fang.arrangement.ui.shared.component.inputfield.NumberInputField
 import com.fang.arrangement.ui.shared.component.inputfield.StringInputField
 import com.fang.arrangement.ui.shared.dsl.AlphaColor
@@ -524,6 +528,8 @@ private fun PaybackEditDialog(
                 )
                 VerticalSpacer(4)
                 val focusManager = LocalFocusManager.current
+                val numTextFieldState = rememberTextFieldState(EMPTY_NUM_HOLDER)
+                val textFieldState = rememberTextFieldState(EMPTY_STRING_HOLDER)
                 AddableRow(
                     modifier = Modifier.fillMaxWidth(),
                     content = {
@@ -531,6 +537,7 @@ private fun PaybackEditDialog(
                             Average2Row(modifier = Modifier.fillMaxWidth(), first = {
                                 NumberInputField(
                                     modifier = Modifier.fillMaxWidth(),
+                                    textFieldState = numTextFieldState,
                                     titleText = "金額",
                                     text = recordEdit.payback.orEmpty(),
                                     imeAction = ImeAction.Next,
@@ -554,6 +561,7 @@ private fun PaybackEditDialog(
                             val rmk = recordEdit.remark.takeIfNotBlank.orEmpty()
                             StringInputField(
                                 modifier = Modifier.fillMaxWidth(),
+                                textFieldState = textFieldState,
                                 titleText = "備註 (${rmk.length}/${Remark.L30})",
                                 text = rmk,
                                 lines = 2,
@@ -565,6 +573,8 @@ private fun PaybackEditDialog(
                     onAdd =
                         if (recordEdit.allFilled) {
                             {
+                                numTextFieldState.clearText()
+                                textFieldState.clearText()
                                 focusManager.clearFocus()
                                 viewModel.addRecord(recordEdit)
                             }

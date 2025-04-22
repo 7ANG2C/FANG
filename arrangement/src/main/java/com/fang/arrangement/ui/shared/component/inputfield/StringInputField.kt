@@ -2,6 +2,7 @@ package com.fang.arrangement.ui.shared.component.inputfield
 
 import androidx.compose.foundation.text.input.TextFieldBuffer
 import androidx.compose.foundation.text.input.TextFieldLineLimits
+import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.foundation.text.input.delete
 import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.runtime.Composable
@@ -10,7 +11,7 @@ import androidx.compose.ui.text.input.ImeAction
 import com.fang.cosmos.foundation.Action
 import com.fang.cosmos.foundation.indexOfFirstOrNull
 
-private const val EMPTY_STRING_HOLDER = "@%^&@%^&"
+const val EMPTY_STRING_HOLDER = "@%^&@%^&"
 private val textFieldBufferBlock: TextFieldBuffer.() -> Unit by lazy {
     {
         val index = toString().indexOfFirstOrNull { it != ' ' } ?: length
@@ -21,6 +22,7 @@ private val textFieldBufferBlock: TextFieldBuffer.() -> Unit by lazy {
 @Composable
 internal fun StringInputField(
     modifier: Modifier,
+    textFieldState: TextFieldState = rememberTextFieldState(EMPTY_STRING_HOLDER),
     titleText: String,
     text: String?,
     imeAction: ImeAction = ImeAction.Unspecified,
@@ -28,7 +30,6 @@ internal fun StringInputField(
     onClear: Boolean = false,
     onValueChange: Action<String?>,
 ) {
-    val textFieldState = rememberTextFieldState(EMPTY_STRING_HOLDER)
     if (textFieldState.text == EMPTY_STRING_HOLDER) {
         textFieldState.edit {
             replace(0, length, text.orEmpty())

@@ -6,6 +6,8 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.text.input.clearText
+import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -30,6 +32,7 @@ import com.fang.arrangement.ui.shared.component.dialog.TwoOptionDialog
 import com.fang.arrangement.ui.shared.component.fieldrow.AddableRow
 import com.fang.arrangement.ui.shared.component.fieldrow.Average2Row
 import com.fang.arrangement.ui.shared.component.fieldrow.RemovableRow
+import com.fang.arrangement.ui.shared.component.inputfield.EMPTY_NUM_HOLDER
 import com.fang.arrangement.ui.shared.component.inputfield.NumberInputField
 import com.fang.arrangement.ui.shared.component.inputfield.StringInputField
 import com.fang.arrangement.ui.shared.dsl.AlphaColor
@@ -159,11 +162,13 @@ private fun EmployeeEditDialog(
         Column(modifier = Modifier.fillMaxWidth()) {
             FieldLabelText(text = "薪資記錄")
             val focusManager = LocalFocusManager.current
+            val textFieldState = rememberTextFieldState(EMPTY_NUM_HOLDER)
             AddableRow(
                 modifier = Modifier.fillMaxWidth(),
                 onAdd =
                     if (salaryEdit.allFilled) {
                         {
+                            textFieldState.clearText()
                             focusManager.clearFocus()
                             viewModel.addSalary(salaryEdit)
                         }
@@ -186,6 +191,7 @@ private fun EmployeeEditDialog(
                     Average2Row(modifier = Modifier.fillMaxWidth(), first = {
                         NumberInputField(
                             modifier = Modifier.fillMaxWidth(),
+                            textFieldState = textFieldState,
                             titleText = "日薪",
                             text = salaryEdit.salary.orEmpty(),
                             imeAction = ImeAction.Done,
