@@ -107,7 +107,7 @@ internal fun EmployeeScreen(
                 }
                 item.expiredMillis?.let {
                     ContentText(
-                        text = "離職：${YMDDayOfWeek(item.id)}",
+                        text = "離職：${YMDDayOfWeek(it)}",
                         modifier = Modifier.weight(1f),
                         isAlpha = expire,
                     )
