@@ -11,7 +11,7 @@ internal interface AttendanceNumFormat {
             invalidText: String = "",
         ) = NumberFormat(
             number = number,
-            decimalCount =
+            decimal =
                 if (".5" in number?.toString().orEmpty()) {
                     1
                 } else {
@@ -19,7 +19,6 @@ internal interface AttendanceNumFormat {
                 },
             negativePrefix = negativePrefix,
             positivePrefix = positivePrefix,
-            invalidText = invalidText,
-        )
+        ) ?: invalidText
     }
 }

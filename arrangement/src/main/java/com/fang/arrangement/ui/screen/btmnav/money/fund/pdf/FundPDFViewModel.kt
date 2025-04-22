@@ -227,7 +227,7 @@ internal class FundPDFViewModel(
                                                         val prettyFund =
                                                             NumberFormat(
                                                                 number = item.fund,
-                                                                decimalCount = 0,
+                                                                decimal = 0,
                                                             )
                                                         draws(
                                                             listOf(

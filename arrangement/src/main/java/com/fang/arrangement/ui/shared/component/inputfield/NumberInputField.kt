@@ -2,6 +2,7 @@ package com.fang.arrangement.ui.shared.component.inputfield
 
 import androidx.compose.foundation.text.input.TextFieldBuffer
 import androidx.compose.foundation.text.input.TextFieldLineLimits
+import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.foundation.text.input.delete
 import androidx.compose.foundation.text.input.insert
 import androidx.compose.foundation.text.input.rememberTextFieldState
@@ -15,7 +16,7 @@ import com.fang.cosmos.foundation.notDigit
 import com.fang.cosmos.foundation.takeIfNotBlank
 import kotlin.math.ceil
 
-private const val EMPTY_NUM_HOLDER = "@%^&@%^&"
+const val EMPTY_NUM_HOLDER = "@%^&@%^&"
 private val trim: TextFieldBuffer.(Boolean) -> Unit by lazy {
     { enableDecimal ->
         if (enableDecimal) {
@@ -64,6 +65,7 @@ private val pretty: TextFieldBuffer.() -> Unit by lazy {
 @Composable
 internal fun NumberInputField(
     modifier: Modifier,
+    textFieldState: TextFieldState = rememberTextFieldState(EMPTY_NUM_HOLDER),
     titleText: String,
     text: String?,
     imeAction: ImeAction = ImeAction.Unspecified,
@@ -71,7 +73,6 @@ internal fun NumberInputField(
     enableDecimal: Boolean = false,
     onValueChange: Action<String?>,
 ) {
-    val textFieldState = rememberTextFieldState(EMPTY_NUM_HOLDER)
     if (textFieldState.text == EMPTY_NUM_HOLDER) {
         textFieldState.edit {
             replace(0, length, text.orEmpty())
