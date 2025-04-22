@@ -31,6 +31,9 @@ internal class EmployeeViewModel(
     private val gson: Gson,
 ) : ViewModel(),
     WorkState by WorkStateImpl() {
+    private val _showExpire = MutableStateFlow(true)
+    val showExpire = _showExpire.asStateFlow()
+
     private val _employees = MutableStateFlow(emptyList<Employee>())
     val employees = _employees.asStateFlow()
 
@@ -53,6 +56,10 @@ internal class EmployeeViewModel(
                     _employees.value = it
                 }
         }
+    }
+
+    fun toggle() {
+        _showExpire.update { !it }
     }
 
     fun onInsert() {
