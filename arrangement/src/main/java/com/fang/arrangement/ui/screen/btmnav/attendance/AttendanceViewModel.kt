@@ -5,7 +5,6 @@ import androidx.lifecycle.viewModelScope
 import com.fang.arrangement.definition.Attendance
 import com.fang.arrangement.definition.AttendanceAll
 import com.fang.arrangement.definition.AttendanceKey
-import com.fang.arrangement.definition.Employee
 import com.fang.arrangement.definition.Site
 import com.fang.arrangement.definition.sheet.SheetRepository
 import com.fang.arrangement.definition.sheet.sheetAttendance
@@ -63,12 +62,6 @@ internal class AttendanceViewModel(
                             ?.sheetEmployee()
                             ?.values
                             .orEmpty()
-                            .sortedWith(
-                                compareBy<Employee>(
-                                    { it.isDelete },
-                                    { it.isExpire },
-                                ).thenByDescending { it.id },
-                            )
                     val findEmployee = { id: Long ->
                         employees.find { it.id == id }
                     }
@@ -94,7 +87,7 @@ internal class AttendanceViewModel(
                                                                 { it.employee == null },
                                                                 { it.employee?.isDelete == true },
                                                                 { it.employee?.isExpire == true },
-                                                            ).thenByDescending { it.employee?.id },
+                                                            ).thenBy { it.employee?.order },
                                                         ),
                                                 halfs =
                                                     att.halfs
@@ -105,7 +98,7 @@ internal class AttendanceViewModel(
                                                                 { it.employee == null },
                                                                 { it.employee?.isDelete == true },
                                                                 { it.employee?.isExpire == true },
-                                                            ).thenByDescending { it.employee?.id },
+                                                            ).thenBy { it.employee?.order },
                                                         ),
                                                 remark = att.remark.takeIfNotBlank,
                                             )
@@ -214,7 +207,7 @@ internal class AttendanceViewModel(
                                     { it.employee == null },
                                     { it.employee?.isDelete == true },
                                     { it.employee?.isExpire == true },
-                                ).thenByDescending { it.employee?.id },
+                                ).thenBy { it.employee?.order },
                             )
                         }
                     } else {
@@ -232,7 +225,7 @@ internal class AttendanceViewModel(
                                     { it.employee == null },
                                     { it.employee?.isDelete == true },
                                     { it.employee?.isExpire == true },
-                                ).thenByDescending { it.employee?.id },
+                                ).thenBy { it.employee?.order },
                             )
                         }
                     },

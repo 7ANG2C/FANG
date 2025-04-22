@@ -6,6 +6,10 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.text.input.clearText
+import androidx.compose.foundation.text.input.rememberTextFieldState
+import androidx.compose.material3.Checkbox
+import androidx.compose.material3.CheckboxDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -30,6 +34,7 @@ import com.fang.arrangement.ui.shared.component.dialog.TwoOptionDialog
 import com.fang.arrangement.ui.shared.component.fieldrow.AddableRow
 import com.fang.arrangement.ui.shared.component.fieldrow.Average2Row
 import com.fang.arrangement.ui.shared.component.fieldrow.RemovableRow
+import com.fang.arrangement.ui.shared.component.inputfield.EMPTY_NUM_HOLDER
 import com.fang.arrangement.ui.shared.component.inputfield.NumberInputField
 import com.fang.arrangement.ui.shared.component.inputfield.StringInputField
 import com.fang.arrangement.ui.shared.dsl.AlphaColor
@@ -39,6 +44,7 @@ import com.fang.arrangement.ui.shared.dsl.YMDDayOfWeek
 import com.fang.cosmos.foundation.NumberFormat
 import com.fang.cosmos.foundation.ui.component.HorizontalSpacer
 import com.fang.cosmos.foundation.ui.component.VerticalSpacer
+import com.fang.cosmos.foundation.ui.ext.clickableNoRipple
 import com.fang.cosmos.foundation.ui.ext.stateValue
 import org.koin.androidx.compose.koinViewModel
 
@@ -48,9 +54,35 @@ internal fun EmployeeScreen(
     viewModel: EmployeeViewModel = koinViewModel(),
 ) {
     Column(modifier) {
+        Row(
+            modifier = Modifier.align(Alignment.End).clickableNoRipple(onClick = viewModel::toggle).padding(top = 8.dp, end = 20.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            ContentText("離職")
+            HorizontalSpacer(2)
+            Checkbox(
+                checked = viewModel.showExpire.stateValue(),
+                onCheckedChange = null,
+                colors =
+                    CheckboxDefaults.colors().copy(
+                        checkedBoxColor = ContentText.color,
+                        checkedBorderColor = ContentText.color,
+                        uncheckedBorderColor = ContentText.color.copy(alpha = 0.88f),
+                    ),
+            )
+        }
         ArrangementList(
             modifier = Modifier.weight(1f, false),
-            items = viewModel.employees.stateValue(),
+            items =
+                viewModel.employees
+                    .stateValue()
+                    .filter {
+                        if (viewModel.showExpire.stateValue()) {
+                            true
+                        } else {
+                            it.notExpire
+                        }
+                    },
             key = { it.id },
             contentType = { it },
             onSelect = viewModel::onUpdate,
@@ -124,7 +156,7 @@ private fun EmployeeEditDialog(
     EditDialog(
         isShow = editBundle != null,
         onDelete =
-            if (current != null) {
+            if (current != null && current.isExpire) {
                 { viewModel.delete(current) }
             } else {
                 null
@@ -159,11 +191,13 @@ private fun EmployeeEditDialog(
         Column(modifier = Modifier.fillMaxWidth()) {
             FieldLabelText(text = "薪資記錄")
             val focusManager = LocalFocusManager.current
+            val textFieldState = rememberTextFieldState(EMPTY_NUM_HOLDER)
             AddableRow(
                 modifier = Modifier.fillMaxWidth(),
                 onAdd =
                     if (salaryEdit.allFilled) {
                         {
+                            textFieldState.clearText()
                             focusManager.clearFocus()
                             viewModel.addSalary(salaryEdit)
                         }
@@ -186,6 +220,7 @@ private fun EmployeeEditDialog(
                     Average2Row(modifier = Modifier.fillMaxWidth(), first = {
                         NumberInputField(
                             modifier = Modifier.fillMaxWidth(),
+                            textFieldState = textFieldState,
                             titleText = "日薪",
                             text = salaryEdit.salary.orEmpty(),
                             imeAction = ImeAction.Done,
@@ -223,7 +258,7 @@ private fun EmployeeEditDialog(
                     content = {
                         Column(Modifier.fillMaxWidth()) {
                             Average2Row(modifier = Modifier.fillMaxWidth(), first = {
-                                ContentText(text = NumberFormat(salary.salary))
+                                ContentText(text = NumberFormat(salary.salary).orDash)
                             }) {
                                 ContentText(
                                     text = YMDDayOfWeek(salary.millis).orDash,

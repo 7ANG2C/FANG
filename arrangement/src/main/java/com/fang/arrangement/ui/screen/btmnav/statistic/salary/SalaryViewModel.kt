@@ -97,7 +97,7 @@ internal class SalaryViewModel(
                                                         { it.employee == null },
                                                         { it.employee?.isDelete == true },
                                                         { it.employee?.isExpire == true },
-                                                    ).thenByDescending { it.employee?.id },
+                                                    ).thenBy { it.employee?.order },
                                                 )
                                         MonthSalary(
                                             month = month,

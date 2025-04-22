@@ -105,7 +105,7 @@ internal class EmployeeAttendanceViewModel(
                                         )
                                     }.sortedWith(
                                         compareByDescending<YearAttendance.Summary> { it.attendance }
-                                            .thenByDescending { it.employeeId },
+                                            .thenBy { it.employee?.order },
                                     ).toList()
                             YearAttendance(year, summaries)
                         }

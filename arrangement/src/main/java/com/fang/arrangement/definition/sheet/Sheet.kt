@@ -27,7 +27,18 @@ internal suspend fun List<WorkSheet>.sheetPayback() = sheet<Payback>()
 
 internal suspend fun List<WorkSheet>.sheetBoss() = sheet<Boss>()
 
-internal suspend fun List<WorkSheet>.sheetEmployee() = sheet<Employee>()
+internal suspend fun List<WorkSheet>.sheetEmployee(): Sheet<Employee>? {
+    val sheet = sheet<Employee>()
+    return sheet?.copy(
+        values =
+            sheet.values.sortedWith(
+                compareBy<Employee>(
+                    { it.isDelete },
+                    { it.isExpire },
+                ).thenBy { it.order },
+            ),
+    )
+}
 
 internal suspend fun List<WorkSheet>.sheetSite() = sheet<Site>()
 

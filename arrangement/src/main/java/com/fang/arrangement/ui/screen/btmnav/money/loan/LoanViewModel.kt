@@ -55,11 +55,6 @@ internal class LoanViewModel(
                             ?.sheetEmployee()
                             ?.values
                             .orEmpty()
-                            .sortedWith(
-                                compareBy<Employee> { it.delete }
-                                    .thenByDescending { it.expiredMillis ?: Long.MAX_VALUE }
-                                    .thenByDescending { it.id },
-                            )
                     workSheets
                         ?.sheetLoan()
                         ?.values
@@ -76,6 +71,7 @@ internal class LoanViewModel(
                                         salaries = emptyList(),
                                         expiredMillis = null,
                                         delete = 1,
+                                        order = Short.MAX_VALUE.toInt(),
                                     ),
                                 loan = loan.loan,
                                 millis = loan.millis,

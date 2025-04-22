@@ -25,7 +25,7 @@ import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.fang.arrangement.R
-import com.fang.arrangement.foundation.DASH
+import com.fang.arrangement.foundation.orDash
 import com.fang.arrangement.ui.screen.btmnav.statistic.pdf.PDFDialog
 import com.fang.arrangement.ui.screen.btmnav.statistic.pdf.PDFViewModel
 import com.fang.arrangement.ui.shared.component.ArrText
@@ -90,7 +90,7 @@ internal fun SalaryScreen(
                                         s.salary ?.let { BigDecimal.valueOf(it) }
                                     }.takeIf { it.isNotEmpty() }
                                     ?.sumOf { it }
-                            ArrText(text = NumberFormat(salary, 0, invalidText = DASH)) {
+                            ArrText(text = NumberFormat(salary, 0).orDash) {
                                 MaterialTypography.titleLarge.color(primary)
                             }
                         }
@@ -142,9 +142,8 @@ internal fun SalaryScreen(
                                             text =
                                                 NumberFormat(
                                                     number = year.salary,
-                                                    decimalCount = 0,
-                                                    invalidText = DASH,
-                                                ),
+                                                    decimal = 0,
+                                                ).orDash,
                                         )
                                     }
                                 }
@@ -206,9 +205,8 @@ internal fun SalaryScreen(
                                                     text =
                                                         NumberFormat(
                                                             number = item.salary,
-                                                            decimalCount = 0,
-                                                            invalidText = DASH,
-                                                        ),
+                                                            decimal = 0,
+                                                        ).orDash,
                                                 ) { style }
                                             }
                                         }
@@ -264,9 +262,8 @@ internal fun SalaryScreen(
                                                                     text =
                                                                         NumberFormat(
                                                                             number = 100000,
-                                                                            decimalCount = 0,
-                                                                            invalidText = DASH,
-                                                                        ),
+                                                                            decimal = 0,
+                                                                        ).orDash,
                                                                 ) { style.color(Color.Transparent) }
                                                             }
                                                             Row {
@@ -278,9 +275,8 @@ internal fun SalaryScreen(
                                                                     text =
                                                                         NumberFormat(
                                                                             number = eSalary.salary,
-                                                                            decimalCount = 0,
-                                                                            invalidText = DASH,
-                                                                        ),
+                                                                            decimal = 0,
+                                                                        ).orDash,
                                                                 ) { style }
                                                             }
                                                         }

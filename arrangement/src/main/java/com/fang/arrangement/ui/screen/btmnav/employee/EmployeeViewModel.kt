@@ -31,6 +31,9 @@ internal class EmployeeViewModel(
     private val gson: Gson,
 ) : ViewModel(),
     WorkState by WorkStateImpl() {
+    private val _showExpire = MutableStateFlow(true)
+    val showExpire = _showExpire.asStateFlow()
+
     private val _employees = MutableStateFlow(emptyList<Employee>())
     val employees = _employees.asStateFlow()
 
@@ -47,17 +50,16 @@ internal class EmployeeViewModel(
                         ?.sheetEmployee()
                         ?.values
                         ?.filterNot { it.isDelete }
-                        ?.sortedWith(
-                            compareByDescending<Employee> {
-                                it.expiredMillis ?: Long.MAX_VALUE
-                            }.thenByDescending { it.id },
-                        )
                 }.filterNotNull()
                 .flowOn(Dispatchers.Default)
                 .collectLatest {
                     _employees.value = it
                 }
         }
+    }
+
+    fun toggle() {
+        _showExpire.update { !it }
     }
 
     fun onInsert() {
@@ -163,6 +165,7 @@ internal class EmployeeViewModel(
                             salaries = gson.json(edit.salaries).getOrNull()?.noBreathing ?: "[]",
                             expire = edit.expire?.toString().orEmpty(),
                             delete = Bool.FALSE.toString(),
+                            order = Short.MAX_VALUE.toString(),
                         ),
                 )
             }
@@ -184,6 +187,7 @@ internal class EmployeeViewModel(
                             salaries = gson.json(edit.salaries).getOrNull()?.noBreathing ?: "[]",
                             expire = edit.expire?.toString().orEmpty(),
                             delete = Bool.FALSE.toString(),
+                            order = editBundle.current.order.toString(),
                         ),
                 )
             }
@@ -200,9 +204,15 @@ internal class EmployeeViewModel(
                     EmployeeKey.fold(
                         id = id,
                         name = "\"${current.name}\"",
-                        salaries = gson.json(current.salaries).getOrNull()?.noBreathing ?: "[]",
+                        salaries =
+                            gson
+                                .json(
+                                    current.salaries.map { SalaryEdit(it.millis, it.salary.toString()) },
+                                ).getOrNull()
+                                ?.noBreathing ?: "[]",
                         expire = current.expiredMillis?.toString().orEmpty(),
                         delete = Bool.TRUE.toString(),
+                        order = current.order.toString(),
                     ),
             )
         }
