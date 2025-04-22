@@ -10,6 +10,6 @@ enum class Arrangement(
     ;
 
     companion object {
-        val current = PROD
+        val current = SIT
     }
 }

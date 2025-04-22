@@ -15,6 +15,8 @@ internal data class Employee(
     val expiredMillis: Long?,
     @SerializedName(EmployeeKey.DELETE)
     val delete: Int,
+    @SerializedName(EmployeeKey.ORDER)
+    val order: Int,
 ) {
     val isExpire get() = expiredMillis != null
     val notExpire get() = !isExpire
@@ -36,6 +38,7 @@ internal interface EmployeeKey {
         const val SALARIES = "salaries"
         const val EXPIRED = "expired"
         const val DELETE = "delete"
+        const val ORDER = "order"
         const val S_MILLIS = "millis"
         const val S_SALARY = "salary"
 
@@ -45,12 +48,14 @@ internal interface EmployeeKey {
             salaries: String,
             expire: String,
             delete: String,
+            order: String,
         ) = listOf(
             KeyValue(ID, id),
             KeyValue(NAME, name),
             KeyValue(SALARIES, salaries),
             KeyValue(EXPIRED, expire),
             KeyValue(DELETE, delete),
+            KeyValue(ORDER, order),
         )
     }
 }
