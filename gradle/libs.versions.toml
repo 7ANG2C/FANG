@@ -5,20 +5,21 @@ compileSdk = "35"
 #plugins
 googleServices = "4.4.2"
 firebaseCrashlytics = "3.0.3"
-agp = "8.8.2"
-kotlin = "2.1.10"
+agp = "8.9.2"
+kotlin = "2.1.20"
 spotless = "7.0.2"
 detekt = "1.23.8"
 #libraries
 googleApisSheets = "v4-rev612-1.25.0"
-googleAuthOauth2 = "1.32.1"
-firebaseBom = "33.12.0"
+googleAuthOauth2 = "1.33.1"
+slf4jNop = "2.0.17"
+firebaseBom = "33.13.0"
 coreKtx = "1.16.0"
 lifecycleRuntime = "2.8.7"
 activityCompose = "1.10.1"
 navigationCompose = "2.8.9"
 datastore = "1.1.4"
-composeBom = "2025.04.00"
+composeBom = "2025.04.01"
 jetbrainsPlayServices = "1.10.1"
 kotlinxSerializationJson = "1.8.0"
 retrofit = "2.11.0"
@@ -48,6 +49,7 @@ detekt = { id = "io.gitlab.arturbosch.detekt", version.ref = "detekt" }
 [libraries]
 google-apis-sheets = { module = "com.google.apis:google-api-services-sheets", version.ref = "googleApisSheets" }
 google-auth-oauth2 = { module = "com.google.auth:google-auth-library-oauth2-http", version.ref = "googleAuthOauth2" }
+slf4j-nop = { module = "org.slf4j:slf4j-nop", version.ref = "slf4jNop" }
 google-firebase-bom = { module = "com.google.firebase:firebase-bom", version.ref = "firebaseBom" }
 google-firebase-analytics = { module = "com.google.firebase:firebase-analytics" }
 google-firebase-crashlytics = { module = "com.google.firebase:firebase-crashlytics" }
@@ -87,3 +89,4 @@ junit = { group = "junit", name = "junit", version.ref = "junit" }
 androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }
 androidx-espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "espressoCore" }
 androidx-ui-test-junit4 = { group = "androidx.compose.ui", name = "ui-test-junit4" }
+
