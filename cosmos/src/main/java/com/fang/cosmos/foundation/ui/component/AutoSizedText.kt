@@ -64,11 +64,11 @@ fun AutoSizedText(
                             ),
                         density = LocalDensity.current,
                         fontFamilyResolver = LocalFontFamilyResolver.current,
-                        placeholders = listOf(),
+                        placeholders = emptyList(),
                     ),
                 constraints = Constraints(maxWidth = constraints.maxWidth),
                 maxLines = Int.MAX_VALUE,
-                ellipsis = false,
+                overflow = TextOverflow.Clip,
             )
         }
 

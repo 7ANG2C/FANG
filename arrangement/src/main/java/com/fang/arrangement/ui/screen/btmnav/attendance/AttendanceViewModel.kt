@@ -17,6 +17,7 @@ import com.fang.cosmos.definition.workstate.WorkStateImpl
 import com.fang.cosmos.foundation.json
 import com.fang.cosmos.foundation.mapNoNull
 import com.fang.cosmos.foundation.takeIfNotBlank
+import com.fang.cosmos.foundation.time.calendar.midnight
 import com.google.gson.Gson
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -29,6 +30,8 @@ import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.mapLatest
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import java.util.Calendar
+import java.util.TimeZone
 
 @OptIn(ExperimentalCoroutinesApi::class)
 internal class AttendanceViewModel(
@@ -122,12 +125,21 @@ internal class AttendanceViewModel(
     }
 
     fun onInsert(sites: List<Site>) {
+        val todayMillis =
+            Calendar
+                .getInstance(TimeZone.getTimeZone("UTC"))
+                .apply {
+                    timeInMillis = System.currentTimeMillis()
+                }.midnight.timeInMillis
         _editBundle.value =
             AttEditBundle(
                 current = null,
                 edit =
                     AttAllEdit(
-                        id = null,
+                        id =
+                            todayMillis.takeIf { millis ->
+                                millis !in bundle.value.attAlls.map { it.id }
+                            },
                         attSiteEdits =
                             sites.mapNoNull({
                                 it.notArchive && it.notDelete

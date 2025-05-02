@@ -13,6 +13,7 @@ import com.fang.cosmos.definition.workstate.WorkStateImpl
 import com.fang.cosmos.foundation.replace
 import com.fang.cosmos.foundation.takeIfNotBlank
 import com.fang.cosmos.foundation.time.calendar.dayOfMonth
+import com.fang.cosmos.foundation.time.calendar.midnight
 import com.fang.cosmos.foundation.time.calendar.month
 import com.fang.cosmos.foundation.time.calendar.today
 import com.fang.cosmos.foundation.time.calendar.year
@@ -27,6 +28,8 @@ import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.mapLatest
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import java.util.Calendar
+import java.util.TimeZone
 
 @OptIn(ExperimentalCoroutinesApi::class)
 internal class FundViewModel(
@@ -148,7 +151,12 @@ internal class FundViewModel(
                     FundEdit(
                         id = -1L,
                         fund = null,
-                        millis = null,
+                        millis =
+                            Calendar
+                                .getInstance(TimeZone.getTimeZone("UTC"))
+                                .apply {
+                                    timeInMillis = System.currentTimeMillis()
+                                }.midnight.timeInMillis,
                         remark = null,
                     ),
             )
