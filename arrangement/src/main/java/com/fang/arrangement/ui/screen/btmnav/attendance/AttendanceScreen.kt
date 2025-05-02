@@ -5,7 +5,6 @@ import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -72,7 +71,6 @@ import com.fang.cosmos.foundation.ui.ext.stateValue
 import com.fang.cosmos.foundation.ui.ext.textDp
 import org.koin.androidx.compose.koinViewModel
 
-@OptIn(ExperimentalLayoutApi::class)
 @Composable
 internal fun AttendanceScreen(
     modifier: Modifier,
@@ -458,7 +456,6 @@ internal fun AttendanceScreen(
     }
 }
 
-@OptIn(ExperimentalLayoutApi::class)
 @Composable
 private fun AttEditDialog(
     editBundle: AttEditBundle?,
