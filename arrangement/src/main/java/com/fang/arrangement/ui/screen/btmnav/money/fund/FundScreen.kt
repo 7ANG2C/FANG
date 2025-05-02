@@ -1,6 +1,5 @@
 package com.fang.arrangement.ui.screen.btmnav.money.fund
 
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -64,7 +63,6 @@ import com.fang.cosmos.foundation.ui.ext.stateValue
 import org.koin.androidx.compose.koinViewModel
 import java.util.Calendar
 
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
 internal fun FundScreen(
     modifier: Modifier,
