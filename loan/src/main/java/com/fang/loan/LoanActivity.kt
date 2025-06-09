@@ -76,8 +76,10 @@ private fun LoanContent(modifier: Modifier) {
             .takeIf { it <= loan.remain }?.let { loan.copy(remain = loan.remain - it) }
     }.takeIf { it.isNotEmpty() }?.let { loans ->
         Column(modifier.padding(horizontal = 20.dp)) {
+            val amounts = NumberFormat(loans.sumOf { it.remain * it.amount }) ?: "-"
+            val remains = NumberFormat(loans.sumOf { it.amount }) ?: "-"
             Text(
-                text = NumberFormat(loans.sumOf { it.remain * it.amount }) ?: "-",
+                text = "$amounts / $remains",
                 modifier = Modifier.padding(vertical = 16.dp),
                 fontSize = 24.sp,
                 color = color
@@ -110,41 +112,49 @@ private fun LoanContent(modifier: Modifier) {
                                 .horizontalScroll(scrollState),
                             verticalAlignment = Alignment.CenterVertically
                         ) {
-                            Box {
+                            Box(contentAlignment = Alignment.CenterEnd) {
                                 Text(
                                     text = "10,520", color = Color.Transparent,
                                     modifier = Modifier
-                                        .padding(end = 8.dp),
+                                        .padding(end = 10.dp),
                                     fontSize = 16.sp,
                                 )
                                 Text(
                                     text = NumberFormat(loan.amount) ?: "-", color = color,
                                     modifier = Modifier
-                                        .padding(end = 8.dp),
+                                        .padding(end = 10.dp),
                                     fontSize = 16.sp,
                                 )
                             }
-                            Box {
+                            Box(contentAlignment = Alignment.CenterEnd) {
                                 Text(
                                     text = "10", color = Color.Transparent,
                                     modifier = Modifier
-                                        .padding(end = 8.dp),
+                                        .padding(end = 10.dp),
                                     fontSize = 16.sp,
                                 )
                                 Text(
                                     text = loan.remain.toString(), color = color,
                                     modifier = Modifier
-                                        .padding(end = 8.dp),
+                                        .padding(end = 10.dp),
                                     fontSize = 16.sp,
                                 )
                             }
-                            Text(
-                                text = NumberFormat(loan.amount * loan.remain) ?: "-",
-                                color = color,
-                                modifier = Modifier
-                                    .padding(end = 8.dp),
-                                fontSize = 16.sp,
-                            )
+                            Box(contentAlignment = Alignment.CenterEnd) {
+                                Text(
+                                    text = "100,000", color = Color.Transparent,
+                                    modifier = Modifier
+                                        .padding(end = 10.dp),
+                                    fontSize = 16.sp,
+                                )
+                                Text(
+                                    text = NumberFormat(loan.amount * loan.remain) ?: "-",
+                                    color = color,
+                                    modifier = Modifier
+                                        .padding(end = 10.dp),
+                                    fontSize = 16.sp,
+                                )
+                            }
                         }
                     }
                 }
