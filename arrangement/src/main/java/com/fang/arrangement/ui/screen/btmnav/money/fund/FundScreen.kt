@@ -60,6 +60,7 @@ import com.fang.cosmos.foundation.ui.ext.bg
 import com.fang.cosmos.foundation.ui.ext.clickableNoRipple
 import com.fang.cosmos.foundation.ui.ext.color
 import com.fang.cosmos.foundation.ui.ext.stateValue
+import kotlinx.coroutines.flow.update
 import org.koin.androidx.compose.koinViewModel
 import java.util.Calendar
 
@@ -97,17 +98,23 @@ internal fun FundScreen(
                             fund.funds.filter { it.selected }
                         }
                     }
-                if (ids.size >= 2) {
+                if (ids.isNotEmpty()) {
                     DeleteButton(text = "批量刪除", color = { error }) {
                         showDeleteDialog = ids
                     }
-                } else {
-                    CustomIcon(
-                        drawableResId = R.drawable.arr_r24_picture_as_pdf,
-                        modifier = Modifier.clickableNoRipple(onClick = pdfViewModel::showRequest),
-                        tint = MaterialColor.primary,
-                    )
                 }
+                HorizontalSpacer(6)
+                CustomIcon(
+                    drawableResId = R.drawable.arr_r24_picture_as_pdf,
+                    modifier = Modifier.clickableNoRipple {
+                        if (ids.isEmpty()) {
+                            pdfViewModel.showRequest()
+                        } else {
+                            pdfViewModel.downloadSpecific(ids.map { it.id })
+                        }
+                    },
+                    tint = MaterialColor.primary,
+                )
             }
             VerticalSpacer(10)
             LazyColumn(
@@ -312,7 +319,21 @@ internal fun FundScreen(
     )
     ErrorDialog(viewModel)
     Loading(viewModel)
-    FundPDFDialog(pdfViewModel)
+    FundPDFDialog(pdfViewModel) {
+        viewModel._ymFunds.update { ymFunds ->
+            ymFunds.map { ymFund ->
+                ymFund.copy(
+                    dayFunds = ymFund.dayFunds.map { day ->
+                        day.copy(
+                            funds = day.funds.map {
+                                it.copy(selected = false)
+                            }
+                        )
+                    }
+                )
+            }
+        }
+    }
 }
 
 @Composable

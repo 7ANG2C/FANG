@@ -13,12 +13,13 @@ import com.fang.arrangement.ui.shared.component.DateSelector
 import com.fang.arrangement.ui.shared.component.dialog.EditDialog
 import com.fang.arrangement.ui.shared.component.dialog.Loading
 import com.fang.arrangement.ui.shared.component.fieldrow.Average2Row
+import com.fang.cosmos.foundation.Invoke
 import com.fang.cosmos.foundation.time.transformer.TimeConverter
 import com.fang.cosmos.foundation.time.transformer.TimePattern
 import com.fang.cosmos.foundation.ui.ext.stateValue
 
 @Composable
-internal fun FundPDFDialog(viewModel: FundPDFViewModel) {
+internal fun FundPDFDialog(viewModel: FundPDFViewModel, onResetPdfId: Invoke) {
     Box(modifier = Modifier.fillMaxSize()) {
         val param = viewModel.request.stateValue()
         EditDialog(
@@ -44,7 +45,7 @@ internal fun FundPDFDialog(viewModel: FundPDFViewModel) {
                     onClear = { viewModel.editStartMillis(null) },
                     original = param?.startMillis,
                     isSelectableMillis = { millis ->
-                        param?.endMillis?.let { millis <= it } ?: true
+                        param?.endMillis?.let { millis <= it } != false
                     },
                     onConfirm = viewModel::editStartMillis,
                 )
@@ -55,7 +56,7 @@ internal fun FundPDFDialog(viewModel: FundPDFViewModel) {
                     onClear = { viewModel.editEndMillis(null) },
                     original = param?.endMillis,
                     isSelectableMillis = { millis ->
-                        param?.startMillis?.let { millis >= it } ?: true
+                        param?.startMillis?.let { millis >= it } != false
                     },
                     onConfirm = viewModel::editEndMillis,
                 )
@@ -74,12 +75,28 @@ internal fun FundPDFDialog(viewModel: FundPDFViewModel) {
                         contentResolver.openOutputStream(uri)?.use { out ->
                             viewModel.finishDownload(out = out, pdf = bundle.pdfDocument)
                         }
-                    }
+                    } ?: viewModel.clearPdf()
                 }
             val start = TimeConverter.format(bundle.startMillis, pattern = TimePattern.yyyyMMdd())
             val end = TimeConverter.format(bundle.endMillis, pattern = TimePattern.yyyyMMdd())
             val time = "${start.orEmpty()}_${end.orEmpty()}"
             LaunchedEffect(bundle.pdfDocument) { launcher.launch("公帳代墊$time") }
+        }
+    }
+    with(viewModel.pdfDocument.stateValue()) {
+        this?.let { pdfDocument ->
+            val contentResolver = LocalContext.current.contentResolver
+            val contract = ActivityResultContracts.CreateDocument("application/pdf")
+            val launcher =
+                rememberLauncherForActivityResult(contract) { uri ->
+                    uri?.let {
+                        contentResolver.openOutputStream(uri)?.use { out ->
+                            viewModel.finishDownloadSpecific(out = out, pdf = pdfDocument)
+                            onResetPdfId()
+                        }
+                    } ?: viewModel.clearPdf()
+                }
+            LaunchedEffect(pdfDocument) { launcher.launch("公帳代墊") }
         }
     }
 }

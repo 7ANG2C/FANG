@@ -36,7 +36,7 @@ internal class FundViewModel(
     private val sheetRepository: SheetRepository,
 ) : ViewModel(),
     WorkState by WorkStateImpl() {
-    private val _ymFunds = MutableStateFlow(emptyList<YearMonthFund>())
+    val _ymFunds = MutableStateFlow(emptyList<YearMonthFund>())
     val ymFunds = _ymFunds.asStateFlow()
 
     private val _editBundle = MutableStateFlow<FundEditBundle?>(null)
