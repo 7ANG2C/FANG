@@ -37,8 +37,8 @@ dependencyResolutionManagement {
         mavenCentral()
     }
 }
-//include(":loan")
-//include(":free")
+// include(":loan")
+// include(":free")
 include(":arrangement")
 include(":cosmos")
 enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")

@@ -36,7 +36,7 @@ internal class FundViewModel(
     private val sheetRepository: SheetRepository,
 ) : ViewModel(),
     WorkState by WorkStateImpl() {
-    val _ymFunds = MutableStateFlow(emptyList<YearMonthFund>())
+    private val _ymFunds = MutableStateFlow(emptyList<YearMonthFund>())
     val ymFunds = _ymFunds.asStateFlow()
 
     private val _editBundle = MutableStateFlow<FundEditBundle?>(null)
@@ -200,6 +200,24 @@ internal class FundViewModel(
 
     fun clearEdit() {
         _editBundle.value = null
+    }
+
+    fun clearAllSelected() {
+        _ymFunds.update { ymFunds ->
+            ymFunds.map { ymFund ->
+                ymFund.copy(
+                    dayFunds =
+                        ymFund.dayFunds.map { day ->
+                            day.copy(
+                                funds =
+                                    day.funds.map {
+                                        it.copy(selected = false)
+                                    },
+                            )
+                        },
+                )
+            }
+        }
     }
 
     fun insert(edit: FundEdit) {

@@ -62,9 +62,6 @@ android {
             signingConfig = signingConfigs.getByName(release)
         }
     }
-    composeCompiler {
-        featureFlags = setOf(ComposeFeatureFlag.OptimizeNonSkippingGroups)
-    }
     packaging { resources { excludes += "/META-INF/{AL2.0,LGPL2.1}" } }
 }
 

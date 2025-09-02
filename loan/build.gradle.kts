@@ -62,9 +62,6 @@ android {
             signingConfig = signingConfigs.getByName(release)
         }
     }
-    composeCompiler {
-        featureFlags = setOf(ComposeFeatureFlag.OptimizeNonSkippingGroups)
-    }
 }
 
 dependencies {

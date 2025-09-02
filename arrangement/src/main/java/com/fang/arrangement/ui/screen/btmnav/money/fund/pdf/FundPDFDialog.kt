@@ -19,7 +19,10 @@ import com.fang.cosmos.foundation.time.transformer.TimePattern
 import com.fang.cosmos.foundation.ui.ext.stateValue
 
 @Composable
-internal fun FundPDFDialog(viewModel: FundPDFViewModel, onResetPdfId: Invoke) {
+internal fun FundPDFDialog(
+    viewModel: FundPDFViewModel,
+    onResetPdfId: Invoke,
+) {
     Box(modifier = Modifier.fillMaxSize()) {
         val param = viewModel.request.stateValue()
         EditDialog(

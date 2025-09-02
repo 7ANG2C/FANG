@@ -346,15 +346,15 @@ internal class FundPDFViewModel(
                                 pdfPage.canvas.drawText(
                                     draw.text,
                                     LEFT_MARGIN +
-                                            if (draw.x == DEFAULT_X) {
-                                                draws
-                                                    .take(i)
-                                                    .sumOf {
-                                                        it.paint.measureText(it.text).toDouble()
-                                                    }.toFloat()
-                                            } else {
-                                                draw.x
-                                            },
+                                        if (draw.x == DEFAULT_X) {
+                                            draws
+                                                .take(i)
+                                                .sumOf {
+                                                    it.paint.measureText(it.text).toDouble()
+                                                }.toFloat()
+                                        } else {
+                                            draw.x
+                                        },
                                     y,
                                     draw.paint,
                                 )
