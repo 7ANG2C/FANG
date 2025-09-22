@@ -202,6 +202,24 @@ internal class FundViewModel(
         _editBundle.value = null
     }
 
+    fun clearAllSelected() {
+        _ymFunds.update { ymFunds ->
+            ymFunds.map { ymFund ->
+                ymFund.copy(
+                    dayFunds =
+                        ymFund.dayFunds.map { day ->
+                            day.copy(
+                                funds =
+                                    day.funds.map {
+                                        it.copy(selected = false)
+                                    },
+                            )
+                        },
+                )
+            }
+        }
+    }
+
     fun insert(edit: FundEdit) {
         if (edit.savable) {
             execute {

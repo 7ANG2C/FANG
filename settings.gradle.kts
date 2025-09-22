@@ -37,7 +37,7 @@ dependencyResolutionManagement {
         mavenCentral()
     }
 }
-
+// include(":loan")
 // include(":free")
 include(":arrangement")
 include(":cosmos")

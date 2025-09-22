@@ -13,9 +13,9 @@ plugins {
 }
 
 android {
-    val pkg = "com.fang.free"
+    val pkg = "com.fang.loan"
     namespace = pkg
-    resourcePrefix = "free_"
+    resourcePrefix = "loan_"
     defaultConfig {
         applicationId = pkg
         versionCode = 1
@@ -43,7 +43,7 @@ android {
             val dateTime = SimpleDateFormat("MM.dd-HH.mm").format(Date())
             outputs.forEach {
                 (it as? BaseVariantOutputImpl)?.outputFileName =
-                    "free-$versionName-$dateTime.apk"
+                    "loan-$versionName-$dateTime.apk"
             }
         }
     }
@@ -62,7 +62,6 @@ android {
             signingConfig = signingConfigs.getByName(release)
         }
     }
-    packaging { resources { excludes += "/META-INF/{AL2.0,LGPL2.1}" } }
 }
 
 dependencies {
@@ -76,13 +75,9 @@ dependencies {
     implementation(libs.androidx.ui.graphics)
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
-    // androidx
-    implementation(libs.androidx.navigation.compose)
+    implementation(libs.kotlinx.datetime)
     // others
-    implementation(libs.retrofit.gson)
     implementation(platform(libs.io.koin.bom))
-    implementation(libs.io.koin.core)
-    implementation(libs.io.koin.android)
     implementation(libs.io.koin.androidx.compose)
     // debug
     debugImplementation(libs.androidx.ui.tooling)

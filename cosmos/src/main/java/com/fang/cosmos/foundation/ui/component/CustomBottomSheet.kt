@@ -18,7 +18,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.fang.cosmos.foundation.Invoke
-import com.fang.cosmos.foundation.ui.dsl.ComposableInvoke
 import com.fang.cosmos.foundation.ui.dsl.animateColor
 import com.fang.cosmos.foundation.ui.ext.clickableNoRipple
 
@@ -31,7 +30,7 @@ fun CustomBottomSheet(
     overlayColor: Color = Color(0x80000000),
     dividerColor: Color = Color.Unspecified,
     onDismiss: Invoke,
-    content: ComposableInvoke,
+    content: @Composable () -> Unit,
 ) {
     Box(
         modifier =

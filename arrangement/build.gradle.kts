@@ -1,5 +1,4 @@
 import com.android.build.gradle.internal.api.BaseVariantOutputImpl
-import org.jetbrains.kotlin.compose.compiler.gradle.ComposeFeatureFlag
 import java.io.FileInputStream
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -63,9 +62,6 @@ android {
             )
             signingConfig = signingConfigs.getByName(release)
         }
-    }
-    composeCompiler {
-        featureFlags = setOf(ComposeFeatureFlag.OptimizeNonSkippingGroups)
     }
     packaging { resources { excludes += "/META-INF/{AL2.0,LGPL2.1,INDEX.LIST,DEPENDENCIES}" } }
 }
