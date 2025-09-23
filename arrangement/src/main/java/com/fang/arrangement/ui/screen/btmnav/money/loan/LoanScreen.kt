@@ -10,9 +10,7 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.text.input.clearText
 import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.material3.HorizontalDivider
@@ -44,6 +42,7 @@ import com.fang.arrangement.ui.shared.component.ArrangementList
 import com.fang.arrangement.ui.shared.component.BaseField
 import com.fang.arrangement.ui.shared.component.DateSelector
 import com.fang.arrangement.ui.shared.component.DropdownSelector
+import com.fang.arrangement.ui.shared.component.SelectedTag
 import com.fang.arrangement.ui.shared.component.chip.RemarkTag
 import com.fang.arrangement.ui.shared.component.chip.TextChip
 import com.fang.arrangement.ui.shared.component.dialog.DialogShared
@@ -70,10 +69,8 @@ import com.fang.cosmos.foundation.takeIfNotBlank
 import com.fang.cosmos.foundation.ui.component.CustomIcon
 import com.fang.cosmos.foundation.ui.component.HorizontalSpacer
 import com.fang.cosmos.foundation.ui.component.VerticalSpacer
-import com.fang.cosmos.foundation.ui.dsl.MaterialColor
 import com.fang.cosmos.foundation.ui.dsl.MaterialShape
 import com.fang.cosmos.foundation.ui.dsl.screenWidthDp
-import com.fang.cosmos.foundation.ui.ext.bg
 import com.fang.cosmos.foundation.ui.ext.clickableNoRipple
 import com.fang.cosmos.foundation.ui.ext.color
 import com.fang.cosmos.foundation.ui.ext.fontSize
@@ -648,22 +645,4 @@ private fun LoanEditDialog(
             showDeleteDialog = null
         },
     )
-}
-
-@Composable
-private fun SelectedTag() {
-    Box(
-        modifier =
-            Modifier
-                .size(16.dp)
-                .border(1.dp, MaterialColor.primary, CircleShape),
-        contentAlignment = Alignment.Center,
-    ) {
-        Box(
-            modifier =
-                Modifier
-                    .size(8.dp)
-                    .bg(CircleShape) { primary },
-        )
-    }
 }

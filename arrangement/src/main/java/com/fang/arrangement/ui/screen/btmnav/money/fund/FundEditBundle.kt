@@ -11,5 +11,6 @@ internal data class FundEditBundle(
         get() =
             current?.fund?.toString() != edit.fund ||
                 current?.millis != edit.millis ||
-                current?.remark?.trim().takeIfNotBlank != edit.remark?.trim().takeIfNotBlank
+                current?.remark?.trim().takeIfNotBlank != edit.remark?.trim().takeIfNotBlank ||
+                current?.site?.id != edit.siteId
 }
