@@ -1,5 +1,4 @@
 import com.android.build.gradle.internal.api.BaseVariantOutputImpl
-import org.jetbrains.kotlin.compose.compiler.gradle.ComposeFeatureFlag
 import java.io.FileInputStream
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -20,8 +19,8 @@ android {
     resourcePrefix = "arr_"
     defaultConfig {
         applicationId = pkg
-        versionCode = 15
-        versionName = "1.8.2"
+        versionCode = 16
+        versionName = "1.9.0"
         vectorDrawables.useSupportLibrary = true
         ndk { abiFilters.addAll(listOf("armeabi-v7a", "arm64-v8a")) }
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
@@ -63,9 +62,6 @@ android {
             )
             signingConfig = signingConfigs.getByName(release)
         }
-    }
-    composeCompiler {
-        featureFlags = setOf(ComposeFeatureFlag.OptimizeNonSkippingGroups)
     }
     packaging { resources { excludes += "/META-INF/{AL2.0,LGPL2.1,INDEX.LIST,DEPENDENCIES}" } }
 }

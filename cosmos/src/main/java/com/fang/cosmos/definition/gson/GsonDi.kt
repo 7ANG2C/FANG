@@ -3,6 +3,7 @@ package com.fang.cosmos.definition.gson
 import com.fang.cosmos.definition.singleCosmos
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
+import com.google.gson.Strictness
 import org.koin.core.definition.Definition
 import org.koin.core.module.Module
 
@@ -17,7 +18,7 @@ fun Module.cosmosModuleGson(
 private fun createGson() =
     GsonBuilder()
         .serializeNulls()
-        .setLenient()
+        .setStrictness(Strictness.LENIENT)
         .setPrettyPrinting()
         .serializeSpecialFloatingPointValues()
         .enableComplexMapKeySerialization()

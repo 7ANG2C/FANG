@@ -4,8 +4,10 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.fang.arrangement.definition.Fund
 import com.fang.arrangement.definition.FundKey
+import com.fang.arrangement.definition.Site
 import com.fang.arrangement.definition.sheet.SheetRepository
 import com.fang.arrangement.definition.sheet.sheetFund
+import com.fang.arrangement.definition.sheet.sheetSite
 import com.fang.arrangement.ui.screen.btmnav.money.fund.YearMonthFund.DayFund
 import com.fang.arrangement.ui.shared.dsl.Remark
 import com.fang.cosmos.definition.workstate.WorkState
@@ -30,6 +32,7 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import java.util.Calendar
 import java.util.TimeZone
+import kotlin.collections.orEmpty
 
 @OptIn(ExperimentalCoroutinesApi::class)
 internal class FundViewModel(
@@ -39,6 +42,9 @@ internal class FundViewModel(
     private val _ymFunds = MutableStateFlow(emptyList<YearMonthFund>())
     val ymFunds = _ymFunds.asStateFlow()
 
+    private val _sites = MutableStateFlow(emptyList<Site>())
+    val sites = _sites.asStateFlow()
+
     private val _editBundle = MutableStateFlow<FundEditBundle?>(null)
     val editBundle = _editBundle.asStateFlow()
 
@@ -46,16 +52,27 @@ internal class FundViewModel(
         viewModelScope.launch {
             sheetRepository.workSheets
                 .mapLatest { workSheets ->
+                    val sites =
+                        workSheets
+                            ?.sheetSite()
+                            ?.values
+                            .orEmpty()
+                            .filterNot { it.isDelete }
+                            .sortedWith(
+                                compareBy<Site> { it.archive }
+                                    .thenByDescending { it.id },
+                            )
                     workSheets
                         ?.sheetFund()
                         ?.values
-                        ?.map {
+                        ?.map { f ->
                             MFund(
                                 selected = false,
-                                id = it.id,
-                                fund = it.fund,
-                                millis = it.millis,
-                                remark = it.remark,
+                                id = f.id,
+                                fund = f.fund,
+                                millis = f.millis,
+                                site = sites.find { it.id == f.siteId },
+                                remark = f.remark,
                             )
                         }?.sortedWith(
                             compareByDescending<MFund> { it.millis }
@@ -72,11 +89,14 @@ internal class FundViewModel(
                                         DayFund(day = day, funds = funds)
                                     }
                             YearMonthFund(year = year, month = month, dayFunds = dayFunds)
+                        }?.let {
+                            it to sites
                         }
                 }.filterNotNull()
                 .flowOn(Dispatchers.Default)
-                .collectLatest {
-                    _ymFunds.value = it
+                .collectLatest { (ymFunds, sites) ->
+                    _ymFunds.value = ymFunds
+                    _sites.value = sites
                 }
         }
     }
@@ -157,6 +177,7 @@ internal class FundViewModel(
                                 .apply {
                                     timeInMillis = System.currentTimeMillis()
                                 }.midnight.timeInMillis,
+                        siteId = null,
                         remark = null,
                     ),
             )
@@ -171,6 +192,7 @@ internal class FundViewModel(
                         id = current.id,
                         fund = current.fund.toString(),
                         millis = current.millis,
+                        siteId = current.site?.id,
                         remark = current.remark,
                     ),
             )
@@ -190,6 +212,12 @@ internal class FundViewModel(
         }
     }
 
+    fun editSite(siteId: Long?) {
+        _editBundle.update {
+            it?.copy(edit = it.edit.copy(siteId = siteId))
+        }
+    }
+
     fun editRemark(remark: String?) {
         _editBundle.update {
             it?.copy(
@@ -202,6 +230,24 @@ internal class FundViewModel(
         _editBundle.value = null
     }
 
+    fun clearAllSelected() {
+        _ymFunds.update { ymFunds ->
+            ymFunds.map { ymFund ->
+                ymFund.copy(
+                    dayFunds =
+                        ymFund.dayFunds.map { day ->
+                            day.copy(
+                                funds =
+                                    day.funds.map {
+                                        it.copy(selected = false)
+                                    },
+                            )
+                        },
+                )
+            }
+        }
+    }
+
     fun insert(edit: FundEdit) {
         if (edit.savable) {
             execute {
@@ -211,6 +257,7 @@ internal class FundViewModel(
                             id = System.currentTimeMillis().toString(),
                             fund = edit.fund.orEmpty(),
                             millis = edit.millis?.toString().orEmpty(),
+                            siteId = edit.siteId?.toString().orEmpty(),
                             remark = "\"${edit.remark.orEmpty().trim()}\"",
                         ),
                 )
@@ -231,6 +278,7 @@ internal class FundViewModel(
                             id = id,
                             fund = edit.fund.orEmpty(),
                             millis = edit.millis?.toString().orEmpty(),
+                            siteId = edit.siteId?.toString().orEmpty(),
                             remark = "\"${edit.remark.orEmpty().trim()}\"",
                         ),
                 )

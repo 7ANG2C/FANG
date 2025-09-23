@@ -1,5 +1,3 @@
-import org.jetbrains.kotlin.compose.compiler.gradle.ComposeFeatureFlag
-
 plugins {
     alias(libs.plugins.androidLibrary)
     alias(libs.plugins.jetbrainsKotlinAndroid)
@@ -22,9 +20,6 @@ android {
                 "proguard-rules.pro",
             )
         }
-    }
-    composeCompiler {
-        featureFlags = setOf(ComposeFeatureFlag.OptimizeNonSkippingGroups)
     }
     packaging {
         resources {

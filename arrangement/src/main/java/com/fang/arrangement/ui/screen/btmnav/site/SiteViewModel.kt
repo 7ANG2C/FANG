@@ -1,5 +1,6 @@
 package com.fang.arrangement.ui.screen.btmnav.site
 
+import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.fang.arrangement.definition.Site
@@ -41,6 +42,9 @@ internal class SiteViewModel(
 
     private val _editBundle = MutableStateFlow<SiteEditBundle?>(null)
     val editBundle = _editBundle.asStateFlow()
+
+    val showArchived = mutableStateOf(false)
+    val showDeleted = mutableStateOf(false)
 
     init {
         viewModelScope.launch {

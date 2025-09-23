@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
@@ -26,6 +27,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.fang.arrangement.ui.shared.component.ArrText
 import com.fang.arrangement.ui.shared.component.EmptyScreen
+import com.fang.arrangement.ui.shared.component.ToggleBox
 import com.fang.arrangement.ui.shared.component.button.component.PositiveButton
 import com.fang.arrangement.ui.shared.component.chip.AttendanceChip
 import com.fang.arrangement.ui.shared.component.dialog.DialogShared
@@ -41,6 +43,7 @@ import com.fang.cosmos.foundation.ui.dsl.MaterialShape
 import com.fang.cosmos.foundation.ui.dsl.MaterialTypography
 import com.fang.cosmos.foundation.ui.dsl.screenHeightDp
 import com.fang.cosmos.foundation.ui.ext.bg
+import com.fang.cosmos.foundation.ui.ext.clickableNoRipple
 import com.fang.cosmos.foundation.ui.ext.color
 import com.fang.cosmos.foundation.ui.ext.stateValue
 import org.koin.androidx.compose.koinViewModel
@@ -66,6 +69,20 @@ internal fun EmployeeAttendanceScreen(
                     .padding(horizontal = 16.dp)
                     .padding(top = 12.dp),
             ) {
+                Row {
+                    Spacer(Modifier.weight(1f))
+                    ToggleBox(
+                        modifier = Modifier.clickableNoRipple(onClick = viewModel::toggleExpire),
+                        text = "顯示離職",
+                        checked = viewModel.showExpired.stateValue(),
+                    )
+                    HorizontalSpacer(18)
+                    ToggleBox(
+                        modifier = Modifier.clickableNoRipple(onClick = viewModel::toggleDeleted),
+                        text = "顯示刪除",
+                        checked = viewModel.showDeleted.stateValue(),
+                    )
+                }
                 LazyColumn(
                     modifier =
                         Modifier

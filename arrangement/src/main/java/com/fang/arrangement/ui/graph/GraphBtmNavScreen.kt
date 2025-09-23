@@ -5,6 +5,7 @@ import androidx.compose.animation.ExitTransition
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.material3.Surface
+import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.navigation.NamedNavArgument
@@ -18,7 +19,6 @@ import com.fang.arrangement.ui.screen.btmnav.employee.EmployeeScreen
 import com.fang.arrangement.ui.screen.btmnav.money.MoneyScreen
 import com.fang.arrangement.ui.screen.btmnav.site.SiteScreen
 import com.fang.arrangement.ui.screen.btmnav.statistic.StatisticScreen
-import com.fang.cosmos.foundation.ui.dsl.ComposableInvoke
 
 internal const val GRAPH_BTM_NAV_SCREEN = "GRAPH_BTM_NAV_SCREEN"
 
@@ -46,7 +46,7 @@ private fun NavGraphBuilder.composableBtmNav(
     navItem: BtmNavItem,
     arguments: List<NamedNavArgument> = emptyList(),
     deepLinks: List<NavDeepLink> = emptyList(),
-    content: ComposableInvoke,
+    content: @Composable () -> Unit,
 ) {
     composableTransition(
         route = navItem.route,

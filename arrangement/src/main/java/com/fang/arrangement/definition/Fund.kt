@@ -10,6 +10,8 @@ internal data class Fund(
     val fund: Int,
     @SerializedName(FundKey.MILLIS)
     val millis: Long,
+    @SerializedName(FundKey.SITE)
+    val siteId: Long?,
     @SerializedName(FundKey.REMARK)
     val remark: String?,
 )
@@ -19,17 +21,20 @@ internal interface FundKey {
         const val ID = "id"
         const val FUND = "fund"
         const val MILLIS = "millis"
+        const val SITE = "site"
         const val REMARK = "remark"
 
         fun fold(
             id: String,
             fund: String,
             millis: String,
+            siteId: String,
             remark: String,
         ) = listOf(
             KeyValue(ID, id),
             KeyValue(FUND, fund),
             KeyValue(MILLIS, millis),
+            KeyValue(SITE, siteId),
             KeyValue(REMARK, remark),
         )
     }
