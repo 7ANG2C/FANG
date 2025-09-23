@@ -20,56 +20,56 @@ val FONT_WEIGHT_BOLD = FontWeight.W600
 val FONT_WEIGHT_BOLD_VALUE = FONT_WEIGHT_BOLD.weight
 
 object TextVibe {
-
-    operator fun invoke(apply: TextStyle.() -> TextStyle = { this }) =
-        apply(TextStyle().adjustLineHeight())
+    operator fun invoke(apply: TextStyle.() -> TextStyle = { this }) = apply(TextStyle().adjustLineHeight())
 
     operator fun invoke(
         color: Color,
         fontSize: Int,
         fontWeight: FontWeight,
         apply: TextStyle.() -> TextStyle = { this },
-    ) =
-        apply(
-            TextStyle(
-                color = color,
-                fontSize = fontSize.sp,
-                fontWeight = fontWeight,
-                lineHeight =
-                    when (fontSize) {
-                        14 -> 19.6
-                        16 -> 25.6
-                        18 -> 28.8
-                        24 -> 38.4
-                        32 -> 51.2
-                        else -> null
-                    }?.sp ?: TextUnit.Unspecified,
-            )
-                .adjustLineHeight()
-        )
+    ) = apply(
+        TextStyle(
+            color = color,
+            fontSize = fontSize.sp,
+            fontWeight = fontWeight,
+            lineHeight =
+                when (fontSize) {
+                    14 -> 19.6
+                    16 -> 25.6
+                    18 -> 28.8
+                    24 -> 38.4
+                    32 -> 51.2
+                    else -> null
+                }?.sp ?: TextUnit.Unspecified,
+        ).adjustLineHeight(),
+    )
 
     operator fun invoke(
         color: Color,
         fontSize: Int,
         fontWeight: Int,
         apply: TextStyle.() -> TextStyle = { this },
-    ) =
-        invoke(
-            color = color,
-            fontSize = fontSize,
-            fontWeight = FontWeight(fontWeight),
-            apply = apply,
-        )
+    ) = invoke(
+        color = color,
+        fontSize = fontSize,
+        fontWeight = FontWeight(fontWeight),
+        apply = apply,
+    )
 
-    fun normal(color: Color, fontSize: Int, apply: TextStyle.() -> TextStyle = { this }) =
-        invoke(color, fontSize, FONT_WEIGHT_NORMAL, apply)
+    fun normal(
+        color: Color,
+        fontSize: Int,
+        apply: TextStyle.() -> TextStyle = { this },
+    ) = invoke(color, fontSize, FONT_WEIGHT_NORMAL, apply)
 
-    fun bold(color: Color, fontSize: Int, apply: TextStyle.() -> TextStyle = { this }) =
-        invoke(color, fontSize, FONT_WEIGHT_BOLD, apply)
+    fun bold(
+        color: Color,
+        fontSize: Int,
+        apply: TextStyle.() -> TextStyle = { this },
+    ) = invoke(color, fontSize, FONT_WEIGHT_BOLD, apply)
 }
 
-fun TextStyle.adjustLineHeight() =
-    copy(platformStyle = TextExcludeFontPadding, lineHeightStyle = LineHeightAlignmentProportional)
+fun TextStyle.adjustLineHeight() = copy(platformStyle = TextExcludeFontPadding, lineHeightStyle = LineHeightAlignmentProportional)
 
 fun TextStyle.color(color: Color) = copy(color = color)
 

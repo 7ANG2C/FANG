@@ -1,6 +1,5 @@
 package com.fang.arrangement.ui.screen.btmnav.money.fund
 
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.FlowRow
@@ -256,7 +255,7 @@ internal fun FundScreen(
                                                 modifier = Modifier.weight(1f),
                                                 itemVerticalAlignment = Alignment.Bottom,
                                             ) {
-                                                it.remark.takeIfNotBlank?.let{ text ->
+                                                it.remark.takeIfNotBlank?.let { text ->
                                                     ArrText("$text ") { style }
                                                 }
                                                 it.site?.name.takeIfNotBlank?.let { text ->

@@ -8,8 +8,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.input.clearText
 import androidx.compose.foundation.text.input.rememberTextFieldState
-import androidx.compose.material3.Checkbox
-import androidx.compose.material3.CheckboxDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -26,6 +24,7 @@ import com.fang.arrangement.foundation.orDash
 import com.fang.arrangement.ui.shared.component.ArrangementList
 import com.fang.arrangement.ui.shared.component.DateSelector
 import com.fang.arrangement.ui.shared.component.FieldLabelText
+import com.fang.arrangement.ui.shared.component.ToggleBox
 import com.fang.arrangement.ui.shared.component.chip.ExpiredTag
 import com.fang.arrangement.ui.shared.component.dialog.EditDialog
 import com.fang.arrangement.ui.shared.component.dialog.ErrorDialog
@@ -54,23 +53,11 @@ internal fun EmployeeScreen(
     viewModel: EmployeeViewModel = koinViewModel(),
 ) {
     Column(modifier) {
-        Row(
+        ToggleBox(
             modifier = Modifier.align(Alignment.End).clickableNoRipple(onClick = viewModel::toggle).padding(top = 8.dp, end = 20.dp),
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            ContentText("離職")
-            HorizontalSpacer(2)
-            Checkbox(
-                checked = viewModel.showExpire.stateValue(),
-                onCheckedChange = null,
-                colors =
-                    CheckboxDefaults.colors().copy(
-                        checkedBoxColor = ContentText.color,
-                        checkedBorderColor = ContentText.color,
-                        uncheckedBorderColor = ContentText.color.copy(alpha = 0.88f),
-                    ),
-            )
-        }
+            text = "離職",
+            checked = viewModel.showExpire.stateValue(),
+        )
         ArrangementList(
             modifier = Modifier.weight(1f, false),
             items =

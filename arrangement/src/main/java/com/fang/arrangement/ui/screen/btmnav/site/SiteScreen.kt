@@ -34,6 +34,7 @@ import com.fang.arrangement.foundation.orDash
 import com.fang.arrangement.ui.shared.component.ArrText
 import com.fang.arrangement.ui.shared.component.ArrangementList
 import com.fang.arrangement.ui.shared.component.DateSelector
+import com.fang.arrangement.ui.shared.component.ToggleBox
 import com.fang.arrangement.ui.shared.component.button.component.PositiveButton
 import com.fang.arrangement.ui.shared.component.chip.ArchivedTag
 import com.fang.arrangement.ui.shared.component.chip.AttendanceChip
@@ -79,9 +80,40 @@ internal fun SiteScreen(
             mutableStateOf<SiteMoney.YearSummary?>(null)
         }
     Column(modifier) {
+        Row(
+            modifier = Modifier.padding(top = 10.dp, bottom = 4.dp, end = 16.dp),
+        ) {
+            Spacer(Modifier.weight(1f))
+            ToggleBox(
+                modifier =
+                    Modifier.clickableNoRipple {
+                        viewModel.showArchived.value = !viewModel.showArchived.value
+                    },
+                text = "顯示封存",
+                checked = viewModel.showArchived.value,
+            )
+            HorizontalSpacer(18)
+            ToggleBox(
+                modifier =
+                    Modifier.clickableNoRipple {
+                        viewModel.showDeleted.value = !viewModel.showDeleted.value
+                    },
+                text = "顯示刪除",
+                checked = viewModel.showDeleted.value,
+            )
+        }
         ArrangementList(
             modifier = Modifier.weight(1f, false),
-            items = viewModel.sites.stateValue(),
+            items =
+                viewModel.sites
+                    .stateValue()
+                    .filter {
+                        when {
+                            it.isArchive -> viewModel.showArchived.value
+                            it.isDelete -> viewModel.showDeleted.value
+                            else -> true
+                        }
+                    },
             key = { it.id },
             contentType = { it },
             onSelect = viewModel::onUpdate,
@@ -119,7 +151,7 @@ internal fun SiteScreen(
                             HorizontalSpacer(6)
                         }
                     }
-                    HighlightText(text = item.name, Modifier.weight(1f), isAlpha = archive)
+                    HighlightText(text = item.name, isAlpha = archive)
                     if (archive) {
                         HorizontalSpacer(8)
                         Box(contentAlignment = Alignment.CenterEnd) {
