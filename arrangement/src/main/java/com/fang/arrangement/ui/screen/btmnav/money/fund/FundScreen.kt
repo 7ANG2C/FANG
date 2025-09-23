@@ -1,11 +1,14 @@
 package com.fang.arrangement.ui.screen.btmnav.money.fund
 
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.CardDefaults
@@ -19,6 +22,7 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -32,10 +36,15 @@ import com.fang.arrangement.R
 import com.fang.arrangement.ui.screen.btmnav.money.fund.pdf.FundPDFDialog
 import com.fang.arrangement.ui.screen.btmnav.money.fund.pdf.FundPDFViewModel
 import com.fang.arrangement.ui.shared.component.ArrText
+import com.fang.arrangement.ui.shared.component.BaseField
 import com.fang.arrangement.ui.shared.component.DateSelector
+import com.fang.arrangement.ui.shared.component.DropdownSelector
 import com.fang.arrangement.ui.shared.component.EmptyScreen
 import com.fang.arrangement.ui.shared.component.Fab
+import com.fang.arrangement.ui.shared.component.SelectedTag
 import com.fang.arrangement.ui.shared.component.button.component.DeleteButton
+import com.fang.arrangement.ui.shared.component.chip.ArchivedTag
+import com.fang.arrangement.ui.shared.component.dialog.DialogShared
 import com.fang.arrangement.ui.shared.component.dialog.EditDialog
 import com.fang.arrangement.ui.shared.component.dialog.ErrorDialog
 import com.fang.arrangement.ui.shared.component.dialog.Loading
@@ -49,6 +58,7 @@ import com.fang.arrangement.ui.shared.dsl.Remark
 import com.fang.cosmos.foundation.Invoke
 import com.fang.cosmos.foundation.NumberFormat
 import com.fang.cosmos.foundation.isMulti
+import com.fang.cosmos.foundation.takeIfNotBlank
 import com.fang.cosmos.foundation.time.calendar.ChineseDayOfWeek
 import com.fang.cosmos.foundation.time.calendar.today
 import com.fang.cosmos.foundation.ui.component.CustomIcon
@@ -56,10 +66,13 @@ import com.fang.cosmos.foundation.ui.component.HorizontalSpacer
 import com.fang.cosmos.foundation.ui.component.VerticalSpacer
 import com.fang.cosmos.foundation.ui.dsl.MaterialColor
 import com.fang.cosmos.foundation.ui.dsl.MaterialTypography
+import com.fang.cosmos.foundation.ui.dsl.screenWidthDp
 import com.fang.cosmos.foundation.ui.ext.bg
 import com.fang.cosmos.foundation.ui.ext.clickableNoRipple
 import com.fang.cosmos.foundation.ui.ext.color
+import com.fang.cosmos.foundation.ui.ext.fontSize
 import com.fang.cosmos.foundation.ui.ext.stateValue
+import com.fang.cosmos.foundation.ui.ext.textDp
 import org.koin.androidx.compose.koinViewModel
 import java.util.Calendar
 
@@ -198,27 +211,17 @@ internal fun FundScreen(
                                             }
                                         val style =
                                             ContentText.style.color { onSecondaryContainer }
-                                        ArrText(
-                                            text = "$pre${ymFund.month + 1}-$dayPre${item.day}",
-                                        ) { style }
+                                        ArrText("$pre${ymFund.month + 1}-$dayPre${item.day}") { style }
                                         HorizontalSpacer(1.2f)
-                                        ArrText(
-                                            text = "(${ChineseDayOfWeek(c.timeInMillis)})",
-                                        ) { style }
+                                        ArrText("(${ChineseDayOfWeek(c.timeInMillis)})") { style }
                                         HorizontalSpacer(14)
                                         item.selectedFundDisplay?.let {
-                                            ArrText(
-                                                text = it,
-                                            ) { style }
+                                            ArrText(text = it) { style }
                                             HorizontalSpacer(2)
-                                            ArrText(
-                                                text = "/",
-                                            ) { style }
+                                            ArrText(text = "/") { style }
                                             HorizontalSpacer(2)
                                         }
-                                        ArrText(
-                                            text = item.totalFundDisplay,
-                                        ) { style }
+                                        ArrText(item.totalFundDisplay) { style }
                                         Spacer(modifier = Modifier.weight(1f))
                                         HorizontalSpacer(6)
                                         TriCheckbox(
@@ -244,12 +247,26 @@ internal fun FundScreen(
                                                         viewModel.onUpdate(it)
                                                     },
                                         ) {
-                                            ContentText(text = "$${NumberFormat(it.fund, 0)}")
+                                            val style = ContentText.style.color { onSecondaryContainer }
+                                            ArrText("$${NumberFormat(it.fund, 0)}") {
+                                                style
+                                            }
                                             HorizontalSpacer(10)
-                                            ContentText(
-                                                text = it.remark.orEmpty(),
+                                            FlowRow(
                                                 modifier = Modifier.weight(1f),
-                                            )
+                                                itemVerticalAlignment = Alignment.Bottom,
+                                            ) {
+                                                it.remark.takeIfNotBlank?.let{ text ->
+                                                    ArrText("$text ") { style }
+                                                }
+                                                it.site?.name.takeIfNotBlank?.let { text ->
+                                                    ArrText("($text)") {
+                                                        ContentText.style
+                                                            .fontSize(13.textDp)
+                                                            .color { ContentText.color.copy(alpha = 0.92f) }
+                                                    }
+                                                }
+                                            }
                                             HorizontalSpacer(6)
                                             Box(
                                                 modifier =
@@ -371,6 +388,56 @@ private fun FundEditDialog(
                 isSelectableMillis = { true },
                 onConfirm = viewModel::editMillis,
             )
+        }
+        Column(Modifier.fillMaxWidth()) {
+            val sites = viewModel.sites.stateValue()
+            val expandedState = rememberSaveable { mutableStateOf(false) }
+            BaseField(
+                modifier =
+                    Modifier
+                        .fillMaxWidth()
+                        .clickableNoRipple { expandedState.value = true },
+                title = "工地 (選填)",
+                onClear = { viewModel.editSite(null) },
+            ) {
+                val siteId = edit?.siteId
+                if (editBundle?.isInsert == false || siteId != null) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        val site = sites.find { it.id == siteId }
+                        ContentText(site?.name.takeIfNotBlank ?: siteId?.toString().orEmpty())
+                        if (site?.isArchive == true) {
+                            HorizontalSpacer(4)
+                            ArchivedTag(Modifier.scale(0.9f))
+                        }
+                    }
+                }
+            }
+            DropdownSelector(
+                items = sites,
+                modifier =
+                    Modifier.width(
+                        screenWidthDp * DialogShared.EDIT_WIDTH_FRACTION - DialogShared.editHPaddingDp * 2,
+                    ),
+                selected = sites.find { it.id == edit?.siteId },
+                expandedState = expandedState,
+                onSelected = { viewModel.editSite(it.id) },
+            ) {
+                Row(
+                    modifier =
+                        Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 6.dp, horizontal = 16.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    ContentText(text = it.name.takeIfNotBlank ?: it.id.toString())
+                    if (it.isArchive) {
+                        HorizontalSpacer(4)
+                        ArchivedTag(Modifier.scale(0.9f))
+                    }
+                    Spacer(modifier = Modifier.weight(1f))
+                    if (it.id == edit?.siteId) SelectedTag()
+                }
+            }
         }
         StringInputField(
             modifier = Modifier.fillMaxWidth(),

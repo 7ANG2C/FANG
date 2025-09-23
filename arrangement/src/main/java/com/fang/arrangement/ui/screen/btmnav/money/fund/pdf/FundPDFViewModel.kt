@@ -8,6 +8,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.fang.arrangement.definition.sheet.SheetRepository
 import com.fang.arrangement.definition.sheet.sheetFund
+import com.fang.arrangement.definition.sheet.sheetSite
 import com.fang.arrangement.ui.screen.btmnav.money.fund.MFund
 import com.fang.arrangement.ui.screen.btmnav.money.fund.YearMonthFund
 import com.fang.arrangement.ui.screen.btmnav.money.fund.YearMonthFund.DayFund
@@ -93,6 +94,7 @@ internal class FundPDFViewModel(
                                         it.millis in request.startMillis..request.endMillis
                                     }?.sortedByDescending { it.id }
                                     ?.let { funds ->
+                                        val sites = workSheets.sheetSite()?.values
                                         val ymFund =
                                             funds
                                                 .map {
@@ -101,6 +103,7 @@ internal class FundPDFViewModel(
                                                         id = it.id,
                                                         fund = it.fund,
                                                         millis = it.millis,
+                                                        site = sites?.find { s -> s.id == it.siteId },
                                                         remark = it.remark,
                                                     )
                                                 }.sortedWith(
@@ -306,6 +309,7 @@ internal class FundPDFViewModel(
                         it.id in ids
                     }?.sortedByDescending { it.id }
                     ?.let { funds ->
+                        val sites = workSheets.sheetSite()?.values
                         val ymFund =
                             funds
                                 .map {
@@ -314,6 +318,7 @@ internal class FundPDFViewModel(
                                         id = it.id,
                                         fund = it.fund,
                                         millis = it.millis,
+                                        site = sites?.find { s -> s.id == it.siteId },
                                         remark = it.remark,
                                     )
                                 }.sortedWith(

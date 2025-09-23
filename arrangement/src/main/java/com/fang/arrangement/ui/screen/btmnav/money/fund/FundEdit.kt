@@ -4,6 +4,7 @@ internal data class FundEdit(
     val id: Long,
     val fund: String?,
     val millis: Long?,
+    val siteId: Long?,
     val remark: String?,
 ) {
     val savable
