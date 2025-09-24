@@ -2,8 +2,10 @@ package com.fang.arrangement.ui.screen
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.fang.arrangement.Arrangement
 import com.fang.arrangement.definition.sheet.SheetRepository
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
@@ -21,13 +23,18 @@ internal class ArrangementViewModel(
     val initialized = _initialized.asStateFlow()
 
     init {
+        val startMillis = System.currentTimeMillis()
         viewModelScope.launch {
             repository
                 .workSheets
                 .distinctUntilChangedBy { it != null }
                 .flowOn(Dispatchers.Default)
-                .collectLatest {
-                    if (it != null) _initialized.value = true
+                .collectLatest { sheets ->
+                    if (sheets != null) {
+                        (1100 - (System.currentTimeMillis() - startMillis))
+                            .let { if (Arrangement.isFancy && it > 0) delay(it) }
+                        _initialized.value = true
+                    }
                 }
         }
     }
