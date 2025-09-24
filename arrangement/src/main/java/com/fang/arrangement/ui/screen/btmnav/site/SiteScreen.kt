@@ -369,7 +369,7 @@ private fun MonthlyDialog(ySummary: MutableState<SiteMoney.YearSummary?>) {
                         {
                             if (showToast) {
                                 showToast = false
-                                Toast.makeText(context, "胖手指 Ծ‸Ծ", Toast.LENGTH_SHORT).show()
+                                Toast.makeText(context, "胖手指 Ծ‸Ծ", Toast.LENGTH_LONG).show()
                             }
                             showEmployeeState.value = flattenList[it - 1].third
                         }
@@ -381,7 +381,7 @@ private fun MonthlyDialog(ySummary: MutableState<SiteMoney.YearSummary?>) {
                         {
                             if (showToast) {
                                 showToast = false
-                                Toast.makeText(context, "手指胖 Ծ‸Ծ", Toast.LENGTH_SHORT).show()
+                                Toast.makeText(context, "手指胖 Ծ‸Ծ", Toast.LENGTH_LONG).show()
                             }
                             showEmployeeState.value = flattenList[it + 1].third
                         }
