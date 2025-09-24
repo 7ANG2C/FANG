@@ -43,7 +43,7 @@ internal class SiteViewModel(
     private val _editBundle = MutableStateFlow<SiteEditBundle?>(null)
     val editBundle = _editBundle.asStateFlow()
 
-    val showArchived = mutableStateOf(false)
+    val showArchived = mutableStateOf(true)
     val showDeleted = mutableStateOf(false)
 
     init {
@@ -55,10 +55,11 @@ internal class SiteViewModel(
                             workSheets
                                 ?.sheetSite()
                                 ?.values
-                                ?.filterNot { it.isDelete }
                                 ?.sortedWith(
-                                    compareBy<Site> { it.archive }
-                                        .thenByDescending { it.id },
+                                    compareBy<Site>(
+                                        { it.isDelete },
+                                        { it.archive },
+                                    ).thenByDescending { it.id },
                                 )
                         } to
                             async(Dispatchers.Default) {

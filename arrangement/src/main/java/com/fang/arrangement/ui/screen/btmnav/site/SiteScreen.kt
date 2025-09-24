@@ -30,6 +30,8 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
+import androidx.core.net.toUri
+import com.fang.arrangement.R
 import com.fang.arrangement.foundation.orDash
 import com.fang.arrangement.ui.shared.component.ArrText
 import com.fang.arrangement.ui.shared.component.ArrangementList
@@ -38,6 +40,7 @@ import com.fang.arrangement.ui.shared.component.ToggleBox
 import com.fang.arrangement.ui.shared.component.button.component.PositiveButton
 import com.fang.arrangement.ui.shared.component.chip.ArchivedTag
 import com.fang.arrangement.ui.shared.component.chip.AttendanceChip
+import com.fang.arrangement.ui.shared.component.chip.DeletedTag
 import com.fang.arrangement.ui.shared.component.chip.UnarchivedTag
 import com.fang.arrangement.ui.shared.component.dialog.DialogShared
 import com.fang.arrangement.ui.shared.component.dialog.EditDialog
@@ -57,10 +60,14 @@ import com.fang.cosmos.foundation.Invoke
 import com.fang.cosmos.foundation.NumberFormat
 import com.fang.cosmos.foundation.takeIfNotBlank
 import com.fang.cosmos.foundation.time.calendar.dayOfMonth
+import com.fang.cosmos.foundation.time.calendar.month
 import com.fang.cosmos.foundation.time.calendar.today
+import com.fang.cosmos.foundation.time.calendar.year
+import com.fang.cosmos.foundation.ui.component.CustomIcon
 import com.fang.cosmos.foundation.ui.component.DialogThemedScreen
 import com.fang.cosmos.foundation.ui.component.HorizontalSpacer
 import com.fang.cosmos.foundation.ui.component.VerticalSpacer
+import com.fang.cosmos.foundation.ui.dsl.MaterialColor
 import com.fang.cosmos.foundation.ui.dsl.MaterialShape
 import com.fang.cosmos.foundation.ui.dsl.MaterialTypography
 import com.fang.cosmos.foundation.ui.dsl.screenHeightDp
@@ -109,8 +116,8 @@ internal fun SiteScreen(
                     .stateValue()
                     .filter {
                         when {
-                            it.isArchive -> viewModel.showArchived.value
                             it.isDelete -> viewModel.showDeleted.value
+                            it.isArchive -> viewModel.showArchived.value
                             else -> true
                         }
                     },
@@ -120,6 +127,7 @@ internal fun SiteScreen(
             onAdd = viewModel::onInsert,
         ) { item ->
             val archive = item.isArchive
+            val delete = item.isDelete
             val attendanceMap = viewModel.attendanceMap.stateValue()[item.id]
             val allAtt = attendanceMap?.att
             // 工地名
@@ -151,12 +159,16 @@ internal fun SiteScreen(
                             HorizontalSpacer(6)
                         }
                     }
-                    HighlightText(text = item.name, isAlpha = archive)
-                    if (archive) {
+                    HighlightText(text = item.name, isAlpha = archive || delete)
+                    if (archive || delete) {
                         HorizontalSpacer(8)
                         Box(contentAlignment = Alignment.CenterEnd) {
                             AttAllChip(1.0, fill = false, true)
-                            ArchivedTag(Modifier.alpha(AlphaColor.DEFAULT))
+                            if (delete) {
+                                DeletedTag(Modifier.alpha(AlphaColor.DEFAULT))
+                            } else {
+                                ArchivedTag(Modifier.alpha(AlphaColor.DEFAULT))
+                            }
                         }
                     }
                     Spacer(modifier = Modifier.weight(1f))
@@ -204,7 +216,7 @@ internal fun SiteScreen(
                                 context.startActivity(
                                     Intent(
                                         Intent.ACTION_VIEW,
-                                        Uri.parse("geo:0,0?q=${Uri.encode(it)}"),
+                                        "geo:0,0?q=${Uri.encode(it)}".toUri(),
                                     ).setPackage("com.google.android.apps.maps"),
                                 )
                             },
@@ -327,11 +339,42 @@ private fun MonthlyDialog(ySummary: MutableState<SiteMoney.YearSummary?>) {
             )
         }
     }
-    MonthlyEmployeeDialog(showEmployee)
+    with(showEmployee to ySummary) {
+        val (showEmployeeState, ySummaryState) = this
+        val dayMillis = showEmployeeState.value?.dateMillis
+        val today = today(dayMillis)
+        val flattenList =
+            ySummaryState.value
+                ?.years
+                ?.flatMap { y -> y.months.map { y to it } }
+                ?.flatMap { (y, m) ->
+                    m.days.map { Triple(y.year, m.month, it) }
+                }
+        val currentIndex =
+            flattenList
+                ?.indexOfFirst { (y, m, d) ->
+                    y == today.year && m == today.month && d.dateMillis == dayMillis
+                }
+        MonthlyEmployeeDialog(
+            showEmployee = showEmployeeState,
+            pre =
+                currentIndex
+                    ?.takeIf { it != 0 }
+                    ?.let { { showEmployeeState.value = flattenList[it - 1].third } },
+            next =
+                currentIndex
+                    ?.takeIf { it != flattenList.lastIndex }
+                    ?.let { { showEmployeeState.value = flattenList[it + 1].third } },
+        )
+    }
 }
 
 @Composable
-private fun MonthlyEmployeeDialog(showEmployee: MutableState<SiteMoney.Day?>) {
+private fun MonthlyEmployeeDialog(
+    showEmployee: MutableState<SiteMoney.Day?>,
+    pre: Invoke?,
+    next: Invoke?,
+) {
     DialogThemedScreen(isShow = showEmployee.value != null) {
         Column(
             modifier =
@@ -349,24 +392,41 @@ private fun MonthlyEmployeeDialog(showEmployee: MutableState<SiteMoney.Day?>) {
                             .align(Alignment.CenterHorizontally)
                             .padding(16.dp),
                 ) { MaterialTypography.titleMedium.color { onSecondaryContainer } }
-                Column(
+                Row(
                     modifier =
                         Modifier
                             .fillMaxWidth()
-                            .weight(1f, false)
-                            .padding(horizontal = 16.dp)
-                            .verticalScroll(rememberScrollState()),
-                    verticalArrangement = Arrangement.spacedBy(6.dp),
+                            .weight(1f, false),
+                    verticalAlignment = Alignment.CenterVertically,
                 ) {
-                    summary.fulls?.joinToString("、") { it.name }?.let {
-                        ContentText(text = it)
+                    CustomIcon(
+                        R.drawable.arr_r24_arrow_back,
+                        modifier = Modifier.clickableNoRipple { pre?.invoke() }.padding(16.dp),
+                        tint = pre?.let { MaterialColor.onSurfaceVariant } ?: Color.Transparent,
+                    )
+                    Column(
+                        modifier =
+                            Modifier
+                                .fillMaxWidth()
+                                .weight(1f)
+                                .verticalScroll(rememberScrollState()),
+                        verticalArrangement = Arrangement.spacedBy(6.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                    ) {
+                        summary.fulls?.joinToString("、") { it.name }?.let {
+                            ContentText(text = it)
+                        }
+                        summary.halfs?.joinToString("、") { it.name }?.let {
+                            ArrText(
+                                text = it,
+                            ) { ContentText.style.color(HighlightText.color) }
+                        }
                     }
-                    summary.halfs?.joinToString("、") { it.name }?.let {
-                        VerticalSpacer(6)
-                        ArrText(
-                            text = it,
-                        ) { ContentText.style.color(HighlightText.color) }
-                    }
+                    CustomIcon(
+                        R.drawable.arr_r24_arrow_forward,
+                        modifier = Modifier.clickableNoRipple { next?.invoke() }.padding(16.dp),
+                        tint = next?.let { MaterialColor.onSurfaceVariant } ?: Color.Transparent,
+                    )
                 }
             }
             PositiveButton(

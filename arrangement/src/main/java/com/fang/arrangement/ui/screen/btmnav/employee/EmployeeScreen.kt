@@ -55,7 +55,7 @@ internal fun EmployeeScreen(
     Column(modifier) {
         ToggleBox(
             modifier = Modifier.align(Alignment.End).clickableNoRipple(onClick = viewModel::toggle).padding(top = 8.dp, end = 20.dp),
-            text = "離職",
+            text = "顯示離職",
             checked = viewModel.showExpire.stateValue(),
         )
         ArrangementList(
