@@ -110,7 +110,7 @@ internal fun FundScreen(
                         }
                     }
                 if (ids.isNotEmpty()) {
-                    DeleteButton(text = "批量刪除", color = { error }) {
+                    DeleteButton(text = "刪除", color = { error }) {
                         showDeleteDialog = ids
                     }
                 }

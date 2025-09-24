@@ -2,6 +2,7 @@ package com.fang.arrangement.ui.screen.btmnav.site
 
 import android.content.Intent
 import android.net.Uri
+import android.widget.Toast
 import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -249,6 +250,7 @@ private fun MonthlyDialog(ySummary: MutableState<SiteMoney.YearSummary?>) {
         remember {
             mutableStateOf<SiteMoney.Day?>(null)
         }
+    var showToast by remember { mutableStateOf(true) }
     DialogThemedScreen(isShow = ySummary.value != null) {
         Column(
             modifier =
@@ -303,6 +305,7 @@ private fun MonthlyDialog(ySummary: MutableState<SiteMoney.YearSummary?>) {
                                                 Row(
                                                     modifier =
                                                         Modifier.clickableNoRipple {
+                                                            showToast = true
                                                             showEmployee.value = day
                                                         },
                                                 ) {
@@ -355,16 +358,33 @@ private fun MonthlyDialog(ySummary: MutableState<SiteMoney.YearSummary?>) {
                 ?.indexOfFirst { (y, m, d) ->
                     y == today.year && m == today.month && d.dateMillis == dayMillis
                 }
+        val context = LocalContext.current
         MonthlyEmployeeDialog(
             showEmployee = showEmployeeState,
             pre =
                 currentIndex
                     ?.takeIf { it != 0 }
-                    ?.let { { showEmployeeState.value = flattenList[it - 1].third } },
+                    ?.let {
+                        {
+                            if (showToast) {
+                                showToast = false
+                                Toast.makeText(context, "胖手指 Ծ‸Ծ", Toast.LENGTH_SHORT).show()
+                            }
+                            showEmployeeState.value = flattenList[it - 1].third
+                        }
+                    },
             next =
                 currentIndex
                     ?.takeIf { it != flattenList.lastIndex }
-                    ?.let { { showEmployeeState.value = flattenList[it + 1].third } },
+                    ?.let {
+                        {
+                            if (showToast) {
+                                showToast = false
+                                Toast.makeText(context, "手指胖 Ծ‸Ծ", Toast.LENGTH_SHORT).show()
+                            }
+                            showEmployeeState.value = flattenList[it + 1].third
+                        }
+                    },
         )
     }
 }
