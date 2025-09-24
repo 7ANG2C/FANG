@@ -37,30 +37,12 @@ import com.lottiefiles.dotlottie.core.util.DotLottieSource
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlin.time.Duration.Companion.seconds
-
-private var default = false
+import com.fang.arrangement.Arrangement as FArrangement
 
 @Composable
 internal fun Loading(isShow: Boolean) {
     DialogThemedScreen(isShow = isShow) {
-        if (default) {
-            Column(
-                modifier =
-                    Modifier
-                        .fillMaxWidth(0.42f)
-                        .dialogBg()
-                        .padding(24.dp),
-                horizontalAlignment = Alignment.CenterHorizontally,
-            ) {
-                val progressColor = MaterialColor.secondary
-                CircularProgressIndicator(
-                    modifier = Modifier.size(32.dp),
-                    color = progressColor,
-                    strokeWidth = 3.2.dp,
-                    trackColor = progressColor.copy(alpha = 0.5f),
-                )
-            }
-        } else {
+        if (FArrangement.isFancy) {
             Box(contentAlignment = Alignment.Center) {
                 var start by remember { mutableIntStateOf(0) }
                 val scope = rememberCoroutineScope()
@@ -105,6 +87,23 @@ internal fun Loading(isShow: Boolean) {
                         )
                     }
                 }
+            }
+        } else {
+            Column(
+                modifier =
+                    Modifier
+                        .fillMaxWidth(0.42f)
+                        .dialogBg()
+                        .padding(24.dp),
+                horizontalAlignment = Alignment.CenterHorizontally,
+            ) {
+                val progressColor = MaterialColor.secondary
+                CircularProgressIndicator(
+                    modifier = Modifier.size(32.dp),
+                    color = progressColor,
+                    strokeWidth = 3.2.dp,
+                    trackColor = progressColor.copy(alpha = 0.5f),
+                )
             }
         }
     }

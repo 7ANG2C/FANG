@@ -12,10 +12,7 @@ internal enum class Money(
 
     companion object {
         val all by lazy {
-            when (Arrangement.current) {
-                Arrangement.UAT -> listOf(LOAN, FUND, PAYBACK)
-                else -> entries
-            }
+            if (Arrangement.isFancy) entries else listOf(LOAN, FUND, PAYBACK)
         }
         val default by lazy { all.first() }
     }

@@ -77,6 +77,7 @@ import com.fang.cosmos.foundation.ui.ext.clickableNoRipple
 import com.fang.cosmos.foundation.ui.ext.color
 import com.fang.cosmos.foundation.ui.ext.stateValue
 import org.koin.androidx.compose.koinViewModel
+import com.fang.arrangement.Arrangement as FArrangement
 
 @Composable
 internal fun SiteScreen(
@@ -305,7 +306,7 @@ private fun MonthlyDialog(ySummary: MutableState<SiteMoney.YearSummary?>) {
                                                 Row(
                                                     modifier =
                                                         Modifier.clickableNoRipple {
-                                                            showToast = true
+                                                            showToast = true && FArrangement.isFancy
                                                             showEmployee.value = day
                                                         },
                                                 ) {

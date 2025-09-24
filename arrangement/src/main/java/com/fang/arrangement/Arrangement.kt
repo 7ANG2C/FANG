@@ -10,6 +10,8 @@ enum class Arrangement(
     ;
 
     companion object {
-        val current = SIT
+        val current by lazy { SIT }
+        val notFancy get() = current == UAT
+        val isFancy get() = !notFancy
     }
 }
