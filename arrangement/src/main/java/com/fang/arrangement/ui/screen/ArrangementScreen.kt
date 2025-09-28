@@ -77,7 +77,7 @@ internal fun ArrangementScreen(
             }
         }
     }
-    Loading(isShow = !initialized)
+    Loading(isShow = !initialized, true)
     ClearFocusWhenImeClosed()
     BackHandler(onBack = onBack)
 }

@@ -36,6 +36,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import java.io.OutputStream
 import java.math.BigDecimal
+import androidx.core.graphics.toColorInt
 
 @OptIn(ExperimentalCoroutinesApi::class)
 internal class PDFViewModel(
@@ -43,7 +44,7 @@ internal class PDFViewModel(
 ) : ViewModel(),
     WorkState by WorkStateImpl() {
     private companion object {
-        val BLUE = Color.parseColor("#0270ed")
+        val BLUE = "#0270ed".toColorInt()
         const val WIDTH = 595
         const val HEIGHT = 842
         const val LEFT_MARGIN = 20f
@@ -496,11 +497,15 @@ internal class PDFViewModel(
             runCatching {
                 pdf.writeTo(out)
                 pdf.close()
-                _pdfBundle.value = null
-                requestTrigger.value = null
-                noLoading()
+                clearPdf()
             }
         }
+    }
+
+    fun clearPdf() {
+        _pdfBundle.value = null
+        requestTrigger.value = null
+        noLoading()
     }
 
     fun showRequest() {

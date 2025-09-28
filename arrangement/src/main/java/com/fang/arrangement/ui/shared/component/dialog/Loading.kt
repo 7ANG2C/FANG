@@ -1,9 +1,5 @@
 package com.fang.arrangement.ui.shared.component.dialog
 
-import android.content.Context
-import android.os.Build
-import android.os.VibrationEffect
-import android.os.Vibrator
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -24,9 +20,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
-import androidx.core.content.getSystemService
 import com.fang.cosmos.definition.workstate.WorkState
 import com.fang.cosmos.foundation.ui.component.DialogThemedScreen
 import com.fang.cosmos.foundation.ui.dsl.MaterialColor
@@ -40,25 +34,20 @@ import kotlin.time.Duration.Companion.seconds
 import com.fang.arrangement.Arrangement as FArrangement
 
 @Composable
-internal fun Loading(isShow: Boolean) {
+internal fun Loading(isShow: Boolean, isSplash: Boolean = false) {
     DialogThemedScreen(isShow = isShow) {
-        if (FArrangement.isFancy) {
+        if (FArrangement.isFancy && isSplash) {
             Box(contentAlignment = Alignment.Center) {
                 var start by remember { mutableIntStateOf(0) }
                 val scope = rememberCoroutineScope()
-                val context = LocalContext.current
                 LaunchedEffect(Unit) {
-                    vibrate(100, context)
                     scope.launch {
                         delay(0.15.seconds)
                         start = start + 1
-                        vibrate(350, context)
                         delay(0.45.seconds)
                         start = start + 1
-                        vibrate(100, context)
                         delay(0.15.seconds)
                         start = start + 1
-                        vibrate(100, context)
                     }
                 }
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
@@ -109,23 +98,10 @@ internal fun Loading(isShow: Boolean) {
     }
 }
 
-private fun vibrate(
-    millis: Long,
-    ctx: Context,
-) {
-    val vibrate = ctx.getSystemService<Vibrator>()
-    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-        vibrate?. vibrate(VibrationEffect.createOneShot(millis, VibrationEffect.DEFAULT_AMPLITUDE))
-    } else {
-        @Suppress("DEPRECATION")
-        vibrate?.vibrate(millis)
-    }
-}
-
 @Composable
 private fun getStyle(alpha: Boolean) =
     TextVibe.normal(
-        Color.White.copy(alpha = if (alpha)0.6f else 0f),
+        Color.White.copy(alpha = if (alpha) 0.6f else 0f),
         64,
     )
 

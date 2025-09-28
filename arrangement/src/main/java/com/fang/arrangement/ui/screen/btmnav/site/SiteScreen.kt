@@ -34,6 +34,8 @@ import androidx.compose.ui.unit.dp
 import androidx.core.net.toUri
 import com.fang.arrangement.R
 import com.fang.arrangement.foundation.orDash
+import com.fang.arrangement.ui.screen.btmnav.site.pdf.SitePDFDialog
+import com.fang.arrangement.ui.screen.btmnav.site.pdf.SitePDFViewModel
 import com.fang.arrangement.ui.shared.component.ArrText
 import com.fang.arrangement.ui.shared.component.ArrangementList
 import com.fang.arrangement.ui.shared.component.DateSelector
@@ -72,6 +74,7 @@ import com.fang.cosmos.foundation.ui.dsl.MaterialColor
 import com.fang.cosmos.foundation.ui.dsl.MaterialShape
 import com.fang.cosmos.foundation.ui.dsl.MaterialTypography
 import com.fang.cosmos.foundation.ui.dsl.screenHeightDp
+import com.fang.cosmos.foundation.ui.dsl.textAlignCenter
 import com.fang.cosmos.foundation.ui.ext.bg
 import com.fang.cosmos.foundation.ui.ext.clickableNoRipple
 import com.fang.cosmos.foundation.ui.ext.color
@@ -83,6 +86,7 @@ import com.fang.arrangement.Arrangement as FArrangement
 internal fun SiteScreen(
     modifier: Modifier,
     viewModel: SiteViewModel = koinViewModel(),
+    pdfViewModel: SitePDFViewModel = koinViewModel()
 ) {
     val showMonths =
         remember {
@@ -154,7 +158,11 @@ internal fun SiteScreen(
                             modifier =
                                 Modifier.clickableNoRipple {
                                     showMonths.value =
-                                        SiteMoney.YearSummary(item.name, attendanceMap.years)
+                                        SiteMoney.YearSummary(
+                                            item.id,
+                                            item.name,
+                                            attendanceMap.years
+                                        )
                                 },
                         ) {
                             AttAllChip(it, fill = true, true)
@@ -235,18 +243,22 @@ internal fun SiteScreen(
             }
         }
     }
-    MonthlyDialog(showMonths)
+    MonthlyDialog(showMonths, pdfViewModel)
     SiteEditDialog(
         editBundle = viewModel.editBundle.stateValue(),
         viewModel = viewModel,
     )
+    SitePDFDialog(pdfViewModel)
     ErrorDialog(viewModel)
     Loading(viewModel)
 }
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
-private fun MonthlyDialog(ySummary: MutableState<SiteMoney.YearSummary?>) {
+private fun MonthlyDialog(
+    ySummary: MutableState<SiteMoney.YearSummary?>,
+    pdfViewModel: SitePDFViewModel
+) {
     val showEmployee =
         remember {
             mutableStateOf<SiteMoney.Day?>(null)
@@ -263,15 +275,39 @@ private fun MonthlyDialog(ySummary: MutableState<SiteMoney.YearSummary?>) {
         ) {
             ySummary.value?.let { summary ->
                 var showAtt by rememberSaveable { mutableStateOf(false) }
-                ArrText(
-                    text = summary.name,
-                    modifier =
-                        Modifier
-                            .clickableNoRipple {
-                                showAtt = !showAtt
-                            }.align(Alignment.CenterHorizontally)
-                            .padding(16.dp),
-                ) { MaterialTypography.titleMedium.color { onSecondaryContainer } }
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    CustomIcon(
+                        drawableResId = R.drawable.arr_r24_picture_as_pdf,
+                        tint = Color.Transparent,
+                    )
+                    ArrText(
+                        text = summary.name,
+                        modifier =
+                            Modifier
+                                .clickableNoRipple { showAtt = !showAtt }
+                                .weight(1f)
+                                .padding(16.dp),
+                    ) {
+                        MaterialTypography.titleMedium.color { onSecondaryContainer }
+                            .textAlignCenter()
+                    }
+                    CustomIcon(
+                        drawableResId = R.drawable.arr_r24_picture_as_pdf,
+                        modifier =
+                            Modifier.clickableNoRipple {
+                                val total = summary.years
+                                    .flatMap { y -> y.months.map { it } }
+                                    .flatMap { m -> m.days.map { it.dateMillis } }
+                                pdfViewModel.showRequest(summary.siteId, total.min(), total.max())
+                            },
+                        tint = MaterialColor.primary,
+                    )
+                }
                 Column(
                     modifier =
                         Modifier
@@ -422,7 +458,9 @@ private fun MonthlyEmployeeDialog(
                 ) {
                     CustomIcon(
                         R.drawable.arr_r24_arrow_back,
-                        modifier = Modifier.clickableNoRipple { pre?.invoke() }.padding(16.dp),
+                        modifier = Modifier
+                            .clickableNoRipple { pre?.invoke() }
+                            .padding(16.dp),
                         tint = pre?.let { MaterialColor.onSurfaceVariant } ?: Color.Transparent,
                     )
                     Column(
@@ -445,7 +483,9 @@ private fun MonthlyEmployeeDialog(
                     }
                     CustomIcon(
                         R.drawable.arr_r24_arrow_forward,
-                        modifier = Modifier.clickableNoRipple { next?.invoke() }.padding(16.dp),
+                        modifier = Modifier
+                            .clickableNoRipple { next?.invoke() }
+                            .padding(16.dp),
                         tint = next?.let { MaterialColor.onSurfaceVariant } ?: Color.Transparent,
                     )
                 }

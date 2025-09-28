@@ -57,6 +57,7 @@ internal fun StatisticScreen(
             when (Statistic.entries[it]) {
                 Statistic.SALARY -> SalaryScreen(Modifier.fillMaxSize())
                 Statistic.EMPLOYEE -> EmployeeAttendanceScreen(Modifier.fillMaxSize())
+                Statistic.SITE_FUND -> EmployeeAttendanceScreen(Modifier.fillMaxSize())
                 Statistic.LOAN -> EmployeeLoanScreen(Modifier.fillMaxSize())
             }
         }
