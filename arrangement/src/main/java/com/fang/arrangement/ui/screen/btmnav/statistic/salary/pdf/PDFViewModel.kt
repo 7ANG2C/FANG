@@ -1,4 +1,4 @@
-package com.fang.arrangement.ui.screen.btmnav.statistic.pdf
+package com.fang.arrangement.ui.screen.btmnav.statistic.salary.pdf
 
 import android.graphics.Color
 import android.graphics.Paint

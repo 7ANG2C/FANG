@@ -72,7 +72,7 @@ internal fun ArrangementScreen(
                         saveState = true
                     }
                     launchSingleTop = true
-                    restoreState = page != BtmNavItem.STATISTIC
+                    restoreState = page != BtmNavItem.SITE
                 }
             }
         }

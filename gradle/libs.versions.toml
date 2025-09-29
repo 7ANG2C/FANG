@@ -5,9 +5,9 @@ compileSdk = "36"
 #plugins
 googleServices = "4.4.3"
 firebaseCrashlytics = "3.0.6"
-agp = "8.12.2"
+agp = "8.13.0"
 kotlin = "2.2.20"
-spotless = "7.2.1"
+spotless = "8.0.0"
 detekt = "1.23.8"
 #libraries
 googleApisSheets = "v4-rev612-1.25.0"
