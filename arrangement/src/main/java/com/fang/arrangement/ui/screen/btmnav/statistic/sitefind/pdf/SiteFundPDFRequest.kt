@@ -15,5 +15,4 @@ internal data class SiteFundPDFRequest(
             SiteFundPDFRequest(0, "", null, null, emptyList())
         }
     }
-
 }

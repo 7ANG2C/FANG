@@ -4,6 +4,7 @@ import android.graphics.Color
 import android.graphics.Paint
 import android.graphics.Typeface
 import android.graphics.pdf.PdfDocument
+import androidx.core.graphics.toColorInt
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.fang.arrangement.definition.sheet.SheetRepository
@@ -36,7 +37,6 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import java.io.OutputStream
 import java.math.BigDecimal
-import androidx.core.graphics.toColorInt
 
 @OptIn(ExperimentalCoroutinesApi::class)
 internal class PDFViewModel(

@@ -42,7 +42,7 @@ internal fun SiteFundPDFDialog(
             onConfirm =
                 param?.let {
                     { viewModel.startDownload(it) }
-                }
+                },
         ) {
             Average2Row(Modifier.fillMaxWidth(), {
                 DateSelector(
@@ -69,7 +69,7 @@ internal fun SiteFundPDFDialog(
             }
             Column(
                 modifier = Modifier.fillMaxWidth(),
-                verticalArrangement = Arrangement.spacedBy(6.dp)
+                verticalArrangement = Arrangement.spacedBy(6.dp),
             ) {
                 val all = param?.ymFunds?.filter { it.selected }
                 if (all != null) {
@@ -81,7 +81,7 @@ internal fun SiteFundPDFDialog(
                             val day = c.dayOfMonth
                             val pre = "0".takeIf { month < 9 }.orEmpty()
                             val dayPre = "0".takeIf { day < 10 }.orEmpty()
-                            ContentText("$pre${month + 1}-$dayPre${day}")
+                            ContentText("$pre${month + 1}-$dayPre$day")
                             HorizontalSpacer(1.2f)
                             ContentText("(${ChineseDayOfWeek(c.timeInMillis)})")
                             HorizontalSpacer(10)

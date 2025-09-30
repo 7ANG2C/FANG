@@ -33,7 +33,9 @@ import kotlinx.coroutines.runBlocking
 import java.io.OutputStream
 
 @OptIn(ExperimentalCoroutinesApi::class)
-internal class SiteFundPDFViewModel : ViewModel(), WorkState by WorkStateImpl() {
+internal class SiteFundPDFViewModel :
+    ViewModel(),
+    WorkState by WorkStateImpl() {
     private companion object {
         const val WIDTH = 595
         const val HEIGHT = 842
@@ -77,8 +79,7 @@ internal class SiteFundPDFViewModel : ViewModel(), WorkState by WorkStateImpl() 
                                     it.takeIf {
                                         !it.selected && it.millis in startMillis..endMillis
                                     }
-                                }
-                              .groupBy {
+                                }.groupBy {
                                     with(today(it.millis)) { year to month }
                                 }.map { (pair, yFunds) ->
                                     val (year, month) = pair
@@ -105,15 +106,15 @@ internal class SiteFundPDFViewModel : ViewModel(), WorkState by WorkStateImpl() 
                                 pdfPage.canvas.drawText(
                                     draw.text,
                                     LEFT_MARGIN +
-                                            if (draw.x == DEFAULT_X) {
-                                                draws
-                                                    .take(i)
-                                                    .sumOf {
-                                                        it.paint.measureText(it.text).toDouble()
-                                                    }.toFloat()
-                                            } else {
-                                                draw.x
-                                            },
+                                        if (draw.x == DEFAULT_X) {
+                                            draws
+                                                .take(i)
+                                                .sumOf {
+                                                    it.paint.measureText(it.text).toDouble()
+                                                }.toFloat()
+                                        } else {
+                                            draw.x
+                                        },
                                     y,
                                     draw.paint,
                                 )
@@ -238,8 +239,7 @@ internal class SiteFundPDFViewModel : ViewModel(), WorkState by WorkStateImpl() 
                         pdfDocument.finishPage(pdfPage)
                         SiteFundPdfBundle(pdfDocument, request.siteName)
                     }
-                }
-                .flowOn(Dispatchers.IO)
+                }.flowOn(Dispatchers.IO)
                 .collectLatest {
                     _pdfBundle.value = it
                 }
@@ -248,21 +248,21 @@ internal class SiteFundPDFViewModel : ViewModel(), WorkState by WorkStateImpl() 
 
     fun showRequest(
         site: Site,
-        list: List<YearMonthFund>
+        list: List<YearMonthFund>,
     ) {
-        _request.value = SiteFundPDFRequest.default.copy(
-            siteId = site.id,
-            siteName = site.name,
-            ymFunds = list .flatMap { m -> m.dayFunds.flatMap { it.funds } }.sortedWith(
-                compareByDescending<SiteFund> { it.millis }
-                    .thenByDescending { it.id },
+        _request.value =
+            SiteFundPDFRequest.default.copy(
+                siteId = site.id,
+                siteName = site.name,
+                ymFunds =
+                    list.flatMap { m -> m.dayFunds.flatMap { it.funds } }.sortedWith(
+                        compareByDescending<SiteFund> { it.millis }
+                            .thenByDescending { it.id },
+                    ),
             )
-        )
     }
 
-    fun startDownload(
-        startMillis: SiteFundPDFRequest,
-    ) {
+    fun startDownload(startMillis: SiteFundPDFRequest) {
         loading()
         requestTrigger.value = startMillis
         clearRequest()

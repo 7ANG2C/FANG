@@ -64,7 +64,7 @@ internal fun SiteFundScreen(
         ) {
             Row(
                 Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically
+                verticalAlignment = Alignment.CenterVertically,
             ) {
                 val expandedFilter = rememberSaveable { mutableStateOf(false) }
                 val v = viewModel.site.stateValue() ?: viewModel.sites.stateValue().firstOrNull()
@@ -122,10 +122,11 @@ internal fun SiteFundScreen(
                 )
             }
             Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(vertical = 8.dp),
-                verticalAlignment = Alignment.CenterVertically
+                modifier =
+                    Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 8.dp),
+                verticalAlignment = Alignment.CenterVertically,
             ) {
                 val style = MaterialTypography.titleLarge.color { primary }
                 val totalFund = ymFunds.sumOf { it.totalFund }
@@ -138,15 +139,15 @@ internal fun SiteFundScreen(
                         text = "$${
                             NumberFormat(
                                 number = (totalFund - selected),
-                                decimal = 0
+                                decimal = 0,
                             )
-                        }"
+                        }",
                     ) { style }
                     Spacer(Modifier.weight(1f))
                     CustomIcon(
                         drawableResId = R.drawable.arr_r24_cancel,
-                        modifier = Modifier.clickableNoRipple (onClick = viewModel::clearToggle),
-                        tint = MaterialColor.primary
+                        modifier = Modifier.clickableNoRipple(onClick = viewModel::clearToggle),
+                        tint = MaterialColor.primary,
                     )
                 }
             }
@@ -229,8 +230,7 @@ internal fun SiteFundScreen(
                                                     .fillMaxWidth()
                                                     .clickableNoRipple {
                                                         viewModel.toggle(it.id)
-                                                    }
-                                                    .padding(start = 8.dp, end = 13.6.dp),
+                                                    }.padding(start = 8.dp, end = 13.6.dp),
                                         ) {
                                             val style =
                                                 ContentText.style.color { onSecondaryContainer }
@@ -244,9 +244,10 @@ internal fun SiteFundScreen(
                                             if (it.selected) {
                                                 HorizontalSpacer(6)
                                                 ArrText("X", Modifier.weight(1f)) {
-                                                    style.color(
-                                                        Color.Red
-                                                    ).textAlignEnd()
+                                                    style
+                                                        .color(
+                                                            Color.Red,
+                                                        ).textAlignEnd()
                                                 }
                                             }
                                         }

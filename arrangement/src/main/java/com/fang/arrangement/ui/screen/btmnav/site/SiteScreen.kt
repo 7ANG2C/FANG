@@ -86,7 +86,7 @@ import com.fang.arrangement.Arrangement as FArrangement
 internal fun SiteScreen(
     modifier: Modifier,
     viewModel: SiteViewModel = koinViewModel(),
-    pdfViewModel: SitePDFViewModel = koinViewModel()
+    pdfViewModel: SitePDFViewModel = koinViewModel(),
 ) {
     val showMonths =
         remember {
@@ -161,7 +161,7 @@ internal fun SiteScreen(
                                         SiteMoney.YearSummary(
                                             item.id,
                                             item.name,
-                                            attendanceMap.years
+                                            attendanceMap.years,
                                         )
                                 },
                         ) {
@@ -257,7 +257,7 @@ internal fun SiteScreen(
 @Composable
 private fun MonthlyDialog(
     ySummary: MutableState<SiteMoney.YearSummary?>,
-    pdfViewModel: SitePDFViewModel
+    pdfViewModel: SitePDFViewModel,
 ) {
     val showEmployee =
         remember {
@@ -276,10 +276,11 @@ private fun MonthlyDialog(
             ySummary.value?.let { summary ->
                 var showAtt by rememberSaveable { mutableStateOf(false) }
                 Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 16.dp),
-                    verticalAlignment = Alignment.CenterVertically
+                    modifier =
+                        Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 16.dp),
+                    verticalAlignment = Alignment.CenterVertically,
                 ) {
                     CustomIcon(
                         drawableResId = R.drawable.arr_r24_picture_as_pdf,
@@ -293,16 +294,18 @@ private fun MonthlyDialog(
                                 .weight(1f)
                                 .padding(16.dp),
                     ) {
-                        MaterialTypography.titleMedium.color { onSecondaryContainer }
+                        MaterialTypography.titleMedium
+                            .color { onSecondaryContainer }
                             .textAlignCenter()
                     }
                     CustomIcon(
                         drawableResId = R.drawable.arr_r24_picture_as_pdf,
                         modifier =
                             Modifier.clickableNoRipple {
-                                val total = summary.years
-                                    .flatMap { y -> y.months.map { it } }
-                                    .flatMap { m -> m.days.map { it.dateMillis } }
+                                val total =
+                                    summary.years
+                                        .flatMap { y -> y.months.map { it } }
+                                        .flatMap { m -> m.days.map { it.dateMillis } }
                                 pdfViewModel.showRequest(summary.siteId, total.min(), total.max())
                             },
                         tint = MaterialColor.primary,
@@ -458,9 +461,10 @@ private fun MonthlyEmployeeDialog(
                 ) {
                     CustomIcon(
                         R.drawable.arr_r24_arrow_back,
-                        modifier = Modifier
-                            .clickableNoRipple { pre?.invoke() }
-                            .padding(16.dp),
+                        modifier =
+                            Modifier
+                                .clickableNoRipple { pre?.invoke() }
+                                .padding(16.dp),
                         tint = pre?.let { MaterialColor.onSurfaceVariant } ?: Color.Transparent,
                     )
                     Column(
@@ -483,9 +487,10 @@ private fun MonthlyEmployeeDialog(
                     }
                     CustomIcon(
                         R.drawable.arr_r24_arrow_forward,
-                        modifier = Modifier
-                            .clickableNoRipple { next?.invoke() }
-                            .padding(16.dp),
+                        modifier =
+                            Modifier
+                                .clickableNoRipple { next?.invoke() }
+                                .padding(16.dp),
                         tint = next?.let { MaterialColor.onSurfaceVariant } ?: Color.Transparent,
                     )
                 }

@@ -13,8 +13,8 @@ import com.fang.arrangement.ui.screen.btmnav.site.pdf.SitePDFViewModel
 import com.fang.arrangement.ui.screen.btmnav.statistic.StatisticViewModel
 import com.fang.arrangement.ui.screen.btmnav.statistic.employeeattendance.EmployeeAttendanceViewModel
 import com.fang.arrangement.ui.screen.btmnav.statistic.employeeloan.EmployeeLoanViewModel
-import com.fang.arrangement.ui.screen.btmnav.statistic.salary.pdf.PDFViewModel
 import com.fang.arrangement.ui.screen.btmnav.statistic.salary.SalaryViewModel
+import com.fang.arrangement.ui.screen.btmnav.statistic.salary.pdf.PDFViewModel
 import com.fang.arrangement.ui.screen.btmnav.statistic.sitefind.SiteFundViewModel
 import com.fang.arrangement.ui.screen.btmnav.statistic.sitefind.pdf.SiteFundPDFViewModel
 import org.koin.core.module.dsl.viewModelOf

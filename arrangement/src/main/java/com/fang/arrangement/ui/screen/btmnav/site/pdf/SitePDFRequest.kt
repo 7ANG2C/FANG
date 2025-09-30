@@ -12,16 +12,17 @@ internal data class SitePDFRequest(
     val includeRemark: Boolean,
 ) {
     companion object {
-        val default = SitePDFRequest(
-            siteId = 0,
-            startMillis = null,
-            endMillis = null,
-            showSiteName = true,
-            showStartEnd = true,
-            showTotal = true,
-            showEmployeeSummary = true,
-            showDailyEmployee = true,
-            includeRemark = false
-        )
+        val default =
+            SitePDFRequest(
+                siteId = 0,
+                startMillis = null,
+                endMillis = null,
+                showSiteName = true,
+                showStartEnd = true,
+                showTotal = true,
+                showEmployeeSummary = true,
+                showDailyEmployee = true,
+                includeRemark = false,
+            )
     }
 }

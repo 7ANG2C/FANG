@@ -26,13 +26,11 @@ import kotlinx.coroutines.flow.mapNotNull
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
-
 @OptIn(ExperimentalCoroutinesApi::class)
 internal class SiteFundViewModel(
     private val sheetRepository: SheetRepository,
 ) : ViewModel(),
     WorkState by WorkStateImpl() {
-
     private val _ymFunds = MutableStateFlow(emptyList<YearMonthFund>())
     val ymFunds = _ymFunds.asStateFlow()
 
@@ -52,50 +50,54 @@ internal class SiteFundViewModel(
                             ?.values
                             ?.filterNot { it.isArchive || it.isDelete }
                             ?.sortedWith(
-                                compareBy<Site> { it.archive }.thenByDescending { it.id }
+                                compareBy<Site> { it.archive }.thenByDescending { it.id },
                             )?.takeIf { it.isNotEmpty() }
-                    val funds = workSheets
-                        ?.sheetFund()
-                        ?.values
-                        ?.takeIf { it.isNotEmpty() }
+                    val funds =
+                        workSheets
+                            ?.sheetFund()
+                            ?.values
+                            ?.takeIf { it.isNotEmpty() }
                     if (sites != null && funds != null) {
                         _sites.value = sites
                         sites to funds
-                    } else null
-                }
-                .flatMapLatest { (sites, funds) ->
+                    } else {
+                        null
+                    }
+                }.flatMapLatest { (sites, funds) ->
                     site.mapLatest { s ->
                         val selected = s ?: sites.first()
-                        funds.mapNotNull { f ->
-                            if (f.siteId == selected.id) {
-                                SiteFund(
-                                    selected = false,
-                                    id = f.id,
-                                    fund = f.fund,
-                                    millis = f.millis,
-                                    site = selected,
-                                    remark = f.remark,
-                                )
-                            } else null
-                        }.sortedWith(
-                            compareByDescending<SiteFund> { it.millis }
-                                .thenByDescending { it.id },
-                        ).groupBy {
-                            with(today(it.millis)) { year to month }
-                        }.map { (pair, yFunds) ->
-                            val (year, month) = pair
-                            val dayFunds =
-                                yFunds
-                                    .groupBy {
-                                        today(it.millis).dayOfMonth
-                                    }.map { (day, funds) ->
-                                        DayFund(day = day, funds = funds)
-                                    }
-                            YearMonthFund(year = year, month = month, dayFunds = dayFunds)
-                        }
+                        funds
+                            .mapNotNull { f ->
+                                if (f.siteId == selected.id) {
+                                    SiteFund(
+                                        selected = false,
+                                        id = f.id,
+                                        fund = f.fund,
+                                        millis = f.millis,
+                                        site = selected,
+                                        remark = f.remark,
+                                    )
+                                } else {
+                                    null
+                                }
+                            }.sortedWith(
+                                compareByDescending<SiteFund> { it.millis }
+                                    .thenByDescending { it.id },
+                            ).groupBy {
+                                with(today(it.millis)) { year to month }
+                            }.map { (pair, yFunds) ->
+                                val (year, month) = pair
+                                val dayFunds =
+                                    yFunds
+                                        .groupBy {
+                                            today(it.millis).dayOfMonth
+                                        }.map { (day, funds) ->
+                                            DayFund(day = day, funds = funds)
+                                        }
+                                YearMonthFund(year = year, month = month, dayFunds = dayFunds)
+                            }
                     }
-                }
-                .flowOn(Dispatchers.Default)
+                }.flowOn(Dispatchers.Default)
                 .collectLatest {
                     _ymFunds.value = it
                 }
@@ -141,5 +143,4 @@ internal class SiteFundViewModel(
             }
         }
     }
-
 }

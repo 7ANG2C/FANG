@@ -135,15 +135,17 @@ internal class SitePDFViewModel(
                                                 attendances =
                                                     attAll.attendances.mapNotNull { att ->
                                                         Att(
-                                                            site = site?.let {
-                                                                Site(
-                                                                    it.id,
-                                                                    it.name
-                                                                )
-                                                            } ?: Site(att.siteId, null),
+                                                            site =
+                                                                site?.let {
+                                                                    Site(
+                                                                        it.id,
+                                                                        it.name,
+                                                                    )
+                                                                } ?: Site(att.siteId, null),
                                                             fulls =
                                                                 att.fulls.map { id ->
-                                                                    employees?.find { it.id == id }
+                                                                    employees
+                                                                        ?.find { it.id == id }
                                                                         ?.let {
                                                                             val s =
                                                                                 it.salaries
@@ -154,18 +156,19 @@ internal class SitePDFViewModel(
                                                                                 it.id,
                                                                                 it.name,
                                                                                 s,
-                                                                                1.0
+                                                                                1.0,
                                                                             )
                                                                         } ?: Employee(
                                                                         id,
                                                                         null,
                                                                         null,
-                                                                        1.0
+                                                                        1.0,
                                                                     )
                                                                 },
                                                             halfs =
                                                                 att.halfs.map { id ->
-                                                                    employees?.find { it.id == id }
+                                                                    employees
+                                                                        ?.find { it.id == id }
                                                                         ?.let {
                                                                             val s =
                                                                                 it.salaries
@@ -176,13 +179,13 @@ internal class SitePDFViewModel(
                                                                                 it.id,
                                                                                 it.name,
                                                                                 s,
-                                                                                0.5
+                                                                                0.5,
                                                                             )
                                                                         } ?: Employee(
                                                                         id,
                                                                         null,
                                                                         null,
-                                                                        0.5
+                                                                        0.5,
                                                                     )
                                                                 },
                                                             remark = att.remark.takeIf { request.includeRemark },
@@ -209,12 +212,11 @@ internal class SitePDFViewModel(
                                                                     .sumOf {
                                                                         BigDecimal.valueOf(
                                                                             (
-                                                                                    it.salary?.toDouble()
-                                                                                        ?: 0.0
-                                                                                    ) * it.factor,
+                                                                                it.salary?.toDouble()
+                                                                                    ?: 0.0
+                                                                            ) * it.factor,
                                                                         )
-                                                                    }
-                                                                    .takeIf { it != BigDecimal.ZERO },
+                                                                    }.takeIf { it != BigDecimal.ZERO },
                                                         )
                                                     }
                                             }
@@ -233,16 +235,17 @@ internal class SitePDFViewModel(
                                             pdfPage.canvas.drawText(
                                                 draw.text,
                                                 LEFT_MARGIN +
-                                                        if (draw.x == DEFAULT_X) {
-                                                            draws
-                                                                .take(i)
-                                                                .sumOf {
-                                                                    it.paint.measureText(it.text)
-                                                                        .toDouble()
-                                                                }.toFloat()
-                                                        } else {
-                                                            draw.x
-                                                        },
+                                                    if (draw.x == DEFAULT_X) {
+                                                        draws
+                                                            .take(i)
+                                                            .sumOf {
+                                                                it.paint
+                                                                    .measureText(it.text)
+                                                                    .toDouble()
+                                                            }.toFloat()
+                                                    } else {
+                                                        draw.x
+                                                    },
                                                 y,
                                                 draw.paint,
                                             )
@@ -317,8 +320,10 @@ internal class SitePDFViewModel(
                                             }
                                         val allAtt =
                                             AttendanceNumFormat(
-                                                number = pdfEmployees.sumOf { it.att }
-                                                    .takeIf { it > 0.0 },
+                                                number =
+                                                    pdfEmployees
+                                                        .sumOf { it.att }
+                                                        .takeIf { it > 0.0 },
                                                 invalidText = DASH,
                                             )
                                         if (request.showTotal) {
@@ -389,36 +394,39 @@ internal class SitePDFViewModel(
                                                     } else {
                                                         emptyList()
                                                     }
-                                                val employeeDraws = (fulls + separator + halfs)
-                                                    .chunked(27)
-                                                    .map { item ->
-                                                        val full =
-                                                            item.joinToString("") { p ->
-                                                                p.first.takeIf { p.second }
-                                                                    .orEmpty()
-                                                            }
-                                                        val half =
-                                                            item.joinToString("") { p ->
-                                                                p.first.takeIf { !p.second }
-                                                                    .orEmpty()
-                                                            }
-                                                        val fullW =
-                                                            contentPaint
-                                                                .measureText(full)
-                                                                .takeIf { full.isNotEmpty() } ?: 0f
-                                                        listOfNotNull(
-                                                            Draw(
-                                                                text = full,
-                                                                paint = contentPaint,
-                                                                x = w,
-                                                            ).takeIf { full.isNotEmpty() },
-                                                            Draw(
-                                                                text = half,
-                                                                paint = paint(16f, BLUE),
-                                                                x = w + fullW,
-                                                            ).takeIf { half.isNotEmpty() },
-                                                        )
-                                                    }
+                                                val employeeDraws =
+                                                    (fulls + separator + halfs)
+                                                        .chunked(27)
+                                                        .map { item ->
+                                                            val full =
+                                                                item.joinToString("") { p ->
+                                                                    p.first
+                                                                        .takeIf { p.second }
+                                                                        .orEmpty()
+                                                                }
+                                                            val half =
+                                                                item.joinToString("") { p ->
+                                                                    p.first
+                                                                        .takeIf { !p.second }
+                                                                        .orEmpty()
+                                                                }
+                                                            val fullW =
+                                                                contentPaint
+                                                                    .measureText(full)
+                                                                    .takeIf { full.isNotEmpty() } ?: 0f
+                                                            listOfNotNull(
+                                                                Draw(
+                                                                    text = full,
+                                                                    paint = contentPaint,
+                                                                    x = w,
+                                                                ).takeIf { full.isNotEmpty() },
+                                                                Draw(
+                                                                    text = half,
+                                                                    paint = paint(16f, BLUE),
+                                                                    x = w + fullW,
+                                                                ).takeIf { half.isNotEmpty() },
+                                                            )
+                                                        }
                                                 newLine(4f)
                                                 if (request.showDailyEmployee) {
                                                     draws(
@@ -433,12 +441,14 @@ internal class SitePDFViewModel(
                                                     draws(
                                                         listOfNotNull(
                                                             Draw(
-                                                                text = att.remark.orEmpty()
-                                                                    .replace("\n", "・"),
+                                                                text =
+                                                                    att.remark
+                                                                        .orEmpty()
+                                                                        .replace("\n", "・"),
                                                                 paint = paint(14f, Color.GRAY),
                                                                 x = w,
                                                             ).takeIf { request.includeRemark && att.remark != null },
-                                                        )
+                                                        ),
                                                     )
                                                 } else {
                                                     draws(
@@ -448,12 +458,14 @@ internal class SitePDFViewModel(
                                                                 paint = contentPaint,
                                                             ),
                                                             Draw(
-                                                                text = att.remark.orEmpty()
-                                                                    .replace("\n", "・"),
+                                                                text =
+                                                                    att.remark
+                                                                        .orEmpty()
+                                                                        .replace("\n", "・"),
                                                                 paint = paint(14f, Color.GRAY),
                                                                 x = w,
                                                             ).takeIf { request.includeRemark && att.remark != null },
-                                                        )
+                                                        ),
                                                     )
                                                 }
                                             }
@@ -494,7 +506,11 @@ internal class SitePDFViewModel(
         noLoading()
     }
 
-    fun showRequest(siteId: Long, start: Long, end: Long) {
+    fun showRequest(
+        siteId: Long,
+        start: Long,
+        end: Long,
+    ) {
         this.start = start
         this.end = end
         _request.value = SitePDFRequest.default.copy(siteId = siteId)
@@ -504,23 +520,17 @@ internal class SitePDFViewModel(
 
     fun editEndMillis(millis: Long?) = update { it.copy(endMillis = millis) }
 
-    fun toggleShowSiteName() =
-        update { it.copy(showSiteName = !it.showSiteName) }
+    fun toggleShowSiteName() = update { it.copy(showSiteName = !it.showSiteName) }
 
-    fun toggleShowStartEnd() =
-        update { it.copy(showStartEnd = !it.showStartEnd) }
+    fun toggleShowStartEnd() = update { it.copy(showStartEnd = !it.showStartEnd) }
 
-    fun toggleShowTotal() =
-        update { it.copy(showTotal = !it.showTotal) }
+    fun toggleShowTotal() = update { it.copy(showTotal = !it.showTotal) }
 
-    fun toggleShowEmployeeSummary() =
-        update { it.copy(showEmployeeSummary = !it.showEmployeeSummary) }
+    fun toggleShowEmployeeSummary() = update { it.copy(showEmployeeSummary = !it.showEmployeeSummary) }
 
-    fun toggleShowDailyEmployee() =
-        update { it.copy(showDailyEmployee = !it.showDailyEmployee) }
+    fun toggleShowDailyEmployee() = update { it.copy(showDailyEmployee = !it.showDailyEmployee) }
 
-    fun toggleIncludeRemark() =
-        update { it.copy(includeRemark = !it.includeRemark) }
+    fun toggleIncludeRemark() = update { it.copy(includeRemark = !it.includeRemark) }
 
     fun clearRequest() {
         _request.value = null
@@ -540,8 +550,7 @@ internal class SitePDFViewModel(
         block(this)
     }
 
-    private fun Paint.typeface(typeface: Typeface) =
-        apply { this.typeface = typeface }
+    private fun Paint.typeface(typeface: Typeface) = apply { this.typeface = typeface }
 
     private fun createNewPage(pdfDocument: PdfDocument) =
         pdfDocument.startPage(

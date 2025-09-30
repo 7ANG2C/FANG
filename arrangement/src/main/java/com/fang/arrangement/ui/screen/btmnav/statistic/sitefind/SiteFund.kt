@@ -40,9 +40,6 @@ internal val List<YearMonthFund>.totalFund1
     get() = "$${
         NumberFormat(
             number = sumOf { it.totalFund },
-            decimal = 0
+            decimal = 0,
         )
     }"
-
-
-

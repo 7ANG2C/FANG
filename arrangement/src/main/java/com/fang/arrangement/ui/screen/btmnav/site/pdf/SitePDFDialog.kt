@@ -32,9 +32,10 @@ internal fun SitePDFDialog(viewModel: SitePDFViewModel) {
             isShow = param != null,
             onDelete = null,
             onCancel = viewModel::clearRequest,
-            onConfirm = param?.let {
-                { viewModel.startDownload(it) }
-            },
+            onConfirm =
+                param?.let {
+                    { viewModel.startDownload(it) }
+                },
         ) {
             Average2Row(Modifier.fillMaxWidth(), {
                 DateSelector(
@@ -61,7 +62,7 @@ internal fun SitePDFDialog(viewModel: SitePDFViewModel) {
             }
             Column(
                 modifier = Modifier.fillMaxWidth(),
-                verticalArrangement = Arrangement.spacedBy(8.dp)
+                verticalArrangement = Arrangement.spacedBy(8.dp),
             ) {
                 CheckRow(
                     modifier =
@@ -69,7 +70,7 @@ internal fun SitePDFDialog(viewModel: SitePDFViewModel) {
                             .fillMaxWidth()
                             .clickableNoRipple(onClick = viewModel::toggleShowSiteName),
                     text = "顯示工地名稱",
-                    check = param?.showSiteName
+                    check = param?.showSiteName,
                 )
                 CheckRow(
                     modifier =
@@ -77,7 +78,7 @@ internal fun SitePDFDialog(viewModel: SitePDFViewModel) {
                             .fillMaxWidth()
                             .clickableNoRipple(onClick = viewModel::toggleShowStartEnd),
                     text = "顯示起訖日",
-                    check = param?.showStartEnd
+                    check = param?.showStartEnd,
                 )
                 CheckRow(
                     modifier =
@@ -85,7 +86,7 @@ internal fun SitePDFDialog(viewModel: SitePDFViewModel) {
                             .fillMaxWidth()
                             .clickableNoRipple(onClick = viewModel::toggleShowTotal),
                     text = "顯示總工數",
-                    check = param?.showTotal
+                    check = param?.showTotal,
                 )
                 CheckRow(
                     modifier =
@@ -93,7 +94,7 @@ internal fun SitePDFDialog(viewModel: SitePDFViewModel) {
                             .fillMaxWidth()
                             .clickableNoRipple(onClick = viewModel::toggleShowEmployeeSummary),
                     text = "顯示員工總工數",
-                    check = param?.showEmployeeSummary
+                    check = param?.showEmployeeSummary,
                 )
                 CheckRow(
                     modifier =
@@ -101,7 +102,7 @@ internal fun SitePDFDialog(viewModel: SitePDFViewModel) {
                             .fillMaxWidth()
                             .clickableNoRipple(onClick = viewModel::toggleShowDailyEmployee),
                     text = "顯示出勤員工",
-                    check = param?.showDailyEmployee
+                    check = param?.showDailyEmployee,
                 )
                 CheckRow(
                     modifier =
@@ -109,10 +110,9 @@ internal fun SitePDFDialog(viewModel: SitePDFViewModel) {
                             .fillMaxWidth()
                             .clickableNoRipple(onClick = viewModel::toggleIncludeRemark),
                     text = "是否包含出勤備註",
-                    check = param?.includeRemark
+                    check = param?.includeRemark,
                 )
             }
-
         }
         Loading(viewModel)
     }
@@ -138,7 +138,7 @@ internal fun SitePDFDialog(viewModel: SitePDFViewModel) {
 private fun CheckRow(
     modifier: Modifier,
     text: String,
-    check: Boolean?
+    check: Boolean?,
 ) = Row(
     modifier = modifier,
     verticalAlignment = Alignment.CenterVertically,

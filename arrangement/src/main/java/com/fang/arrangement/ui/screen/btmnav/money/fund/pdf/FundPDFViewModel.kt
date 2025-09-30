@@ -254,9 +254,9 @@ internal class FundPDFViewModel(
                                                                 item.site?.name.takeIfNotBlank?.let {
                                                                     Draw(
                                                                         text = "  ($it)",
-                                                                        paint =  paint(12f, Color.GRAY),
+                                                                        paint = paint(12f, Color.GRAY),
                                                                     )
-                                                                }
+                                                                },
                                                             ),
                                                         )
                                                     }

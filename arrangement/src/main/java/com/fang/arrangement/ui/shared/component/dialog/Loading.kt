@@ -34,7 +34,10 @@ import kotlin.time.Duration.Companion.seconds
 import com.fang.arrangement.Arrangement as FArrangement
 
 @Composable
-internal fun Loading(isShow: Boolean, isSplash: Boolean = false) {
+internal fun Loading(
+    isShow: Boolean,
+    isSplash: Boolean = false,
+) {
     DialogThemedScreen(isShow = isShow) {
         if (FArrangement.isFancy && isSplash) {
             Box(contentAlignment = Alignment.Center) {
