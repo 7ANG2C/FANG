@@ -91,6 +91,7 @@ dependencies {
     implementation(libs.io.koin.core)
     implementation(libs.io.koin.android)
     implementation(libs.io.koin.androidx.compose)
+    implementation(libs.dotlottie)
     // debug
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)

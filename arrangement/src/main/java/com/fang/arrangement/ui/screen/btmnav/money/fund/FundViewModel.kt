@@ -57,7 +57,7 @@ internal class FundViewModel(
                             ?.sheetSite()
                             ?.values
                             .orEmpty()
-                            .filterNot { it.isDelete }
+                            .filterNot { it.isArchive || it.isDelete }
                             .sortedWith(
                                 compareBy<Site> { it.archive }
                                     .thenByDescending { it.id },

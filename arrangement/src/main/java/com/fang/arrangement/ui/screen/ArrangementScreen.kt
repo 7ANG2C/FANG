@@ -1,6 +1,7 @@
 package com.fang.arrangement.ui.screen
 
 import androidx.activity.compose.BackHandler
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -8,6 +9,7 @@ import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.currentBackStackEntryAsState
@@ -37,6 +39,7 @@ internal fun ArrangementScreen(
     val backStackEntry by navController.currentBackStackEntryAsState()
     val bgColor = MaterialColor.surfaceContainerLowest
     SystemBarColor(status = bgColor)
+    val initialized = viewModel.initialized.stateValue()
     Column(
         modifier =
             modifier
@@ -49,7 +52,8 @@ internal fun ArrangementScreen(
             modifier =
                 Modifier
                     .fillMaxWidth()
-                    .weight(1f),
+                    .weight(1f)
+                    .alpha(animateFloatAsState(if (initialized) 1f else 0f).value),
             route = "ROOT",
         ) {
             graphBtmNavScreen()
@@ -68,12 +72,12 @@ internal fun ArrangementScreen(
                         saveState = true
                     }
                     launchSingleTop = true
-                    restoreState = page != BtmNavItem.STATISTIC
+                    restoreState = page != BtmNavItem.SITE
                 }
             }
         }
     }
-    Loading(isShow = !viewModel.initialized.stateValue())
+    Loading(isShow = !initialized, true)
     ClearFocusWhenImeClosed()
     BackHandler(onBack = onBack)
 }

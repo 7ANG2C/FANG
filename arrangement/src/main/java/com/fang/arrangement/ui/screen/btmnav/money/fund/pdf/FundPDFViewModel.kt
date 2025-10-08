@@ -13,12 +13,13 @@ import com.fang.arrangement.ui.screen.btmnav.money.fund.MFund
 import com.fang.arrangement.ui.screen.btmnav.money.fund.YearMonthFund
 import com.fang.arrangement.ui.screen.btmnav.money.fund.YearMonthFund.DayFund
 import com.fang.arrangement.ui.screen.btmnav.money.fund.totalFund
-import com.fang.arrangement.ui.screen.btmnav.statistic.pdf.PdfBundle
+import com.fang.arrangement.ui.screen.btmnav.statistic.salary.pdf.PdfBundle
 import com.fang.arrangement.ui.shared.dsl.YMDDayOfWeek
 import com.fang.cosmos.definition.workstate.WorkState
 import com.fang.cosmos.definition.workstate.WorkStateImpl
 import com.fang.cosmos.foundation.NumberFormat
 import com.fang.cosmos.foundation.isMulti
+import com.fang.cosmos.foundation.takeIfNotBlank
 import com.fang.cosmos.foundation.time.calendar.ChineseDayOfWeek
 import com.fang.cosmos.foundation.time.calendar.dayOfMonth
 import com.fang.cosmos.foundation.time.calendar.month
@@ -70,7 +71,7 @@ internal class FundPDFViewModel(
     }
 
     private val requestTrigger = MutableStateFlow<RequestTrigger?>(null)
-    private val _request = MutableStateFlow<PDFRequest?>(null)
+    private val _request = MutableStateFlow<FundPDFRequest?>(null)
     val request = _request.asStateFlow()
     private val _pdfBundle = MutableStateFlow<PdfBundle?>(null)
     val pdfBundle = _pdfBundle.asStateFlow()
@@ -236,7 +237,7 @@ internal class FundPDFViewModel(
                                                                 decimal = 0,
                                                             )
                                                         draws(
-                                                            listOf(
+                                                            listOfNotNull(
                                                                 Draw(
                                                                     text = "$date ($chDate)   ",
                                                                     paint =
@@ -250,6 +251,12 @@ internal class FundPDFViewModel(
                                                                     text = "$$prettyFund  ${item.remark.orEmpty().replace("\n", "・")}",
                                                                     paint = contentPaint,
                                                                 ),
+                                                                item.site?.name.takeIfNotBlank?.let {
+                                                                    Draw(
+                                                                        text = "  ($it)",
+                                                                        paint = paint(12f, Color.GRAY),
+                                                                    )
+                                                                },
                                                             ),
                                                         )
                                                     }
@@ -502,7 +509,7 @@ internal class FundPDFViewModel(
     }
 
     fun showRequest() {
-        _request.value = PDFRequest.default
+        _request.value = FundPDFRequest.default
     }
 
     fun editStartMillis(millis: Long?) = update { it.copy(startMillis = millis) }
@@ -513,7 +520,7 @@ internal class FundPDFViewModel(
         _request.value = null
     }
 
-    private fun update(function: (PDFRequest) -> PDFRequest?) {
+    private fun update(function: (FundPDFRequest) -> FundPDFRequest?) {
         _request.update { it?.let(function) }
     }
 
