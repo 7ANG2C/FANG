@@ -1,4 +1,4 @@
-package com.fang.arrangement.ui.screen.btmnav.statistic.pdf
+package com.fang.arrangement.ui.screen.btmnav.statistic.salary.pdf
 
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -95,7 +95,7 @@ internal fun PDFDialog(viewModel: PDFViewModel) {
                         contentResolver.openOutputStream(uri)?.use { out ->
                             viewModel.finishDownload(out = out, pdf = bundle.pdfDocument)
                         }
-                    }
+                    } ?: viewModel.clearPdf()
                 }
             val start = TimeConverter.format(bundle.startMillis, pattern = TimePattern.yyyyMMdd())
             val end = TimeConverter.format(bundle.endMillis, pattern = TimePattern.yyyyMMdd())

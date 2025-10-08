@@ -92,3 +92,5 @@
 # Suppress warnings on sun.misc.Unsafe
 -dontnote sun.misc.Unsafe
 -dontwarn sun.misc.Unsafe
+# dotLottie
+-dontwarn java.awt.**

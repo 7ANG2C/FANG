@@ -9,11 +9,14 @@ import com.fang.arrangement.ui.screen.btmnav.money.fund.pdf.FundPDFViewModel
 import com.fang.arrangement.ui.screen.btmnav.money.loan.LoanViewModel
 import com.fang.arrangement.ui.screen.btmnav.money.payback.PaybackViewModel
 import com.fang.arrangement.ui.screen.btmnav.site.SiteViewModel
+import com.fang.arrangement.ui.screen.btmnav.site.pdf.SitePDFViewModel
 import com.fang.arrangement.ui.screen.btmnav.statistic.StatisticViewModel
 import com.fang.arrangement.ui.screen.btmnav.statistic.employeeattendance.EmployeeAttendanceViewModel
 import com.fang.arrangement.ui.screen.btmnav.statistic.employeeloan.EmployeeLoanViewModel
-import com.fang.arrangement.ui.screen.btmnav.statistic.pdf.PDFViewModel
 import com.fang.arrangement.ui.screen.btmnav.statistic.salary.SalaryViewModel
+import com.fang.arrangement.ui.screen.btmnav.statistic.salary.pdf.PDFViewModel
+import com.fang.arrangement.ui.screen.btmnav.statistic.sitefind.SiteFundViewModel
+import com.fang.arrangement.ui.screen.btmnav.statistic.sitefind.pdf.SiteFundPDFViewModel
 import org.koin.core.module.dsl.viewModelOf
 import org.koin.dsl.module
 
@@ -31,8 +34,11 @@ internal object ViewModelModule {
             viewModelOf(::SalaryViewModel)
             viewModelOf(::PDFViewModel)
             viewModelOf(::EmployeeAttendanceViewModel)
+            viewModelOf(::SiteFundViewModel)
+            viewModelOf(::SiteFundPDFViewModel)
             viewModelOf(::EmployeeLoanViewModel)
             viewModelOf(::EmployeeViewModel)
             viewModelOf(::SiteViewModel)
+            viewModelOf(::SitePDFViewModel)
         }
 }

@@ -8,6 +8,7 @@ internal data class SiteMoney(
     val salary: Double?,
 ) {
     data class YearSummary(
+        val siteId: Long,
         val name: String,
         val years: List<Year>,
     )

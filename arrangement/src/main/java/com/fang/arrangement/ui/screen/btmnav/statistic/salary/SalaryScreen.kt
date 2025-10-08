@@ -26,8 +26,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.fang.arrangement.R
 import com.fang.arrangement.foundation.orDash
-import com.fang.arrangement.ui.screen.btmnav.statistic.pdf.PDFDialog
-import com.fang.arrangement.ui.screen.btmnav.statistic.pdf.PDFViewModel
+import com.fang.arrangement.ui.screen.btmnav.statistic.salary.pdf.PDFDialog
+import com.fang.arrangement.ui.screen.btmnav.statistic.salary.pdf.PDFViewModel
 import com.fang.arrangement.ui.shared.component.ArrText
 import com.fang.arrangement.ui.shared.component.EmptyScreen
 import com.fang.arrangement.ui.shared.component.chip.AttendanceChip
