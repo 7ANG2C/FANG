@@ -1,4 +1,5 @@
-import com.android.build.gradle.internal.api.BaseVariantOutputImpl
+import com.android.build.api.dsl.ApplicationExtension
+import com.android.build.api.variant.impl.VariantOutputImpl
 import java.io.FileInputStream
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -8,12 +9,11 @@ plugins {
     alias(libs.plugins.googleServices)
     alias(libs.plugins.firebaseCrashlytics)
     alias(libs.plugins.androidApplication)
-    alias(libs.plugins.jetbrainsKotlinAndroid)
     alias(libs.plugins.compose.compiler)
     alias(libs.plugins.jetbrainsKotlinParcelize)
 }
 
-android {
+configure<ApplicationExtension> {
     val pkg = "com.fang.arrangement"
     namespace = pkg
     resourcePrefix = "arr_"
@@ -39,19 +39,9 @@ android {
             storePassword = keystoreProperties.getProperty("storePassword")
         }
     }
-    productFlavors {
-        applicationVariants.all {
-            val dateTime = SimpleDateFormat("MM.dd-HH.mm").format(Date())
-            outputs.forEach {
-                (it as? BaseVariantOutputImpl)?.outputFileName =
-                    "arrangement-$versionName-$dateTime.apk"
-            }
-        }
-    }
-
     buildTypes {
         debug {
-            // applicationIdSuffix = ".debug"
+//            applicationIdSuffix = ".debug"
         }
         release {
             isMinifyEnabled = true
@@ -64,6 +54,15 @@ android {
         }
     }
     packaging { resources { excludes += "/META-INF/{AL2.0,LGPL2.1,INDEX.LIST,DEPENDENCIES}" } }
+}
+
+androidComponents {
+    val dateTime = SimpleDateFormat("MM.dd-HH.mm").format(Date())
+    onVariants { variant ->
+        variant.outputs.forEach {
+            (it as? VariantOutputImpl)?.outputFileName = "arrangement-${it.versionName.get()}-$dateTime.apk"
+        }
+    }
 }
 
 dependencies {

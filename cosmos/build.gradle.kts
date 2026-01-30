@@ -1,10 +1,11 @@
+import com.android.build.api.dsl.LibraryExtension
+
 plugins {
     alias(libs.plugins.androidLibrary)
-    alias(libs.plugins.jetbrainsKotlinAndroid)
     alias(libs.plugins.compose.compiler)
 }
 
-android {
+configure<LibraryExtension> {
     namespace = "com.fang.cosmos"
     resourcePrefix = "cosmos_"
     defaultConfig {

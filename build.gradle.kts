@@ -1,4 +1,6 @@
-import com.android.build.gradle.BaseExtension
+import com.android.build.api.dsl.ApplicationExtension
+import com.android.build.api.dsl.CommonExtension
+import com.android.build.api.dsl.LibraryExtension
 import com.android.build.gradle.api.AndroidBasePlugin
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.dsl.KotlinAndroidProjectExtension
@@ -51,33 +53,23 @@ subprojects {
             arrayOf("-parameters", "-Xlint:unchecked", "-Xlint:deprecation"),
         )
     }
-
-    plugins.withType<AndroidBasePlugin> {
-        configure<BaseExtension> {
-            compileSdkVersion(
-                libs.versions.compileSdk
-                    .get()
-                    .toInt(),
-            )
+    pluginManager.withPlugin("com.android.library") {
+        extensions.configure<LibraryExtension> {
+            applyCommonAndroidSettings()
+        }
+    }
+    pluginManager.withPlugin("com.android.application") {
+        extensions.configure<ApplicationExtension> {
+            applyCommonAndroidSettings()
             defaultConfig {
-                minSdk =
-                    libs.versions.minSdk
-                        .get()
-                        .toInt()
                 targetSdk =
                     libs.versions.compileSdk
                         .get()
                         .toInt()
             }
-            compileOptions {
-                sourceCompatibility = JavaVersion.VERSION_17
-                targetCompatibility = JavaVersion.VERSION_17
-            }
-            with(buildFeatures) {
-                buildConfig = true
-            }
         }
-
+    }
+    plugins.withType<AndroidBasePlugin> {
         afterEvaluate {
             with(extensions.getByType<KotlinAndroidProjectExtension>()) {
                 compilerOptions {
@@ -86,4 +78,18 @@ subprojects {
             }
         }
     }
+}
+
+fun CommonExtension.applyCommonAndroidSettings() {
+    compileSdk =
+        libs.versions.compileSdk
+            .get()
+            .toInt()
+    defaultConfig.minSdk =
+        libs.versions.minSdk
+            .get()
+            .toInt()
+    compileOptions.sourceCompatibility = JavaVersion.VERSION_17
+    compileOptions.targetCompatibility = JavaVersion.VERSION_17
+    buildFeatures.buildConfig = true
 }

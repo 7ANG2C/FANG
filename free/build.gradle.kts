@@ -1,5 +1,5 @@
-import com.android.build.gradle.internal.api.BaseVariantOutputImpl
-import org.jetbrains.kotlin.compose.compiler.gradle.ComposeFeatureFlag
+import com.android.build.api.dsl.ApplicationExtension
+import com.android.build.api.variant.impl.VariantOutputImpl
 import java.io.FileInputStream
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -7,12 +7,11 @@ import java.util.Properties
 
 plugins {
     alias(libs.plugins.androidApplication)
-    alias(libs.plugins.jetbrainsKotlinAndroid)
     alias(libs.plugins.compose.compiler)
     alias(libs.plugins.jetbrainsKotlinParcelize)
 }
 
-android {
+configure<ApplicationExtension> {
     val pkg = "com.fang.free"
     namespace = pkg
     resourcePrefix = "free_"
@@ -38,16 +37,6 @@ android {
             storePassword = keystoreProperties.getProperty("storePassword")
         }
     }
-    productFlavors {
-        applicationVariants.all {
-            val dateTime = SimpleDateFormat("MM.dd-HH.mm").format(Date())
-            outputs.forEach {
-                (it as? BaseVariantOutputImpl)?.outputFileName =
-                    "free-$versionName-$dateTime.apk"
-            }
-        }
-    }
-
     buildTypes {
         debug {
             applicationIdSuffix = ".debug"
@@ -63,6 +52,15 @@ android {
         }
     }
     packaging { resources { excludes += "/META-INF/{AL2.0,LGPL2.1}" } }
+}
+
+androidComponents {
+    val dateTime = SimpleDateFormat("MM.dd-HH.mm").format(Date())
+    onVariants { variant ->
+        variant.outputs.forEach {
+            (it as? VariantOutputImpl)?.outputFileName = "free-${it.versionName.get()}-$dateTime.apk"
+        }
+    }
 }
 
 dependencies {
