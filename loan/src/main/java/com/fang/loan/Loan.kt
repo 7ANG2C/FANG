@@ -19,6 +19,8 @@ data class Loan(
                 Loan(name = "安泰", all = 36720, addition = 0, amount = 1530, remain = 17),
                 Loan(name = "台金", all = 74880, addition = 0, amount = 3120, remain = 17),
                 Loan(name = "玉山", all = 58776, addition = 0, amount = 2449, remain = 17),
+                Loan(name = "國泰", all = 0, addition = 0, amount = 3696, remain = 29),
+                Loan(name = "玉山", all = 0, addition = 0, amount = 1056, remain = 29),
             )
     }
 }

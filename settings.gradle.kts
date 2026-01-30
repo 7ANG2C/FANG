@@ -38,7 +38,7 @@ dependencyResolutionManagement {
         maven(url = "https://jitpack.io")
     }
 }
-// include(":loan")
+include(":loan")
 // include(":free")
 include(":arrangement")
 include(":cosmos")
