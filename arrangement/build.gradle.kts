@@ -6,11 +6,11 @@ import java.util.Date
 import java.util.Properties
 
 plugins {
-    alias(libs.plugins.googleServices)
-    alias(libs.plugins.firebaseCrashlytics)
-    alias(libs.plugins.androidApplication)
+    alias(libs.plugins.google.services)
+    alias(libs.plugins.firebase.crashlytics)
+    alias(libs.plugins.android.application)
     alias(libs.plugins.compose.compiler)
-    alias(libs.plugins.jetbrainsKotlinParcelize)
+    alias(libs.plugins.kotlin.parcelize)
 }
 
 configure<ApplicationExtension> {

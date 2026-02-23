@@ -1,7 +1,7 @@
 import com.android.build.api.dsl.LibraryExtension
 
 plugins {
-    alias(libs.plugins.androidLibrary)
+    alias(libs.plugins.android.library)
     alias(libs.plugins.compose.compiler)
 }
 

@@ -6,9 +6,9 @@ import java.util.Date
 import java.util.Properties
 
 plugins {
-    alias(libs.plugins.androidApplication)
+    alias(libs.plugins.android.application)
     alias(libs.plugins.compose.compiler)
-    alias(libs.plugins.jetbrainsKotlinParcelize)
+    alias(libs.plugins.kotlin.parcelize)
 }
 
 configure<ApplicationExtension> {
