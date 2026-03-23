@@ -33,9 +33,12 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.fang.cosmos.foundation.NumberFormat
 import kotlinx.coroutines.delay
+import kotlinx.datetime.DateTimeUnit
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.monthsUntil
+import kotlinx.datetime.number
+import kotlinx.datetime.plus
 import kotlinx.datetime.toLocalDateTime
 import kotlin.time.Clock
 import kotlin.time.Duration.Companion.seconds
@@ -75,7 +78,6 @@ private fun LoanContent(modifier: Modifier) {
         delay(1.seconds)
         todayDate = LocalDate.today
     }
-    val scrollState = rememberScrollState()
     Loan.loans
         .mapNotNull { loan ->
             start
@@ -119,7 +121,7 @@ private fun LoanContent(modifier: Modifier) {
                                 Modifier
                                     .fillMaxHeight()
                                     .weight(1f)
-                                    .horizontalScroll(scrollState),
+                                    .horizontalScroll(rememberScrollState()),
                                 verticalAlignment = Alignment.CenterVertically,
                             ) {
                                 Box(contentAlignment = Alignment.CenterEnd) {
@@ -176,6 +178,24 @@ private fun LoanContent(modifier: Modifier) {
                                         fontSize = 16.sp,
                                     )
                                 }
+                                Text(
+                                    text =
+                                        with(
+                                            todayDate.plus(
+                                                loan.remain -
+                                                    if (todayDate.day >= 6) {
+                                                        0
+                                                    } else {
+                                                        1
+                                                    },
+                                                DateTimeUnit.MONTH,
+                                            ),
+                                        ) {
+                                            "$year-${month.number.toString().padStart(2, '0')}"
+                                        },
+                                    color = color,
+                                    fontSize = 16.sp,
+                                )
                             }
                         }
                     }

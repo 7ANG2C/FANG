@@ -38,8 +38,9 @@ dependencyResolutionManagement {
         maven(url = "https://jitpack.io")
     }
 }
-include(":loan")
-// include(":free")
+
+include(":free")
 include(":arrangement")
+include(":loan")
 include(":cosmos")
 enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
