@@ -5,23 +5,21 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.background
-import androidx.compose.foundation.horizontalScroll
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBarsPadding
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -31,7 +29,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.fang.cosmos.foundation.Invoke
 import com.fang.cosmos.foundation.NumberFormat
+import com.fang.cosmos.foundation.ui.ext.clickableNoRipple
 import kotlinx.coroutines.delay
 import kotlinx.datetime.DateTimeUnit
 import kotlinx.datetime.LocalDate
@@ -60,7 +60,7 @@ internal class LoanActivity : ComponentActivity() {
     }
 }
 
-val LocalDate.Companion.today
+private val LocalDate.Companion.today
     get() =
         Clock.System
             .now()
@@ -78,7 +78,11 @@ private fun LoanContent(modifier: Modifier) {
         delay(1.seconds)
         todayDate = LocalDate.today
     }
-    Loan.loans
+    val loansState =
+        remember {
+            mutableStateOf(Loan.loans)
+        }
+    loansState.value
         .mapNotNull { loan ->
             start
                 .monthsUntil(todayDate)
@@ -87,7 +91,7 @@ private fun LoanContent(modifier: Modifier) {
         }.takeIf { it.isNotEmpty() }
         ?.let { loans ->
             Column(modifier.padding(horizontal = 20.dp)) {
-                val amounts = NumberFormat(loans.sumOf { it.remain * it.amount }) ?: "-"
+                val amounts = NumberFormat(loans.sumOf { it.remainAmount }) ?: "-"
                 val remains = NumberFormat(loans.sumOf { it.amount }) ?: "-"
                 Text(
                     text = "$amounts / $remains",
@@ -95,111 +99,70 @@ private fun LoanContent(modifier: Modifier) {
                     fontSize = 24.sp,
                     color = color,
                 )
-                Column(
-                    Modifier
-                        .fillMaxWidth()
-                        .verticalScroll(rememberScrollState()),
-                ) {
-                    loans.forEach { loan ->
-                        Row(
+                loans.forEach { loan ->
+                    Row(
+                        modifier =
                             Modifier
                                 .fillMaxWidth()
                                 .height(IntrinsicSize.Min)
                                 .padding(vertical = 4.dp),
-                            verticalAlignment = Alignment.CenterVertically,
-                        ) {
-                            Text(
-                                text = loan.name,
-                                color = color,
-                                modifier =
-                                    Modifier
-                                        .fillMaxHeight()
-                                        .padding(end = 8.dp),
-                                fontSize = 16.sp,
-                            )
-                            Row(
-                                Modifier
-                                    .fillMaxHeight()
-                                    .weight(1f)
-                                    .horizontalScroll(rememberScrollState()),
-                                verticalAlignment = Alignment.CenterVertically,
-                            ) {
-                                Box(contentAlignment = Alignment.CenterEnd) {
-                                    Text(
-                                        text = "10,520",
-                                        color = Color.Transparent,
-                                        modifier =
-                                            Modifier
-                                                .padding(end = 10.dp),
-                                        fontSize = 16.sp,
-                                    )
-                                    Text(
-                                        text = NumberFormat(loan.amount) ?: "-",
-                                        color = color,
-                                        modifier =
-                                            Modifier
-                                                .padding(end = 10.dp),
-                                        fontSize = 16.sp,
-                                    )
-                                }
-                                Box(contentAlignment = Alignment.CenterEnd) {
-                                    Text(
-                                        text = "10",
-                                        color = Color.Transparent,
-                                        modifier =
-                                            Modifier
-                                                .padding(end = 10.dp),
-                                        fontSize = 16.sp,
-                                    )
-                                    Text(
-                                        text = loan.remain.toString(),
-                                        color = color,
-                                        modifier =
-                                            Modifier
-                                                .padding(end = 10.dp),
-                                        fontSize = 16.sp,
-                                    )
-                                }
-                                Box(contentAlignment = Alignment.CenterEnd) {
-                                    Text(
-                                        text = "100,000",
-                                        color = Color.Transparent,
-                                        modifier =
-                                            Modifier
-                                                .padding(end = 10.dp),
-                                        fontSize = 16.sp,
-                                    )
-                                    Text(
-                                        text = NumberFormat(loan.amount * loan.remain) ?: "-",
-                                        color = color,
-                                        modifier =
-                                            Modifier
-                                                .padding(end = 10.dp),
-                                        fontSize = 16.sp,
-                                    )
-                                }
-                                Text(
-                                    text =
-                                        with(
-                                            todayDate.plus(
-                                                loan.remain -
-                                                    if (todayDate.day >= 6) {
-                                                        0
-                                                    } else {
-                                                        1
-                                                    },
-                                                DateTimeUnit.MONTH,
-                                            ),
-                                        ) {
-                                            "$year-${month.number.toString().padStart(2, '0')}"
-                                        },
-                                    color = color,
-                                    fontSize = 16.sp,
-                                )
-                            }
+                        horizontalArrangement = Arrangement.spacedBy(10.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        with(loansState) {
+                            LoanText(loan.name)
+                            LoanText(NumberFormat(loan.amount), "00,000") { amount }
+                            LoanText(loan.remain, "000") { remain }
+                            LoanText(NumberFormat(loan.remainAmount), "000,000") { remainAmount }
+                            LoanText(
+                                with(
+                                    todayDate.plus(
+                                        loan.remain -
+                                            if (todayDate.day >= 6) {
+                                                0
+                                            } else {
+                                                1
+                                            },
+                                        DateTimeUnit.MONTH,
+                                    ),
+                                ) {
+                                    "$year-${month.number.toString().padStart(2, '0')}"
+                                },
+                            ) { remain }
+                            LoanText(loan.day, "000") { day }
                         }
                     }
                 }
             }
         } ?: Text(text = "還清", color = color)
+}
+
+@Composable
+private fun MutableState<List<Loan>>.LoanText(
+    text: Any?,
+    holder: String? = null,
+    trans: (Loan.() -> Int)? = null,
+) = Box(contentAlignment = Alignment.CenterEnd) {
+    val content = text?.toString() ?: "-"
+    Text(
+        text = content,
+        color = color,
+        fontSize = 16.sp,
+    )
+    Text(
+        text = holder ?: content,
+        modifier =
+            Modifier.clickableNoRipple {
+                value = trans?.let {
+                    val asc = value.sortedBy { trans(it) }
+                    if (asc == value) {
+                        Loan.loans.sortedByDescending { trans(it) }
+                    } else {
+                        asc
+                    }
+                } ?: Loan.loans
+            },
+        color = Color.Transparent,
+        fontSize = 16.sp,
+    )
 }
