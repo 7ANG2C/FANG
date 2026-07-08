@@ -16,9 +16,9 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -29,10 +29,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.fang.cosmos.foundation.Invoke
 import com.fang.cosmos.foundation.NumberFormat
 import com.fang.cosmos.foundation.ui.ext.clickableNoRipple
-import kotlinx.coroutines.delay
 import kotlinx.datetime.DateTimeUnit
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.TimeZone
@@ -41,7 +39,6 @@ import kotlinx.datetime.number
 import kotlinx.datetime.plus
 import kotlinx.datetime.toLocalDateTime
 import kotlin.time.Clock
-import kotlin.time.Duration.Companion.seconds
 
 internal class LoanActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -66,17 +63,13 @@ private val LocalDate.Companion.today
             .now()
             .toLocalDateTime(TimeZone.currentSystemDefault())
             .date
-val color = Color(0xFFCCCCCC)
+private val color = Color(0xFFCCCCCC)
 
 @Composable
 private fun LoanContent(modifier: Modifier) {
-    val start = LocalDate.parse("2025-05-05")
+    val start = LocalDate.parse("2026-06-05")
     var todayDate by remember {
         mutableStateOf(LocalDate.today)
-    }
-    LaunchedEffect(Unit) {
-        delay(1.seconds)
-        todayDate = LocalDate.today
     }
     val loansState =
         remember {
@@ -86,7 +79,7 @@ private fun LoanContent(modifier: Modifier) {
         .mapNotNull { loan ->
             start
                 .monthsUntil(todayDate)
-                .takeIf { it <= loan.remain }
+                .takeIf { it < loan.remain }
                 ?.let { loan.copy(remain = loan.remain - it) }
         }.takeIf { it.isNotEmpty() }
         ?.let { loans ->
@@ -95,7 +88,11 @@ private fun LoanContent(modifier: Modifier) {
                 val remains = NumberFormat(loans.sumOf { it.amount }) ?: "-"
                 Text(
                     text = "$amounts / $remains",
-                    modifier = Modifier.padding(vertical = 16.dp),
+                    modifier =
+                        Modifier
+                            .clickableNoRipple {
+                                todayDate = LocalDate.today
+                            }.padding(vertical = 16.dp),
                     fontSize = 24.sp,
                     color = color,
                 )
@@ -113,16 +110,12 @@ private fun LoanContent(modifier: Modifier) {
                             LoanText(loan.name)
                             LoanText(NumberFormat(loan.amount), "00,000") { amount }
                             LoanText(loan.remain, "000") { remain }
-                            LoanText(NumberFormat(loan.remainAmount), "000,000") { remainAmount }
+                            LoanText(NumberFormat(loan.remainAmount), "0,000,000") { remainAmount }
                             LoanText(
                                 with(
                                     todayDate.plus(
                                         loan.remain -
-                                            if (todayDate.day >= 6) {
-                                                0
-                                            } else {
-                                                1
-                                            },
+                                            if (todayDate.day >= 5) 0 else 1,
                                         DateTimeUnit.MONTH,
                                     ),
                                 ) {
@@ -131,6 +124,63 @@ private fun LoanContent(modifier: Modifier) {
                             ) { remain }
                             LoanText(loan.day, "000") { day }
                         }
+                    }
+                }
+                HorizontalDivider(Modifier.padding(vertical = 8.dp))
+                listOf(
+                    Triple(31914, "2026-11", 1949733),
+                    Triple(26241, "2027-05", 1758249),
+                    Triple(20424, "2027-06", 1732008),
+                    Triple(15672, "2027-11", 1629888),
+                    Triple(0, "2036-07", 0),
+                ).forEachIndexed { i, triple ->
+                    Row(
+                        Modifier
+                            .fillMaxWidth()
+                            .clickableNoRipple {
+                                todayDate = LocalDate.parse("${triple.second}-04")
+                            }.padding(bottom = 10.dp),
+                        horizontalArrangement = Arrangement.spacedBy(12.dp),
+                    ) {
+                        Text(
+                            text = "${i + 1}",
+                            fontSize = 16.sp,
+                            color = color,
+                        )
+                        Box(contentAlignment = Alignment.CenterEnd) {
+                            Text(
+                                text = "$00,000",
+                                fontSize = 16.sp,
+                                color = Color.Transparent,
+                            )
+                            Text(
+                                text = "$${NumberFormat(triple.first).orEmpty()}",
+                                fontSize = 16.sp,
+                                color = color,
+                            )
+                        }
+                        Box(contentAlignment = Alignment.CenterEnd) {
+                            Text(
+                                text = "$00,000",
+                                fontSize = 16.sp,
+                                color = Color.Transparent,
+                            )
+                            Text(
+                                text = "$${NumberFormat(55000 - triple.first).orEmpty()}",
+                                fontSize = 16.sp,
+                                color = color,
+                            )
+                        }
+                        Text(
+                            text = triple.second,
+                            fontSize = 16.sp,
+                            color = color,
+                        )
+                        Text(
+                            text = "$${NumberFormat(triple.third).orEmpty()}",
+                            fontSize = 16.sp,
+                            color = color,
+                        )
                     }
                 }
             }
