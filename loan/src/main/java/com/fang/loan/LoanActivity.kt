@@ -128,11 +128,12 @@ private fun LoanContent(modifier: Modifier) {
                 }
                 HorizontalDivider(Modifier.padding(vertical = 8.dp))
                 listOf(
-                    Triple(31914, "2026-11", 1949733),
-                    Triple(26241, "2027-05", 1758249),
-                    Triple(20424, "2027-06", 1732008),
-                    Triple(15672, "2027-11", 1629888),
-                    Triple(0, "2036-07", 0),
+                    Triple(33894, "2026-11", 2183373),
+                    Triple(28221, "2027-05", 1980009),
+                    Triple(22404, "2027-06", 1951788),
+                    Triple(17652, "2027-11", 1839768),
+                    Triple(1980, "2036-07", 3960),
+                    Triple(0, "2036-09", 0),
                 ).forEachIndexed { i, triple ->
                     Row(
                         Modifier
