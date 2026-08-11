@@ -1,16 +1,24 @@
 package com.fang.arrangement.ui.screen.btmnav.attendance
 
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.PickVisualMediaRequest
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
@@ -27,17 +35,22 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogProperties
+import coil3.compose.AsyncImage
 import com.fang.arrangement.R
 import com.fang.arrangement.foundation.orDash
 import com.fang.arrangement.ui.shared.component.ArrText
 import com.fang.arrangement.ui.shared.component.ArrangementList
 import com.fang.arrangement.ui.shared.component.DateSelector
+import com.fang.arrangement.ui.shared.component.button.component.PositiveButton
 import com.fang.arrangement.ui.shared.component.button.composition.ButtonSets
 import com.fang.arrangement.ui.shared.component.chip.ArchivedTag
 import com.fang.arrangement.ui.shared.component.chip.AttendanceChip
@@ -55,6 +68,7 @@ import com.fang.arrangement.ui.shared.dsl.Remark
 import com.fang.arrangement.ui.shared.dsl.YMDDayOfWeek
 import com.fang.arrangement.ui.shared.dsl.employeeState
 import com.fang.arrangement.ui.shared.ext.clickRipple
+import com.fang.cosmos.foundation.logD
 import com.fang.cosmos.foundation.mapNoNull
 import com.fang.cosmos.foundation.ui.component.CustomBottomSheet
 import com.fang.cosmos.foundation.ui.component.CustomIcon
@@ -77,6 +91,7 @@ internal fun AttendanceScreen(
     viewModel: AttendanceViewModel = koinViewModel(),
 ) {
     val bundle = viewModel.bundle.stateValue()
+    var imageViewer by remember { mutableStateOf<ImageViewerState?>(null) }
     Column(modifier) {
         ArrangementList(
             modifier = Modifier.weight(1f, false),
@@ -290,6 +305,12 @@ internal fun AttendanceScreen(
                                         ArrText(text = it) { style }
                                     }
                                 }
+                                AttendanceImageThumbnails(
+                                    images = mAtt.images,
+                                    onImageClick = { index ->
+                                        imageViewer = ImageViewerState(mAtt.images.mapNotNull(MAttendanceImage::displayModel), index)
+                                    },
+                                )
                             }
                         }
                     }
@@ -301,6 +322,9 @@ internal fun AttendanceScreen(
         editBundle = viewModel.editBundle.stateValue(),
         dates = bundle.attAlls.map { it.id },
         viewModel = viewModel,
+        onImageClick = { images, index ->
+            imageViewer = ImageViewerState(images.mapNotNull(MAttendanceImage::displayModel), index)
+        },
     )
     ErrorDialog(viewModel)
     Loading(viewModel)
@@ -454,6 +478,12 @@ internal fun AttendanceScreen(
             }
         }
     }
+    imageViewer?.let { viewer ->
+        ImageViewer(
+            viewer = viewer,
+            onDismiss = { imageViewer = null },
+        )
+    }
 }
 
 @Composable
@@ -461,14 +491,21 @@ private fun AttEditDialog(
     editBundle: AttEditBundle?,
     dates: List<Long>,
     viewModel: AttendanceViewModel,
+    onImageClick: (List<MAttendanceImage>, Int) -> Unit,
 ) {
     val current = editBundle?.current
     val edit = editBundle?.edit
+    var photoSiteId by remember(editBundle) { mutableStateOf<Long?>(null) }
+    val photoPicker =
+        rememberLauncherForActivityResult(ActivityResultContracts.PickMultipleVisualMedia(3)) { uris ->
+            photoSiteId?.let { viewModel.addImages(it, uris) }
+            photoSiteId = null
+        }
     EditDialog(
         isShow = editBundle != null,
         onDelete =
             if (current != null) {
-                { viewModel.delete(current.id.toString()) }
+                { viewModel.delete(current) }
             } else {
                 null
             },
@@ -533,7 +570,7 @@ private fun AttEditDialog(
                     }.padding(horizontal = 13.2.dp, vertical = 6.dp),
             ) {
                 // 工地名
-                Row {
+                Row(verticalAlignment = Alignment.CenterVertically) {
                     if (exist) {
                         AttendanceChip(
                             attendance = total,
@@ -570,6 +607,22 @@ private fun AttEditDialog(
                             ) { ContentText.style.color(Color.Transparent) }
                             ArchivedTag()
                         }
+                    }
+                    Spacer(Modifier.weight(1f))
+                    if (exist && mAtt.images.size < 3) {
+                        CustomIcon(
+                            drawableResId = R.drawable.arr_r24_add,
+                            modifier =
+                                Modifier.clickRipple {
+                                    photoSiteId = mAtt.siteId
+                                    photoPicker.launch(
+                                        PickVisualMediaRequest(
+                                            ActivityResultContracts.PickVisualMedia.ImageOnly,
+                                        ),
+                                    )
+                                },
+                            tint = MaterialColor.onSecondaryContainer,
+                        )
                     }
                 }
                 // 工數
@@ -657,6 +710,99 @@ private fun AttEditDialog(
                         }
                     }
                 }
+                AttendanceImageThumbnails(
+                    images = mAtt.images,
+                    onImageClick = { index -> onImageClick(mAtt.images, index) },
+                    onDelete = { image -> viewModel.removeImage(mAtt.siteId, image) },
+                )
+            }
+        }
+    }
+}
+
+private data class ImageViewerState(
+    val images: List<Any>,
+    val initialIndex: Int,
+)
+
+@Composable
+private fun AttendanceImageThumbnails(
+    images: List<MAttendanceImage>,
+    onImageClick: (Int) -> Unit,
+    onDelete: ((MAttendanceImage) -> Unit)? = null,
+) {
+    if (images.isNotEmpty()) {
+        Row(
+            modifier = Modifier.padding(top = 8.dp),
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+        ) {
+            images.forEachIndexed { index, image ->
+                Box(Modifier.size(72.dp)) {
+                    AsyncImage(
+                        model = image.displayModel,
+                        contentDescription = "工地照片",
+                        contentScale = ContentScale.Crop,
+                        modifier =
+                            Modifier
+                                .fillMaxSize()
+                                .clip(MaterialShape.small)
+                                .clickRipple { onImageClick(index) },
+                    )
+                    onDelete?.let { delete ->
+                        CustomIcon(
+                            drawableResId = R.drawable.arr_r24_cancel,
+                            modifier = Modifier.align(Alignment.TopEnd).clickRipple { delete(image) },
+                            tint = MaterialColor.onSecondaryContainer,
+                        )
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun ImageViewer(
+    viewer: ImageViewerState,
+    onDismiss: () -> Unit,
+) {
+    Dialog(
+        onDismissRequest = onDismiss,
+        properties = DialogProperties(usePlatformDefaultWidth = false),
+    ) {
+        val pagerState = rememberPagerState(initialPage = viewer.initialIndex) { viewer.images.size }
+        Box(
+            modifier =
+                Modifier
+                    .fillMaxSize()
+                    .background(Color.Black),
+        ) {
+            HorizontalPager(
+                state = pagerState,
+                modifier = Modifier.fillMaxSize(),
+            ) { page ->
+                AsyncImage(
+                    model = viewer.images[page],
+                    contentDescription = "工地照片 ${page + 1}",
+                    contentScale = ContentScale.Fit,
+                    modifier = Modifier.fillMaxSize(),
+                )
+            }
+            Row(
+                modifier =
+                    Modifier
+                        .align(Alignment.BottomCenter)
+                        .padding(24.dp),
+                horizontalArrangement = Arrangement.spacedBy(16.dp),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                ArrText(text = "${pagerState.currentPage + 1} / ${viewer.images.size}") {
+                    ContentText.style.color(Color.White)
+                }
+                PositiveButton(
+                    text = "關閉",
+                    onClick = onDismiss,
+                )
             }
         }
     }

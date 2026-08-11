@@ -1,5 +1,7 @@
 package com.fang.arrangement.ui.screen.btmnav.attendance
 
+import android.net.Uri
+import com.fang.arrangement.definition.AttendanceImage
 import com.fang.arrangement.definition.Employee
 import com.fang.arrangement.definition.Site
 
@@ -14,10 +16,18 @@ internal data class MAttendance(
     val fulls: List<MEmployee>,
     val halfs: List<MEmployee>,
     val remark: String?,
+    val images: List<MAttendanceImage>,
 ) {
     companion object {
-        val empty by lazy { MAttendance(-1L, null, emptyList(), emptyList(), null) }
+        val empty by lazy { MAttendance(-1L, null, emptyList(), emptyList(), null, emptyList()) }
     }
+}
+
+internal data class MAttendanceImage(
+    val remote: AttendanceImage? = null,
+    val localUri: Uri? = null,
+) {
+    val displayModel get() = localUri ?: remote?.downloadUrl
 }
 
 internal data class MEmployee(

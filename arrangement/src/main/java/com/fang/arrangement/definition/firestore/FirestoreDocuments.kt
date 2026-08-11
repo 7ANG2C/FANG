@@ -2,6 +2,7 @@ package com.fang.arrangement.definition.firestore
 
 import com.fang.arrangement.definition.Attendance
 import com.fang.arrangement.definition.AttendanceAll
+import com.fang.arrangement.definition.AttendanceImage
 import com.fang.arrangement.definition.Boss
 import com.fang.arrangement.definition.Employee
 import com.fang.arrangement.definition.Fund
@@ -26,6 +27,12 @@ internal data class FsAttendance(
     var full: List<Long> = emptyList(),
     var half: List<Long> = emptyList(),
     var remark: String? = null,
+    var images: List<FsAttendanceImage> = emptyList(),
+)
+
+internal data class FsAttendanceImage(
+    var path: String = "",
+    var downloadUrl: String = "",
 )
 
 internal data class FsEmployee(
@@ -109,9 +116,13 @@ internal fun AttendanceAll.toFirestore() =
         attendances = attendances.map(Attendance::toFirestore),
     )
 
-internal fun FsAttendance.toDomain() = Attendance(id, full, half, remark)
+internal fun FsAttendance.toDomain() = Attendance(id, full, half, remark, images.map(FsAttendanceImage::toDomain))
 
-internal fun Attendance.toFirestore() = FsAttendance(siteId, fulls, halfs, remark)
+internal fun Attendance.toFirestore() = FsAttendance(siteId, fulls, halfs, remark, images.map(AttendanceImage::toFirestore))
+
+internal fun FsAttendanceImage.toDomain() = AttendanceImage(path, downloadUrl)
+
+internal fun AttendanceImage.toFirestore() = FsAttendanceImage(path, downloadUrl)
 
 internal fun FsEmployee.toDomain() = Employee(id, name, salaries.map(FsSalary::toDomain), expired, delete, order)
 

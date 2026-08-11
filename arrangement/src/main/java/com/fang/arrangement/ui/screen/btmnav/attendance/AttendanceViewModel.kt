@@ -1,5 +1,6 @@
 package com.fang.arrangement.ui.screen.btmnav.attendance
 
+import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.fang.arrangement.definition.Attendance
@@ -9,6 +10,7 @@ import com.fang.arrangement.definition.sheet.SheetRepository
 import com.fang.arrangement.definition.sheet.sheetAttendance
 import com.fang.arrangement.definition.sheet.sheetEmployee
 import com.fang.arrangement.definition.sheet.sheetSite
+import com.fang.arrangement.definition.storage.AttendanceImageRepository
 import com.fang.arrangement.ui.shared.dsl.Remark
 import com.fang.cosmos.definition.workstate.WorkState
 import com.fang.cosmos.definition.workstate.WorkStateImpl
@@ -33,6 +35,7 @@ import java.util.TimeZone
 @OptIn(ExperimentalCoroutinesApi::class)
 internal class AttendanceViewModel(
     private val sheetRepository: SheetRepository,
+    private val attendanceImageRepository: AttendanceImageRepository,
 ) : ViewModel(),
     WorkState by WorkStateImpl() {
     private val _bundle =
@@ -100,6 +103,7 @@ internal class AttendanceViewModel(
                                                             ).thenBy { it.employee?.order },
                                                         ),
                                                 remark = att.remark.takeIfNotBlank,
+                                                images = att.images.map { MAttendanceImage(remote = it) },
                                             )
                                         }.sortedWith(
                                             compareBy<MAttendance>(
@@ -146,6 +150,7 @@ internal class AttendanceViewModel(
                                     fulls = emptyList(),
                                     halfs = emptyList(),
                                     remark = null,
+                                    images = emptyList(),
                                 )
                             },
                     ),
@@ -169,6 +174,7 @@ internal class AttendanceViewModel(
                     fulls = emptyList(),
                     halfs = emptyList(),
                     remark = null,
+                    images = emptyList(),
                 )
             }
         _editBundle.value =
@@ -247,6 +253,46 @@ internal class AttendanceViewModel(
         }
     }
 
+    fun addImages(
+        siteId: Long,
+        uris: List<Uri>,
+    ) {
+        _editBundle.update { bundle ->
+            bundle?.copy(
+                edit =
+                    bundle.edit.copy(
+                        attSiteEdits =
+                            bundle.edit.attSiteEdits.map { attendance ->
+                                if (attendance.siteId != siteId) {
+                                    attendance
+                                } else if (attendance.fulls.isEmpty() && attendance.halfs.isEmpty()) {
+                                    attendance
+                                } else {
+                                    attendance.copy(images = (attendance.images + uris.map { MAttendanceImage(localUri = it) }).take(3))
+                                }
+                            },
+                    ),
+            )
+        }
+    }
+
+    fun removeImage(
+        siteId: Long,
+        image: MAttendanceImage,
+    ) {
+        _editBundle.update { bundle ->
+            bundle?.copy(
+                edit =
+                    bundle.edit.copy(
+                        attSiteEdits =
+                            bundle.edit.attSiteEdits.map { attendance ->
+                                if (attendance.siteId != siteId) attendance else attendance.copy(images = attendance.images - image)
+                            },
+                    ),
+            )
+        }
+    }
+
     fun doneSingleSite(mAtt: MAttendance) {
         _editBundle.update { old ->
             old?.copy(
@@ -273,20 +319,7 @@ internal class AttendanceViewModel(
     fun insert(edit: AttAllEdit) {
         if (edit.id != null && edit.savable) {
             execute {
-                sheetRepository.insert(
-                    AttendanceAll(
-                        id = edit.id,
-                        attendances =
-                            edit.attSiteEdits.mapNoNull({ it.fulls.isNotEmpty() || it.halfs.isNotEmpty() }) { siteEdit ->
-                                Attendance(
-                                    siteId = siteEdit.siteId,
-                                    fulls = siteEdit.fulls.map { it.id },
-                                    halfs = siteEdit.halfs.map { it.id },
-                                    remark = siteEdit.remark.orEmpty().trim(),
-                                )
-                            },
-                    ),
-                )
+                sheetRepository.insert(attendanceAll(edit, edit.id))
             }
         }
     }
@@ -296,37 +329,67 @@ internal class AttendanceViewModel(
         val edit = editBundle.edit
         if (current != null && edit.savable && editBundle.anyDiff) {
             execute {
-                sheetRepository.update(
-                    AttendanceAll(
-                        id = current.id,
-                        attendances =
-                            edit.attSiteEdits.mapNoNull({ it.fulls.isNotEmpty() || it.halfs.isNotEmpty() }) { siteEdit ->
-                                Attendance(
-                                    siteId = siteEdit.siteId,
-                                    fulls = siteEdit.fulls.map { it.id },
-                                    halfs = siteEdit.halfs.map { it.id },
-                                    remark = siteEdit.remark.orEmpty().trim(),
-                                )
-                            },
-                    ),
-                )
+                val updated = attendanceAll(edit, current.id)
+                sheetRepository.update(updated).getOrThrow()
+                deleteImagesNotIn(current, updated)
+                Result.success(Unit)
             }
         }
     }
 
-    fun delete(id: String) {
+    fun delete(current: MAttendanceAll) {
         execute {
-            sheetRepository.delete<AttendanceAll>(id)
+            sheetRepository.delete<AttendanceAll>(current.id.toString()).getOrThrow()
+            current.attendances
+                .flatMap { it.images }
+                .mapNotNull { it.remote?.path }
+                .forEach { path -> runCatching { attendanceImageRepository.delete(path) } }
+            Result.success(Unit)
         }
     }
+
+    private suspend fun deleteImagesNotIn(
+        current: MAttendanceAll,
+        updated: AttendanceAll,
+    ) {
+        val retainedPaths = updated.attendances.flatMap { attendance -> attendance.images.map { it.path } }.toSet()
+        current.attendances
+            .flatMap { it.images }
+            .mapNotNull { it.remote?.path }
+            .filterNot(retainedPaths::contains)
+            .forEach { path -> runCatching { attendanceImageRepository.delete(path) } }
+    }
+
+    private suspend fun attendanceAll(
+        edit: AttAllEdit,
+        id: Long,
+    ): AttendanceAll =
+        AttendanceAll(
+            id = id,
+            attendances =
+                edit.attSiteEdits.mapNoNull({ it.fulls.isNotEmpty() || it.halfs.isNotEmpty() }) { siteEdit ->
+                    Attendance(
+                        siteId = siteEdit.siteId,
+                        fulls = siteEdit.fulls.map { it.id },
+                        halfs = siteEdit.halfs.map { it.id },
+                        remark = siteEdit.remark.orEmpty().trim(),
+                        images =
+                            siteEdit.images.map { image ->
+                                image.remote
+                                    ?: attendanceImageRepository.upload(id, siteEdit.siteId, requireNotNull(image.localUri))
+                            },
+                    )
+                },
+        )
 
     private fun <T> execute(block: suspend CoroutineScope.() -> Result<T>) {
         loading()
         viewModelScope.launch {
-            block()
-                .onSuccess {
-                    clearEdit()
-                }.onFailure(::throwable)
+            runCatching {
+                block().getOrThrow()
+            }.onSuccess {
+                clearEdit()
+            }.onFailure(::throwable)
             noLoading()
         }
     }

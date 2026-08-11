@@ -49,6 +49,7 @@ google-firebase-bom = { module = "com.google.firebase:firebase-bom", version.ref
 google-firebase-analytics = { module = "com.google.firebase:firebase-analytics" }
 google-firebase-crashlytics = { module = "com.google.firebase:firebase-crashlytics" }
 google-firebase-firestore = { module = "com.google.firebase:firebase-firestore" }
+google-firebase-storage = { module = "com.google.firebase:firebase-storage" }
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
 androidx-lifecycle-runtime-ktx = { group = "androidx.lifecycle", name = "lifecycle-runtime-ktx", version.ref = "lifecycleRuntime" }
 androidx-lifecycle-runtime-compose = { module = "androidx.lifecycle:lifecycle-runtime-compose", version.ref = "lifecycleRuntime" }
@@ -68,7 +69,8 @@ retrofit = { module = "com.squareup.retrofit2:retrofit", version.ref = "retrofit
 retrofit-gson = { module = "com.squareup.retrofit2:converter-gson", version.ref = "retrofit" }
 okhttp-core = { module = "com.squareup.okhttp3:okhttp", version.ref = "okhttp" }
 okhttp3-logging-interceptor = { module = "com.squareup.okhttp3:logging-interceptor", version.ref = "okhttp" }
-io-coil-compose = { module = "io.coil-kt:coil-compose", version.ref = "coilCompose" }
+io-coil-compose = { module = "io.coil-kt.coil3:coil-compose", version.ref = "coilCompose" }
+io-coil-network-okhttp = { module = "io.coil-kt.coil3:coil-network-okhttp", version.ref = "coilCompose" }
 io-koin-bom = { module = "io.insert-koin:koin-bom", version.ref = "koinBom" }
 io-koin-core = { module = "io.insert-koin:koin-core" }
 io-koin-android = { module = "io.insert-koin:koin-android" }

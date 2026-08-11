@@ -82,6 +82,7 @@ dependencies {
     implementation(libs.google.firebase.analytics)
     implementation(libs.google.firebase.crashlytics)
     implementation(libs.google.firebase.firestore)
+    implementation(libs.google.firebase.storage)
     // androidx - initial
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
@@ -95,6 +96,9 @@ dependencies {
     implementation(libs.androidx.navigation.compose)
     // others
     implementation(libs.retrofit.gson)
+    implementation(libs.okhttp.core)
+    implementation(libs.io.coil.compose)
+    implementation(libs.io.coil.network.okhttp)
     implementation(platform(libs.io.koin.bom))
     implementation(libs.io.koin.core)
     implementation(libs.io.koin.android)
