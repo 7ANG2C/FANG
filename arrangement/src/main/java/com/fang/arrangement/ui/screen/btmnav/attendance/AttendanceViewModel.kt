@@ -4,21 +4,18 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.fang.arrangement.definition.Attendance
 import com.fang.arrangement.definition.AttendanceAll
-import com.fang.arrangement.definition.AttendanceKey
 import com.fang.arrangement.definition.Site
 import com.fang.arrangement.definition.sheet.SheetRepository
 import com.fang.arrangement.definition.sheet.sheetAttendance
 import com.fang.arrangement.definition.sheet.sheetEmployee
 import com.fang.arrangement.definition.sheet.sheetSite
-import com.fang.arrangement.foundation.noBreathing
 import com.fang.arrangement.ui.shared.dsl.Remark
 import com.fang.cosmos.definition.workstate.WorkState
 import com.fang.cosmos.definition.workstate.WorkStateImpl
-import com.fang.cosmos.foundation.json
+import com.fang.cosmos.foundation.logD
 import com.fang.cosmos.foundation.mapNoNull
 import com.fang.cosmos.foundation.takeIfNotBlank
 import com.fang.cosmos.foundation.time.calendar.midnight
-import com.google.gson.Gson
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -36,7 +33,6 @@ import java.util.TimeZone
 @OptIn(ExperimentalCoroutinesApi::class)
 internal class AttendanceViewModel(
     private val sheetRepository: SheetRepository,
-    private val gson: Gson,
 ) : ViewModel(),
     WorkState by WorkStateImpl() {
     private val _bundle =
@@ -277,58 +273,42 @@ internal class AttendanceViewModel(
     fun insert(edit: AttAllEdit) {
         if (edit.id != null && edit.savable) {
             execute {
-                sheetRepository.insert<AttendanceAll>(
-                    keyValues =
-                        AttendanceKey.fold(
-                            id = edit.id.toString(),
-                            attendances =
-                                gson
-                                    .json(
-                                        edit.attSiteEdits.mapNoNull({
-                                            it.fulls.isNotEmpty() || it.halfs.isNotEmpty()
-                                        }) { siteEdit ->
-                                            Attendance(
-                                                siteId = siteEdit.siteId,
-                                                fulls = siteEdit.fulls.map { it.id },
-                                                halfs = siteEdit.halfs.map { it.id },
-                                                remark = siteEdit.remark.orEmpty().trim(),
-                                            )
-                                        },
-                                    ).getOrNull()
-                                    ?.noBreathing ?: "[]",
-                        ),
+                sheetRepository.insert(
+                    AttendanceAll(
+                        id = edit.id,
+                        attendances =
+                            edit.attSiteEdits.mapNoNull({ it.fulls.isNotEmpty() || it.halfs.isNotEmpty() }) { siteEdit ->
+                                Attendance(
+                                    siteId = siteEdit.siteId,
+                                    fulls = siteEdit.fulls.map { it.id },
+                                    halfs = siteEdit.halfs.map { it.id },
+                                    remark = siteEdit.remark.orEmpty().trim(),
+                                )
+                            },
+                    ),
                 )
             }
         }
     }
 
     fun update(editBundle: AttEditBundle) {
-        val currentId = editBundle.current?.id?.toString()
+        val current = editBundle.current
         val edit = editBundle.edit
-        if (currentId != null && edit.savable && editBundle.anyDiff) {
+        if (current != null && edit.savable && editBundle.anyDiff) {
             execute {
-                sheetRepository.update<AttendanceAll>(
-                    key = AttendanceKey.ID,
-                    value = currentId,
-                    keyValues =
-                        AttendanceKey.fold(
-                            id = edit.id?.toString().orEmpty(),
-                            attendances =
-                                gson
-                                    .json(
-                                        edit.attSiteEdits.mapNoNull({
-                                            it.fulls.isNotEmpty() || it.halfs.isNotEmpty()
-                                        }) { siteEdit ->
-                                            Attendance(
-                                                siteId = siteEdit.siteId,
-                                                fulls = siteEdit.fulls.map { it.id },
-                                                halfs = siteEdit.halfs.map { it.id },
-                                                remark = siteEdit.remark.orEmpty().trim(),
-                                            )
-                                        },
-                                    ).getOrNull()
-                                    ?.noBreathing ?: "[]",
-                        ),
+                sheetRepository.update(
+                    AttendanceAll(
+                        id = current.id,
+                        attendances =
+                            edit.attSiteEdits.mapNoNull({ it.fulls.isNotEmpty() || it.halfs.isNotEmpty() }) { siteEdit ->
+                                Attendance(
+                                    siteId = siteEdit.siteId,
+                                    fulls = siteEdit.fulls.map { it.id },
+                                    halfs = siteEdit.halfs.map { it.id },
+                                    remark = siteEdit.remark.orEmpty().trim(),
+                                )
+                            },
+                    ),
                 )
             }
         }
@@ -336,7 +316,7 @@ internal class AttendanceViewModel(
 
     fun delete(id: String) {
         execute {
-            sheetRepository.delete<AttendanceAll>(key = AttendanceKey.ID, value = id)
+            sheetRepository.delete<AttendanceAll>(id)
         }
     }
 

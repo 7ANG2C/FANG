@@ -1,5 +1,6 @@
 package com.fang.arrangement.ui.screen
 
+import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.fang.arrangement.Arrangement
@@ -19,8 +20,7 @@ import kotlinx.coroutines.launch
 internal class ArrangementViewModel(
     private val repository: SheetRepository,
 ) : ViewModel() {
-    private val _initialized = MutableStateFlow(false)
-    val initialized = _initialized.asStateFlow()
+    val initialized = mutableStateOf(false)
 
     init {
         val startMillis = System.currentTimeMillis()
@@ -31,9 +31,9 @@ internal class ArrangementViewModel(
                 .flowOn(Dispatchers.Default)
                 .collectLatest { sheets ->
                     if (sheets != null) {
-                        (1100 - (System.currentTimeMillis() - startMillis))
+                        (500 - (System.currentTimeMillis() - startMillis))
                             .let { if (Arrangement.isFancy && it > 0) delay(it) }
-                        _initialized.value = true
+                        initialized.value = true
                     }
                 }
         }

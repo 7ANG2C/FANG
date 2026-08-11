@@ -5,15 +5,12 @@ compileSdk = "37"
 #plugins
 googleServices = "4.5.0"
 firebaseCrashlytics = "3.0.7"
-agp = "9.2.1"
-kotlin = "2.4.0"
-spotless = "8.8.0"
+agp = "9.3.1"
+kotlin = "2.4.10"
+spotless = "8.9.0"
 detekt = "1.23.8"
 #libraries
-googleApisSheets = "v4-rev612-1.25.0"
-googleAuthOauth2 = "1.48.0"
-slf4jNop = "2.0.18"
-firebaseBom = "34.15.0"
+firebaseBom = "34.17.0"
 coreKtx = "1.19.0"
 lifecycleRuntime = "2.11.0"
 activityCompose = "1.13.0"
@@ -48,12 +45,10 @@ spotless = { id = "com.diffplug.spotless", version.ref = "spotless" }
 detekt = { id = "io.gitlab.arturbosch.detekt", version.ref = "detekt" }
 
 [libraries]
-google-apis-sheets = { module = "com.google.apis:google-api-services-sheets", version.ref = "googleApisSheets" }
-google-auth-oauth2 = { module = "com.google.auth:google-auth-library-oauth2-http", version.ref = "googleAuthOauth2" }
-slf4j-nop = { module = "org.slf4j:slf4j-nop", version.ref = "slf4jNop" }
 google-firebase-bom = { module = "com.google.firebase:firebase-bom", version.ref = "firebaseBom" }
 google-firebase-analytics = { module = "com.google.firebase:firebase-analytics" }
 google-firebase-crashlytics = { module = "com.google.firebase:firebase-crashlytics" }
+google-firebase-firestore = { module = "com.google.firebase:firebase-firestore" }
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
 androidx-lifecycle-runtime-ktx = { group = "androidx.lifecycle", name = "lifecycle-runtime-ktx", version.ref = "lifecycleRuntime" }
 androidx-lifecycle-runtime-compose = { module = "androidx.lifecycle:lifecycle-runtime-compose", version.ref = "lifecycleRuntime" }
@@ -92,4 +87,3 @@ junit = { group = "junit", name = "junit", version.ref = "junit" }
 androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }
 androidx-espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "espressoCore" }
 androidx-ui-test-junit4 = { group = "androidx.compose.ui", name = "ui-test-junit4" }
-

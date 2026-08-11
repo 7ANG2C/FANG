@@ -71,26 +71,8 @@
 -keepclasseswithmembers,allowobfuscation class <1> {
   @com.google.gson.annotations.SerializedName <fields>;
 }
+-keep class com.fang.arrangement.definition.firestore.** { *; }
 -if class * { @com.google.gson.annotations.SerializedName <fields>; }
 -keepclassmembers,allowobfuscation,allowoptimization class <1> { <init>(); }
-# https://github.com/google/google-api-java-client-samples/blob/master/tasks-android-sample/proguard-google-api-client.txt
--keep class * extends com.google.api.client.json.** { *; }
--keepclassmembers class * { @com.google.api.client.util.Key <fields>; }
--keepclassmembers class com.google.api.client.** { <init>(); }
--keep class com.google.api.client.util.** { *; }
-# Needed by google-http-client-android when linking against an older platform version
--dontwarn com.google.api.client.extensions.android.**
-# Needed by google-api-client-android when linking against an older platform version
--dontwarn com.google.api.client.googleapis.extensions.android.**
-# Needed by google-play-services when linking against an older platform version
--dontwarn com.google.android.gms.**
--dontnote com.google.android.gms.**
-# com.google.client.util.IOUtils references java.nio.file.Files when on Java 7+
--dontnote java.nio.file.Files, java.nio.file.Path
-# Suppress notes on LicensingServices
--dontnote **.ILicensingService
-# Suppress warnings on sun.misc.Unsafe
--dontnote sun.misc.Unsafe
--dontwarn sun.misc.Unsafe
 # dotLottie
 -dontwarn java.awt.**

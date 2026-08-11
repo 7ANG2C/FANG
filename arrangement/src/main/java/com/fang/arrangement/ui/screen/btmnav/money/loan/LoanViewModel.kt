@@ -4,17 +4,14 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.fang.arrangement.definition.Employee
 import com.fang.arrangement.definition.Loan
-import com.fang.arrangement.definition.LoanKey
+import com.fang.arrangement.definition.Record
 import com.fang.arrangement.definition.sheet.SheetRepository
 import com.fang.arrangement.definition.sheet.sheetEmployee
 import com.fang.arrangement.definition.sheet.sheetLoan
-import com.fang.arrangement.foundation.noBreathing
 import com.fang.arrangement.ui.shared.dsl.Remark
 import com.fang.cosmos.definition.workstate.WorkState
 import com.fang.cosmos.definition.workstate.WorkStateImpl
-import com.fang.cosmos.foundation.json
 import com.fang.cosmos.foundation.takeIfNotBlank
-import com.google.gson.Gson
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -31,7 +28,6 @@ import kotlinx.coroutines.launch
 @OptIn(ExperimentalCoroutinesApi::class)
 internal class LoanViewModel(
     private val sheetRepository: SheetRepository,
-    private val gson: Gson,
 ) : ViewModel(),
     WorkState by WorkStateImpl() {
     private val _bundle = MutableStateFlow(LoanBundle(emptyList(), emptyList()))
@@ -223,46 +219,34 @@ internal class LoanViewModel(
     fun insert(edit: LoanEdit) {
         if (edit.savable) {
             execute {
-                sheetRepository.insert<Loan>(
-                    keyValues =
-                        LoanKey.fold(
-                            id = System.currentTimeMillis().toString(),
-                            employeeId =
-                                edit.employee
-                                    ?.id
-                                    ?.toString()
-                                    .orEmpty(),
-                            loan = edit.loan.orEmpty(),
-                            millis = edit.millis?.toString().orEmpty(),
-                            records = "[]",
-                            remark = "\"${edit.remark.takeIfNotBlank.orEmpty().trim()}\"",
-                        ),
+                sheetRepository.insert(
+                    Loan(
+                        id = System.currentTimeMillis(),
+                        employeeId = edit.employee!!.id,
+                        loan = edit.loan!!.toInt(),
+                        millis = edit.millis!!,
+                        records = emptyList(),
+                        remark = edit.remark.takeIfNotBlank?.trim(),
+                    ),
                 )
             }
         }
     }
 
     fun update(editBundle: LoanEditBundle) {
-        val id = editBundle.current?.id?.toString()
+        val current = editBundle.current
         val edit = editBundle.edit
-        if (id != null && edit.savable && editBundle.anyDiff) {
+        if (current != null && edit.savable && editBundle.anyDiff) {
             execute {
-                sheetRepository.update<Loan>(
-                    key = LoanKey.ID,
-                    value = id,
-                    keyValues =
-                        LoanKey.fold(
-                            id = id,
-                            employeeId =
-                                edit.employee
-                                    ?.id
-                                    ?.toString()
-                                    .orEmpty(),
-                            loan = edit.loan.orEmpty(),
-                            millis = edit.millis?.toString().orEmpty(),
-                            records = gson.json(edit.records).getOrNull()?.noBreathing ?: "[]",
-                            remark = "\"${edit.remark.takeIfNotBlank.orEmpty().trim()}\"",
-                        ),
+                sheetRepository.update(
+                    Loan(
+                        id = current.id,
+                        employeeId = edit.employee!!.id,
+                        loan = edit.loan!!.toInt(),
+                        millis = edit.millis!!,
+                        records = edit.records.map { Record(it.millis!!, it.loan!!.toInt(), it.remark.takeIfNotBlank?.trim()) },
+                        remark = edit.remark.takeIfNotBlank?.trim(),
+                    ),
                 )
             }
         }
@@ -270,7 +254,7 @@ internal class LoanViewModel(
 
     fun delete(id: String) {
         execute {
-            sheetRepository.delete<Loan>(key = LoanKey.ID, value = id)
+            sheetRepository.delete<Loan>(id)
         }
     }
 

@@ -39,7 +39,7 @@ internal fun ArrangementScreen(
     val backStackEntry by navController.currentBackStackEntryAsState()
     val bgColor = MaterialColor.surfaceContainerLowest
     SystemBarColor(status = bgColor)
-    val initialized = viewModel.initialized.stateValue()
+    val initialized = viewModel.initialized.value
     Column(
         modifier =
             modifier

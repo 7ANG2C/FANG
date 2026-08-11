@@ -3,7 +3,6 @@ package com.fang.arrangement.ui.screen.btmnav.money.fund
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.fang.arrangement.definition.Fund
-import com.fang.arrangement.definition.FundKey
 import com.fang.arrangement.definition.Site
 import com.fang.arrangement.definition.sheet.SheetRepository
 import com.fang.arrangement.definition.sheet.sheetFund
@@ -251,51 +250,44 @@ internal class FundViewModel(
     fun insert(edit: FundEdit) {
         if (edit.savable) {
             execute {
-                sheetRepository.insert<Fund>(
-                    keyValues =
-                        FundKey.fold(
-                            id = System.currentTimeMillis().toString(),
-                            fund = edit.fund.orEmpty(),
-                            millis = edit.millis?.toString().orEmpty(),
-                            siteId = edit.siteId?.toString().orEmpty(),
-                            remark = "\"${edit.remark.orEmpty().trim()}\"",
-                        ),
+                sheetRepository.insert(
+                    Fund(
+                        id = System.currentTimeMillis(),
+                        fund = edit.fund!!.toInt(),
+                        millis = edit.millis!!,
+                        siteId = edit.siteId,
+                        remark = edit.remark.orEmpty().trim(),
+                    ),
                 )
             }
         }
     }
 
     fun update(editBundle: FundEditBundle) {
-        val id = editBundle.current?.id?.toString()
+        val current = editBundle.current
         val edit = editBundle.edit
-        if (id != null && edit.savable && editBundle.anyDiff) {
+        if (current != null && edit.savable && editBundle.anyDiff) {
             execute {
-                sheetRepository.update<Fund>(
-                    key = FundKey.ID,
-                    value = id,
-                    keyValues =
-                        FundKey.fold(
-                            id = id,
-                            fund = edit.fund.orEmpty(),
-                            millis = edit.millis?.toString().orEmpty(),
-                            siteId = edit.siteId?.toString().orEmpty(),
-                            remark = "\"${edit.remark.orEmpty().trim()}\"",
-                        ),
+                sheetRepository.update(
+                    Fund(
+                        id = current.id,
+                        fund = edit.fund!!.toInt(),
+                        millis = edit.millis!!,
+                        siteId = edit.siteId,
+                        remark = edit.remark.orEmpty().trim(),
+                    ),
                 )
             }
         }
     }
 
     fun delete(id: String) {
-        execute { sheetRepository.delete<Fund>(key = FundKey.ID, value = id) }
+        execute { sheetRepository.delete<Fund>(id) }
     }
 
     fun deletes(ids: List<String>) {
         execute {
-            sheetRepository.deletes<Fund>(
-                key = FundKey.ID,
-                values = ids,
-            )
+            sheetRepository.deletes<Fund>(ids)
         }
     }
 

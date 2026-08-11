@@ -3,16 +3,12 @@ package com.fang.arrangement.ui.screen.btmnav.employee
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.fang.arrangement.definition.Employee
-import com.fang.arrangement.definition.EmployeeKey
+import com.fang.arrangement.definition.Salary
 import com.fang.arrangement.definition.sheet.SheetRepository
 import com.fang.arrangement.definition.sheet.sheetEmployee
-import com.fang.arrangement.foundation.Bool
-import com.fang.arrangement.foundation.noBreathing
 import com.fang.cosmos.definition.workstate.WorkState
 import com.fang.cosmos.definition.workstate.WorkStateImpl
-import com.fang.cosmos.foundation.json
 import com.fang.cosmos.foundation.takeIfNotBlank
-import com.google.gson.Gson
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -28,7 +24,6 @@ import kotlinx.coroutines.launch
 @OptIn(ExperimentalCoroutinesApi::class)
 internal class EmployeeViewModel(
     private val sheetRepository: SheetRepository,
-    private val gson: Gson,
 ) : ViewModel(),
     WorkState by WorkStateImpl() {
     private val _showExpire = MutableStateFlow(true)
@@ -157,38 +152,34 @@ internal class EmployeeViewModel(
     fun insert(edit: EmployeeEdit) {
         if (edit.savable) {
             execute {
-                sheetRepository.insert<Employee>(
-                    keyValues =
-                        EmployeeKey.fold(
-                            id = System.currentTimeMillis().toString(),
-                            name = "\"${edit.name.orEmpty().trim()}\"",
-                            salaries = gson.json(edit.salaries).getOrNull()?.noBreathing ?: "[]",
-                            expire = edit.expire?.toString().orEmpty(),
-                            delete = Bool.FALSE.toString(),
-                            order = Short.MAX_VALUE.toString(),
-                        ),
+                sheetRepository.insert(
+                    Employee(
+                        id = System.currentTimeMillis(),
+                        name = edit.name.orEmpty().trim(),
+                        salaries = edit.salaries.map { Salary(it.millis!!, it.salary!!.toInt()) },
+                        expiredMillis = edit.expire,
+                        delete = 0,
+                        order = Short.MAX_VALUE.toInt(),
+                    ),
                 )
             }
         }
     }
 
     fun update(editBundle: EmployeeEditBundle) {
-        val id = editBundle.current?.id?.toString()
+        val current = editBundle.current
         val edit = editBundle.edit
-        if (id != null && edit.savable && editBundle.anyDiff) {
+        if (current != null && edit.savable && editBundle.anyDiff) {
             execute {
-                sheetRepository.update<Employee>(
-                    key = EmployeeKey.ID,
-                    value = id,
-                    keyValues =
-                        EmployeeKey.fold(
-                            id = id,
-                            name = "\"${edit.name.orEmpty().trim()}\"",
-                            salaries = gson.json(edit.salaries).getOrNull()?.noBreathing ?: "[]",
-                            expire = edit.expire?.toString().orEmpty(),
-                            delete = Bool.FALSE.toString(),
-                            order = editBundle.current.order.toString(),
-                        ),
+                sheetRepository.update(
+                    Employee(
+                        id = current.id,
+                        name = edit.name.orEmpty().trim(),
+                        salaries = edit.salaries.map { Salary(it.millis!!, it.salary!!.toInt()) },
+                        expiredMillis = edit.expire,
+                        delete = 0,
+                        order = current.order,
+                    ),
                 )
             }
         }
@@ -196,25 +187,7 @@ internal class EmployeeViewModel(
 
     fun delete(current: Employee) {
         execute {
-            val id = current.id.toString()
-            sheetRepository.update<Employee>(
-                key = EmployeeKey.ID,
-                value = id,
-                keyValues =
-                    EmployeeKey.fold(
-                        id = id,
-                        name = "\"${current.name}\"",
-                        salaries =
-                            gson
-                                .json(
-                                    current.salaries.map { SalaryEdit(it.millis, it.salary.toString()) },
-                                ).getOrNull()
-                                ?.noBreathing ?: "[]",
-                        expire = current.expiredMillis?.toString().orEmpty(),
-                        delete = Bool.TRUE.toString(),
-                        order = current.order.toString(),
-                    ),
-            )
+            sheetRepository.update(current.copy(delete = 1))
         }
     }
 

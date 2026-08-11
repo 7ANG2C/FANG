@@ -1,14 +1,8 @@
 package com.fang.arrangement.ui.screen.btmnav.money.loan
 
-import com.fang.arrangement.definition.LoanKey
-import com.google.gson.annotations.SerializedName
-
 internal data class RecordEdit(
-    @SerializedName(LoanKey.R_MILLIS)
     val millis: Long?,
-    @SerializedName(LoanKey.R_LOAN)
     val loan: String?,
-    @SerializedName(LoanKey.R_REMARK)
     val remark: String?,
 ) {
     companion object {

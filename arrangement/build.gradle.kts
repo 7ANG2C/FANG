@@ -25,6 +25,17 @@ configure<ApplicationExtension> {
         ndk { abiFilters.addAll(listOf("armeabi-v7a", "arm64-v8a")) }
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
+    flavorDimensions += "environment"
+    productFlavors {
+        create("sit") {
+            dimension = "environment"
+            buildConfigField("String", "ARRANGEMENT_ENVIRONMENT", "\"sit\"")
+        }
+        create("prod") {
+            dimension = "environment"
+            buildConfigField("String", "ARRANGEMENT_ENVIRONMENT", "\"prod\"")
+        }
+    }
     val release = "release"
     signingConfigs {
         val keystoreProperties =
@@ -67,12 +78,10 @@ androidComponents {
 
 dependencies {
     implementation(projects.cosmos)
-    implementation(libs.google.auth.oauth2)
-    implementation(libs.slf4j.nop)
-    implementation(libs.google.apis.sheets)
     implementation(platform(libs.google.firebase.bom))
     implementation(libs.google.firebase.analytics)
     implementation(libs.google.firebase.crashlytics)
+    implementation(libs.google.firebase.firestore)
     // androidx - initial
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)

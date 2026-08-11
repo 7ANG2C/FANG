@@ -11,9 +11,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
 internal data class Sheet<T>(
-    val id: Int,
-    val name: String,
-    val keys: List<String>,
     val values: List<T>,
 )
 
@@ -46,9 +43,6 @@ internal suspend inline fun <reified T> List<WorkSheet>.sheet() =
     withContext(Dispatchers.Default) {
         find { it.clazz == T::class.java }?.let {
             Sheet(
-                id = it.id,
-                name = it.name,
-                keys = it.keys,
                 values = it.values.filterIsInstance<T>(),
             )
         }

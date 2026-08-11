@@ -4,12 +4,10 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.fang.arrangement.definition.Site
-import com.fang.arrangement.definition.SiteKey
 import com.fang.arrangement.definition.sheet.SheetRepository
 import com.fang.arrangement.definition.sheet.sheetAttendance
 import com.fang.arrangement.definition.sheet.sheetEmployee
 import com.fang.arrangement.definition.sheet.sheetSite
-import com.fang.arrangement.foundation.Bool
 import com.fang.cosmos.definition.workstate.WorkState
 import com.fang.cosmos.definition.workstate.WorkStateImpl
 import com.fang.cosmos.foundation.takeIfNotBlank
@@ -219,42 +217,38 @@ internal class SiteViewModel(
     fun insert(edit: SiteEdit) {
         if (edit.savable) {
             execute {
-                sheetRepository.insert<Site>(
-                    keyValues =
-                        SiteKey.fold(
-                            id = System.currentTimeMillis().toString(),
-                            name = "\"${edit.name.orEmpty().trim()}\"",
-                            address = "\"${edit.address.orEmpty().trim()}\"",
-                            income = edit.income.orEmpty(),
-                            startMillis = edit.startMillis?.toString().orEmpty(),
-                            endMillis = edit.endMillis?.toString().orEmpty(),
-                            archive = Bool.FALSE.toString(),
-                            delete = Bool.FALSE.toString(),
-                        ),
+                sheetRepository.insert(
+                    Site(
+                        id = System.currentTimeMillis(),
+                        name = edit.name.orEmpty().trim(),
+                        address = edit.address.orEmpty().trim(),
+                        income = edit.income?.toIntOrNull(),
+                        startMillis = edit.startMillis,
+                        endMillis = edit.endMillis,
+                        archive = 0,
+                        delete = 0,
+                    ),
                 )
             }
         }
     }
 
     fun update(editBundle: SiteEditBundle) {
-        val id = editBundle.current?.id?.toString()
+        val current = editBundle.current
         val edit = editBundle.edit
-        if (id != null && edit.savable && editBundle.anyDiff) {
+        if (current != null && edit.savable && editBundle.anyDiff) {
             execute {
-                sheetRepository.update<Site>(
-                    key = SiteKey.ID,
-                    value = id,
-                    keyValues =
-                        SiteKey.fold(
-                            id = id,
-                            name = "\"${edit.name.orEmpty().trim()}\"",
-                            address = "\"${edit.address.orEmpty().trim()}\"",
-                            income = edit.income.orEmpty(),
-                            startMillis = edit.startMillis?.toString().orEmpty(),
-                            endMillis = edit.endMillis?.toString().orEmpty(),
-                            archive = Bool(edit.archive).toString(),
-                            delete = Bool.FALSE.toString(),
-                        ),
+                sheetRepository.update(
+                    Site(
+                        id = current.id,
+                        name = edit.name.orEmpty().trim(),
+                        address = edit.address.orEmpty().trim(),
+                        income = edit.income?.toIntOrNull(),
+                        startMillis = edit.startMillis,
+                        endMillis = edit.endMillis,
+                        archive = if (edit.archive) 1 else 0,
+                        delete = 0,
+                    ),
                 )
             }
         }
@@ -262,22 +256,7 @@ internal class SiteViewModel(
 
     fun delete(current: Site) {
         execute {
-            val id = current.id.toString()
-            sheetRepository.update<Site>(
-                key = SiteKey.ID,
-                value = id,
-                keyValues =
-                    SiteKey.fold(
-                        id = id,
-                        name = "\"${current.name}\"",
-                        address = "\"${current.address.orEmpty()}\"",
-                        income = current.income?.toString().orEmpty(),
-                        startMillis = current.startMillis?.toString().orEmpty(),
-                        endMillis = current.endMillis?.toString().orEmpty(),
-                        archive = Bool(current.isArchive).toString(),
-                        delete = Bool.TRUE.toString(),
-                    ),
-            )
+            sheetRepository.update(current.copy(delete = 1))
         }
     }
 
