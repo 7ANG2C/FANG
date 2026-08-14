@@ -16,6 +16,7 @@ lifecycleRuntime = "2.11.0"
 activityCompose = "1.13.0"
 navigationCompose = "2.9.8"
 datastore = "1.2.1"
+exifinterface = "1.4.2"
 composeBom = "2026.08.00"
 kotlinxDateTime = "0.8.0"
 jetbrainsPlayServices = "1.11.0"
@@ -56,6 +57,7 @@ androidx-lifecycle-runtime-compose = { module = "androidx.lifecycle:lifecycle-ru
 androidx-activity-compose = { group = "androidx.activity", name = "activity-compose", version.ref = "activityCompose" }
 androidx-navigation-compose = { group = "androidx.navigation", name = "navigation-compose", version.ref = "navigationCompose" }
 androidx-datastore-preferences = { module = "androidx.datastore:datastore-preferences", version.ref = "datastore" }
+androidx-exifinterface = { group = "androidx.exifinterface", name = "exifinterface", version.ref = "exifinterface" }
 androidx-compose-bom = { group = "androidx.compose", name = "compose-bom", version.ref = "composeBom" }
 androidx-ui = { group = "androidx.compose.ui", name = "ui" }
 androidx-ui-graphics = { group = "androidx.compose.ui", name = "ui-graphics" }

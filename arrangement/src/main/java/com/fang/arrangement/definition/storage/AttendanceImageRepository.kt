@@ -3,7 +3,9 @@ package com.fang.arrangement.definition.storage
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.graphics.Matrix
 import android.net.Uri
+import androidx.exifinterface.media.ExifInterface
 import com.fang.arrangement.Arrangement
 import com.fang.arrangement.definition.AttendanceImage
 import com.google.firebase.storage.FirebaseStorage
@@ -70,8 +72,10 @@ internal class AttendanceImageRepository(
             context.contentResolver.openInputStream(uri).use { input ->
                 BitmapFactory.decodeStream(input, null, options)
             } ?: throw IOException("無法解碼圖片")
-        val scaled = decoded.scaleToMaxDimension()
-        if (scaled !== decoded) decoded.recycle()
+        val oriented = decoded.rotate(exifRotation(uri))
+        if (oriented !== decoded) decoded.recycle()
+        val scaled = oriented.scaleToMaxDimension()
+        if (scaled !== oriented) oriented.recycle()
 
         return try {
             scaled.toCompressedJpeg()
@@ -90,6 +94,24 @@ internal class AttendanceImageRepository(
         }
         return sampleSize
     }
+
+    private fun exifRotation(uri: Uri): Float =
+        context.contentResolver.openInputStream(uri).use { input ->
+            when (ExifInterface(requireNotNull(input)).getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_NORMAL)) {
+                ExifInterface.ORIENTATION_ROTATE_90 -> 90f
+                ExifInterface.ORIENTATION_ROTATE_180 -> 180f
+                ExifInterface.ORIENTATION_ROTATE_270 -> 270f
+                else -> 0f
+            }
+        }
+
+    private fun Bitmap.rotate(degrees: Float): Bitmap =
+        if (degrees == 0f) {
+            this
+        } else {
+            Bitmap.createBitmap(this, 0, 0, width, height, Matrix().apply { postRotate(degrees) }, true)
+        }
+
 
     private fun Bitmap.scaleToMaxDimension(): Bitmap {
         val maxDimension = maxOf(width, height)
