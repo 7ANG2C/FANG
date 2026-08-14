@@ -1,36 +1,32 @@
 package com.fang.arrangement.ui.shared.component.dialog
 
-import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.StartOffset
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.draw.scale
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import com.fang.arrangement.R
 import com.fang.cosmos.definition.workstate.WorkState
+import com.fang.cosmos.foundation.ui.component.CustomImage
 import com.fang.cosmos.foundation.ui.component.DialogThemedScreen
 import com.fang.cosmos.foundation.ui.dsl.MaterialColor
-import com.fang.cosmos.foundation.ui.dsl.TextVibe
 import com.fang.cosmos.foundation.ui.ext.stateValue
-import com.lottiefiles.dotlottie.core.compose.ui.DotLottieAnimation
-import com.lottiefiles.dotlottie.core.util.DotLottieSource
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
-import kotlin.time.Duration.Companion.seconds
 import com.fang.arrangement.Arrangement as FArrangement
 
 @Composable
@@ -41,43 +37,45 @@ internal fun Loading(
     DialogThemedScreen(isShow = isShow) {
         if (FArrangement.isFancy && isSplash) {
             Box(contentAlignment = Alignment.Center) {
-                var start by remember { mutableIntStateOf(0) }
-                val scope = rememberCoroutineScope()
-                LaunchedEffect(Unit) {
-                    scope.launch {
-                        delay(0.15.seconds)
-                        start = start + 1
-                        delay(0.45.seconds)
-                        start = start + 1
-                        delay(0.15.seconds)
-                        start = start + 1
-                    }
-                }
-                Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                    Text("勾", style = getStyle(true))
-                    Text("～", modifier = Modifier.rotate(90f), style = getStyle(start >= 1))
-                    Text("者", style = getStyle(start >= 2))
-                    Text("思", style = getStyle(start >= 3))
-                }
-                Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
-                    repeat(3) { i ->
-                        DotLottieAnimation(
-                            modifier =
-                                Modifier
-                                    .fillMaxWidth()
-                                    .scale(2f),
-                            source = DotLottieSource.Asset("firework.lottie"),
-                            autoplay = true,
-                            loop = true,
-                            useFrameInterpolation = false,
-                            speed =
-                                when (i) {
-                                    0 -> 2.5f
-                                    1 -> 1.5f
-                                    else -> 3f
-                                },
-                        )
-                    }
+                val animalJump = rememberInfiniteTransition(label = "animalJump")
+                val pigOffset by
+                    animalJump.animateFloat(
+                        initialValue = 0f,
+                        targetValue = -32f,
+                        animationSpec =
+                            infiniteRepeatable(
+                                animation = tween(300, easing = FastOutSlowInEasing),
+                                repeatMode = RepeatMode.Reverse,
+                            ),
+                        label = "pigJump",
+                    )
+                val rabbitOffset by
+                    animalJump.animateFloat(
+                        initialValue = 0f,
+                        targetValue = 32f,
+                        animationSpec =
+                            infiniteRepeatable(
+                                animation = tween(300, easing = FastOutSlowInEasing),
+                                repeatMode = RepeatMode.Reverse,
+                            ),
+                        label = "pigJump",
+                    )
+                val crabOffset by
+                    animalJump.animateFloat(
+                        initialValue = 0f,
+                        targetValue = -32f,
+                        animationSpec =
+                            infiniteRepeatable(
+                                animation = tween(300, easing = FastOutSlowInEasing),
+                                repeatMode = RepeatMode.Reverse,
+                                initialStartOffset = StartOffset(240),
+                            ),
+                        label = "rabbitJump",
+                    )
+                Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+                    CustomImage(R.drawable.arr_png_pig, Modifier.weight(1f).offset(y = pigOffset.dp).scale(0.8f))
+                    CustomImage(R.drawable.arr_png_rabbit, Modifier.weight(1f).offset(y = rabbitOffset.dp).scale(0.8f))
+                    CustomImage(R.drawable.arr_png_crab, Modifier.weight(1f).offset(y = crabOffset.dp).scale(0.8f))
                 }
             }
         } else {
@@ -100,13 +98,6 @@ internal fun Loading(
         }
     }
 }
-
-@Composable
-private fun getStyle(alpha: Boolean) =
-    TextVibe.normal(
-        Color.White.copy(alpha = if (alpha) 0.6f else 0f),
-        64,
-    )
 
 @Composable
 internal fun Loading(workState: WorkState) = Loading(workState.loadingState.stateValue())
