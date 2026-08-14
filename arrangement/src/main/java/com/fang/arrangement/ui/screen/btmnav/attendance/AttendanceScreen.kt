@@ -6,6 +6,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.gestures.awaitEachGesture
 import androidx.compose.foundation.gestures.awaitFirstDown
 import androidx.compose.foundation.gestures.calculatePan
@@ -26,6 +27,7 @@ import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -45,14 +47,17 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import coil3.compose.AsyncImage
+import coil3.compose.AsyncImagePainter
 import com.fang.arrangement.R
 import com.fang.arrangement.foundation.orDash
 import com.fang.arrangement.ui.shared.component.ArrText
@@ -746,22 +751,43 @@ private fun AttendanceImageThumbnails(
         ) {
             images.forEachIndexed { index, image ->
                 Box(Modifier.size(72.dp)) {
+                    var isLoading by remember { mutableStateOf(false) }
                     AsyncImage(
                         model = image.displayModel,
                         contentDescription = "工地照片",
                         contentScale = ContentScale.Crop,
+                        onState = {
+                            isLoading = it !is AsyncImagePainter.State.Success
+                        },
                         modifier =
                             Modifier
                                 .fillMaxSize()
                                 .clip(MaterialShape.small)
                                 .clickRipple { onImageClick(index) },
                     )
+                    if(isLoading) {
+                        val color = MaterialColor.secondary
+                        val colorAlpha = color.copy(alpha = 0.5f)
+                        Box(
+                            Modifier.size(72.dp).border(0.5.dp, colorAlpha, MaterialShape.small),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            CircularProgressIndicator(
+                                modifier = Modifier.size(32.dp),
+                                color = color,
+                                strokeWidth = 3.2.dp,
+                                trackColor = colorAlpha,
+                            )
+                        }
+                    }
                     onDelete?.let { delete ->
-                        CustomIcon(
-                            drawableResId = R.drawable.arr_r24_cancel,
-                            modifier = Modifier.align(Alignment.TopEnd).clickRipple { delete(image) },
-                            tint = MaterialColor.onSecondaryContainer,
-                        )
+                        if(!isLoading) {
+                            CustomIcon(
+                                drawableResId = R.drawable.arr_r24_cancel,
+                                modifier = Modifier.align(Alignment.TopEnd).clickRipple { delete(image) },
+                                tint = MaterialColor.onSecondaryContainer,
+                            )
+                        }
                     }
                 }
             }
@@ -783,12 +809,12 @@ private fun ImageViewer(
             modifier =
                 Modifier
                     .fillMaxSize()
-                    .background(Color.Black),
+                    .background(Color.Black.copy(alpha = 0.7f)),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             HorizontalPager(
                 state = pagerState,
-                modifier = Modifier.weight(1f),
+                modifier = Modifier.fillMaxWidth().weight(1f),
             ) { page ->
                 ZoomableImage(
                     model = viewer.images[page],
@@ -798,13 +824,16 @@ private fun ImageViewer(
             Row(
                 modifier =
                     Modifier
-                        .padding(24.dp),
-                horizontalArrangement = Arrangement.spacedBy(16.dp),
+                        .background(Color.Black)
+                        .fillMaxWidth()
+                        .padding(16.dp),
+                horizontalArrangement = Arrangement.Center,
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 ArrText(text = "${pagerState.currentPage + 1} / ${viewer.images.size}") {
                     ContentText.style.color(Color.White)
                 }
+                HorizontalSpacer(16)
                 PositiveButton(
                     text = "關閉",
                     onClick = onDismiss,
@@ -819,11 +848,16 @@ private fun ZoomableImage(
     model: Any?,
     contentDescription: String?,
 ) {
-    var scale by remember { mutableFloatStateOf(1f) }
-    var offset by remember { mutableStateOf(Offset.Zero) }
+    var scale by remember(model) { mutableFloatStateOf(1f) }
+    var offset by remember(model) { mutableStateOf(Offset.Zero) }
+    var containerSize by remember { mutableStateOf(IntSize.Zero) }
     Box(
         modifier = Modifier
             .fillMaxSize()
+            .onSizeChanged { size ->
+                containerSize = size
+                offset = offset.coerceInBounds(size, scale)
+            }
             .pointerInput(Unit) {
                 awaitEachGesture {
                     awaitFirstDown(requireUnconsumed = false)
@@ -831,9 +865,10 @@ private fun ZoomableImage(
                         val event = awaitPointerEvent()
                         val zoomChange = event.calculateZoom()
                         val panChange = event.calculatePan()
-                        scale = (scale * zoomChange).coerceIn(1f, 5f)
-                        if (scale > 1f) {
-                            offset += panChange
+                        val newScale = (scale * zoomChange).coerceIn(1f, 5f)
+                        scale = newScale
+                        if (newScale > 1f) {
+                            offset = (offset + panChange).coerceInBounds(containerSize, newScale)
                             event.changes.forEach { it.consume() }
                         } else {
                             offset = Offset.Zero
@@ -857,4 +892,16 @@ private fun ZoomableImage(
                 )
         )
     }
+}
+
+private fun Offset.coerceInBounds(
+    containerSize: IntSize,
+    scale: Float,
+): Offset {
+    val maxOffsetX = containerSize.width * (scale - 1f) / 2f
+    val maxOffsetY = containerSize.height * (scale - 1f) / 2f
+    return Offset(
+        x = x.coerceIn(-maxOffsetX, maxOffsetX),
+        y = y.coerceIn(-maxOffsetY, maxOffsetY),
+    )
 }
