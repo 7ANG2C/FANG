@@ -6,6 +6,10 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.background
+import androidx.compose.foundation.gestures.awaitEachGesture
+import androidx.compose.foundation.gestures.awaitFirstDown
+import androidx.compose.foundation.gestures.calculatePan
+import androidx.compose.foundation.gestures.calculateZoom
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -25,6 +29,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -34,7 +39,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.draw.scale
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalDensity
@@ -68,7 +76,6 @@ import com.fang.arrangement.ui.shared.dsl.Remark
 import com.fang.arrangement.ui.shared.dsl.YMDDayOfWeek
 import com.fang.arrangement.ui.shared.dsl.employeeState
 import com.fang.arrangement.ui.shared.ext.clickRipple
-import com.fang.cosmos.foundation.logD
 import com.fang.cosmos.foundation.mapNoNull
 import com.fang.cosmos.foundation.ui.component.CustomBottomSheet
 import com.fang.cosmos.foundation.ui.component.CustomIcon
@@ -214,9 +221,9 @@ internal fun AttendanceScreen(
                                                     ArrText(
                                                         text =
                                                             (
-                                                                item.employee?.name
-                                                                    ?: item.id.toString()
-                                                            ),
+                                                                    item.employee?.name
+                                                                        ?: item.id.toString()
+                                                                    ),
                                                     ) { style }
                                                     if (employeeState(item.employee)) {
                                                         Box(contentAlignment = Alignment.CenterEnd) {
@@ -273,9 +280,9 @@ internal fun AttendanceScreen(
                                                     ArrText(
                                                         text =
                                                             (
-                                                                item.employee?.name
-                                                                    ?: item.id.toString()
-                                                            ),
+                                                                    item.employee?.name
+                                                                        ?: item.id.toString()
+                                                                    ),
                                                     ) { style }
                                                     if (employeeState(item.employee)) {
                                                         Box(contentAlignment = Alignment.CenterEnd) {
@@ -296,13 +303,13 @@ internal fun AttendanceScreen(
                                         }
                                     }
                                 }
-                                mAtt.remark?.let {
+                                mAtt.remark?.let { remark ->
                                     VerticalSpacer(1.8f)
                                     Row {
                                         (attW + 8.dp - tagW).takeIf { it > 0.dp }?.let {
                                             HorizontalSpacer(it)
                                         }
-                                        ArrText(text = it) { style }
+                                        ArrText(text = remark) { style }
                                     }
                                 }
                                 AttendanceImageThumbnails(
@@ -478,6 +485,7 @@ internal fun AttendanceScreen(
             }
         }
     }
+
     imageViewer?.let { viewer ->
         ImageViewer(
             viewer = viewer,
@@ -771,27 +779,25 @@ private fun ImageViewer(
         properties = DialogProperties(usePlatformDefaultWidth = false),
     ) {
         val pagerState = rememberPagerState(initialPage = viewer.initialIndex) { viewer.images.size }
-        Box(
+        Column(
             modifier =
                 Modifier
                     .fillMaxSize()
                     .background(Color.Black),
+            horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             HorizontalPager(
                 state = pagerState,
-                modifier = Modifier.fillMaxSize(),
+                modifier = Modifier.weight(1f),
             ) { page ->
-                AsyncImage(
+                ZoomableImage(
                     model = viewer.images[page],
                     contentDescription = "工地照片 ${page + 1}",
-                    contentScale = ContentScale.Fit,
-                    modifier = Modifier.fillMaxSize(),
                 )
             }
             Row(
                 modifier =
                     Modifier
-                        .align(Alignment.BottomCenter)
                         .padding(24.dp),
                 horizontalArrangement = Arrangement.spacedBy(16.dp),
                 verticalAlignment = Alignment.CenterVertically,
@@ -805,5 +811,50 @@ private fun ImageViewer(
                 )
             }
         }
+    }
+}
+
+@Composable
+private fun ZoomableImage(
+    model: Any?,
+    contentDescription: String?,
+) {
+    var scale by remember { mutableFloatStateOf(1f) }
+    var offset by remember { mutableStateOf(Offset.Zero) }
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .pointerInput(Unit) {
+                awaitEachGesture {
+                    awaitFirstDown(requireUnconsumed = false)
+                    do {
+                        val event = awaitPointerEvent()
+                        val zoomChange = event.calculateZoom()
+                        val panChange = event.calculatePan()
+                        scale = (scale * zoomChange).coerceIn(1f, 5f)
+                        if (scale > 1f) {
+                            offset += panChange
+                            event.changes.forEach { it.consume() }
+                        } else {
+                            offset = Offset.Zero
+                        }
+                    } while (event.changes.any { it.pressed })
+                }
+            }
+    ) {
+        AsyncImage(
+            model = model,
+            contentDescription = contentDescription,
+            contentScale = ContentScale.Fit,
+            modifier = Modifier
+                .fillMaxSize()
+                .align(Alignment.Center)
+                .graphicsLayer(
+                    scaleX = scale,
+                    scaleY = scale,
+                    translationX = offset.x,
+                    translationY = offset.y
+                )
+        )
     }
 }

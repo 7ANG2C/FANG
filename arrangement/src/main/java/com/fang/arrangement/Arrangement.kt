@@ -8,7 +8,7 @@ enum class Arrangement(
     ;
 
     companion object {
-        val current by lazy { valueOf(BuildConfig.ARRANGEMENT_ENVIRONMENT.uppercase()) }
+        val current by lazy { SIT }
         val isFancy get() = true
     }
 }
