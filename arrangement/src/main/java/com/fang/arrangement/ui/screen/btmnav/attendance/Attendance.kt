@@ -19,6 +19,7 @@ internal data class MAttendance(
     val images: List<MAttendanceImage>,
 ) {
     companion object {
+        const val MAX_IMAGE_COUNT = 3
         val empty by lazy { MAttendance(-1L, null, emptyList(), emptyList(), null, emptyList()) }
     }
 }

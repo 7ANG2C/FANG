@@ -20,24 +20,37 @@ internal class AttendanceImageRepository(
     private val context: Context,
     private val storage: FirebaseStorage = FirebaseStorage.getInstance(),
 ) {
+
+    private companion object {
+        const val MAX_DIMENSION = 1600
+        const val TARGET_BYTES = 500 * 1024
+        const val INITIAL_JPEG_QUALITY = 80
+        const val MIN_JPEG_QUALITY = 55
+        const val JPEG_QUALITY_STEP = 6
+    }
+
     suspend fun upload(
         attendanceMillis: Long,
         siteId: Long,
         uri: Uri,
     ): AttendanceImage {
-        val path = "attendance/${Arrangement.current.id}/$attendanceMillis/$siteId/${UUID.randomUUID()}.jpg"
-        val reference = storage.reference.child(path)
-        val bytes = withContext(Dispatchers.Default) { compress(uri) }
-        val metadata = StorageMetadata.Builder().setContentType("image/jpeg").build()
-        reference.putBytes(bytes, metadata).await()
-        return AttendanceImage(path = reference.path, downloadUrl = reference.downloadUrl.await().toString())
+       return withContext(Dispatchers.IO) {
+            val path = "attendance/${Arrangement.current.id}/$attendanceMillis/$siteId/${UUID.randomUUID()}.jpg"
+            val reference = storage.reference.child(path)
+            val bytes =  compress(uri)
+            val metadata = StorageMetadata.Builder().setContentType("image/jpeg").build()
+            reference.putBytes(bytes, metadata).await()
+            AttendanceImage(path = reference.path, downloadUrl = reference.downloadUrl.await().toString())
+        }
     }
 
     suspend fun delete(path: String) {
-        storage.reference
-            .child(path)
-            .delete()
-            .await()
+        withContext(Dispatchers.IO) {
+            storage.reference
+                .child(path)
+                .delete()
+                .await()
+        }
     }
 
     private fun compress(uri: Uri): ByteArray {
@@ -99,11 +112,4 @@ internal class AttendanceImageRepository(
         return bytes
     }
 
-    private companion object {
-        const val MAX_DIMENSION = 1600
-        const val TARGET_BYTES = 500 * 1024
-        const val INITIAL_JPEG_QUALITY = 80
-        const val MIN_JPEG_QUALITY = 55
-        const val JPEG_QUALITY_STEP = 6
-    }
 }

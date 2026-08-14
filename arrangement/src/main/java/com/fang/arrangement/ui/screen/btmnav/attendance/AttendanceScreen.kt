@@ -1,5 +1,6 @@
 package com.fang.arrangement.ui.screen.btmnav.attendance
 
+import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
@@ -509,10 +510,23 @@ private fun AttEditDialog(
     val current = editBundle?.current
     val edit = editBundle?.edit
     var photoSiteId by remember(editBundle) { mutableStateOf<Long?>(null) }
-    val photoPicker =
-        rememberLauncherForActivityResult(ActivityResultContracts.PickMultipleVisualMedia(3)) { uris ->
-            photoSiteId?.let { viewModel.addImages(it, uris) }
-            photoSiteId = null
+    val onPhotosPicked: (List<Uri>) -> Unit = { uris ->
+        photoSiteId?.let { viewModel.addImages(it, uris) }
+        photoSiteId = null
+    }
+    val singlePhotoPicker =
+        rememberLauncherForActivityResult(ActivityResultContracts.PickVisualMedia()) { uri ->
+            onPhotosPicked(listOfNotNull(uri))
+        }
+    val twoPhotoPicker =
+        rememberLauncherForActivityResult(ActivityResultContracts.PickMultipleVisualMedia(2)) { uris ->
+            onPhotosPicked(uris)
+        }
+    val threePhotoPicker =
+        rememberLauncherForActivityResult(
+            ActivityResultContracts.PickMultipleVisualMedia(MAttendance.MAX_IMAGE_COUNT),
+        ) { uris ->
+            onPhotosPicked(uris)
         }
     EditDialog(
         isShow = editBundle != null,
@@ -622,17 +636,19 @@ private fun AttEditDialog(
                         }
                     }
                     Spacer(Modifier.weight(1f))
-                    if (exist && mAtt.images.size < 3) {
+                    if (exist && mAtt.images.size < MAttendance.MAX_IMAGE_COUNT) {
                         CustomIcon(
                             drawableResId = R.drawable.arr_r24_add,
                             modifier =
                                 Modifier.clickRipple {
                                     photoSiteId = mAtt.siteId
-                                    photoPicker.launch(
-                                        PickVisualMediaRequest(
-                                            ActivityResultContracts.PickVisualMedia.ImageOnly,
-                                        ),
-                                    )
+                                    val request =
+                                        PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
+                                    when (MAttendance.MAX_IMAGE_COUNT - mAtt.images.size) {
+                                        1 -> singlePhotoPicker.launch(request)
+                                        2 -> twoPhotoPicker.launch(request)
+                                        else -> threePhotoPicker.launch(request)
+                                    }
                                 },
                             tint = MaterialColor.onSecondaryContainer,
                         )
@@ -851,6 +867,7 @@ private fun ZoomableImage(
     var scale by remember(model) { mutableFloatStateOf(1f) }
     var offset by remember(model) { mutableStateOf(Offset.Zero) }
     var containerSize by remember { mutableStateOf(IntSize.Zero) }
+    var isLoading by remember { mutableStateOf(false) }
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -881,6 +898,9 @@ private fun ZoomableImage(
             model = model,
             contentDescription = contentDescription,
             contentScale = ContentScale.Fit,
+            onState = {
+                isLoading = it !is AsyncImagePainter.State.Success
+            },
             modifier = Modifier
                 .fillMaxSize()
                 .align(Alignment.Center)
@@ -891,6 +911,21 @@ private fun ZoomableImage(
                     translationY = offset.y
                 )
         )
+        if(isLoading) {
+            val color = MaterialColor.secondary
+            val colorAlpha = color.copy(alpha = 0.5f)
+            Box(
+                Modifier.fillMaxSize(),
+                contentAlignment = Alignment.Center
+            ) {
+                CircularProgressIndicator(
+                    modifier = Modifier.size(64.dp),
+                    color = color,
+                    strokeWidth = 3.2.dp,
+                    trackColor = colorAlpha,
+                )
+            }
+        }
     }
 }
 

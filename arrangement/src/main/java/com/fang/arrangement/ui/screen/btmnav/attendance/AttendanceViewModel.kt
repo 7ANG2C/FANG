@@ -21,6 +21,9 @@ import com.fang.cosmos.foundation.time.calendar.midnight
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
@@ -268,7 +271,11 @@ internal class AttendanceViewModel(
                                 } else if (attendance.fulls.isEmpty() && attendance.halfs.isEmpty()) {
                                     attendance
                                 } else {
-                                    attendance.copy(images = (attendance.images + uris.map { MAttendanceImage(localUri = it) }).take(3))
+                                    attendance.copy(
+                                        images =
+                                            (attendance.images + uris.map { MAttendanceImage(localUri = it) })
+                                                .take(MAttendance.MAX_IMAGE_COUNT),
+                                    )
                                 }
                             },
                     ),
@@ -363,24 +370,26 @@ internal class AttendanceViewModel(
     private suspend fun attendanceAll(
         edit: AttAllEdit,
         id: Long,
-    ): AttendanceAll =
-        AttendanceAll(
-            id = id,
-            attendances =
-                edit.attSiteEdits.mapNoNull({ it.fulls.isNotEmpty() || it.halfs.isNotEmpty() }) { siteEdit ->
-                    Attendance(
-                        siteId = siteEdit.siteId,
-                        fulls = siteEdit.fulls.map { it.id },
-                        halfs = siteEdit.halfs.map { it.id },
-                        remark = siteEdit.remark.orEmpty().trim(),
-                        images =
-                            siteEdit.images.map { image ->
-                                image.remote
-                                    ?: attendanceImageRepository.upload(id, siteEdit.siteId, requireNotNull(image.localUri))
-                            },
-                    )
-                },
-        )
+    ) = coroutineScope {
+            AttendanceAll(
+                id = id,
+                attendances =
+                    edit.attSiteEdits.mapNoNull({ it.fulls.isNotEmpty() || it.halfs.isNotEmpty() }) { siteEdit ->
+                        Attendance(
+                            siteId = siteEdit.siteId,
+                            fulls = siteEdit.fulls.map { it.id },
+                            halfs = siteEdit.halfs.map { it.id },
+                            remark = siteEdit.remark.orEmpty().trim(),
+                            images =
+                                siteEdit.images.map { image ->
+                                    async {
+                                        image.remote ?: attendanceImageRepository.upload(id, siteEdit.siteId, requireNotNull(image.localUri))
+                                    }
+                                }.awaitAll(),
+                        )
+                    },
+            )
+        }
 
     private fun <T> execute(block: suspend CoroutineScope.() -> Result<T>) {
         loading()
