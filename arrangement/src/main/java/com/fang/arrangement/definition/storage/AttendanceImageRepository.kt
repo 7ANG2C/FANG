@@ -5,6 +5,7 @@ import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.Matrix
 import android.net.Uri
+import androidx.core.graphics.scale
 import androidx.exifinterface.media.ExifInterface
 import com.fang.arrangement.Arrangement
 import com.fang.arrangement.definition.AttendanceImage
@@ -16,13 +17,11 @@ import kotlinx.coroutines.withContext
 import java.io.ByteArrayOutputStream
 import java.io.IOException
 import java.util.UUID
-import androidx.core.graphics.scale
 
 internal class AttendanceImageRepository(
     private val context: Context,
     private val storage: FirebaseStorage = FirebaseStorage.getInstance(),
 ) {
-
     private companion object {
         const val MAX_DIMENSION = 1600
         const val TARGET_BYTES = 500 * 1024
@@ -35,16 +34,15 @@ internal class AttendanceImageRepository(
         attendanceMillis: Long,
         siteId: Long,
         uri: Uri,
-    ): AttendanceImage {
-       return withContext(Dispatchers.IO) {
+    ): AttendanceImage =
+        withContext(Dispatchers.IO) {
             val path = "attendance/${Arrangement.current.id}/$attendanceMillis/$siteId/${UUID.randomUUID()}.jpg"
             val reference = storage.reference.child(path)
-            val bytes =  compress(uri)
+            val bytes = compress(uri)
             val metadata = StorageMetadata.Builder().setContentType("image/jpeg").build()
             reference.putBytes(bytes, metadata).await()
             AttendanceImage(path = reference.path, downloadUrl = reference.downloadUrl.await().toString())
         }
-    }
 
     suspend fun delete(path: String) {
         withContext(Dispatchers.IO) {
@@ -112,7 +110,6 @@ internal class AttendanceImageRepository(
             Bitmap.createBitmap(this, 0, 0, width, height, Matrix().apply { postRotate(degrees) }, true)
         }
 
-
     private fun Bitmap.scaleToMaxDimension(): Bitmap {
         val maxDimension = maxOf(width, height)
         if (maxDimension <= MAX_DIMENSION) return this
@@ -133,5 +130,4 @@ internal class AttendanceImageRepository(
         } while (bytes.size > TARGET_BYTES && quality >= MIN_JPEG_QUALITY)
         return bytes
     }
-
 }

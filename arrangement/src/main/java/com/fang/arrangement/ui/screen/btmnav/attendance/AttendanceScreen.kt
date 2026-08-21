@@ -227,9 +227,9 @@ internal fun AttendanceScreen(
                                                     ArrText(
                                                         text =
                                                             (
-                                                                    item.employee?.name
-                                                                        ?: item.id.toString()
-                                                                    ),
+                                                                item.employee?.name
+                                                                    ?: item.id.toString()
+                                                            ),
                                                     ) { style }
                                                     if (employeeState(item.employee)) {
                                                         Box(contentAlignment = Alignment.CenterEnd) {
@@ -286,9 +286,9 @@ internal fun AttendanceScreen(
                                                     ArrText(
                                                         text =
                                                             (
-                                                                    item.employee?.name
-                                                                        ?: item.id.toString()
-                                                                    ),
+                                                                item.employee?.name
+                                                                    ?: item.id.toString()
+                                                            ),
                                                     ) { style }
                                                     if (employeeState(item.employee)) {
                                                         Box(contentAlignment = Alignment.CenterEnd) {
@@ -318,12 +318,25 @@ internal fun AttendanceScreen(
                                         ArrText(text = remark) { style }
                                     }
                                 }
-                                AttendanceImageThumbnails(
-                                    images = mAtt.images,
-                                    onImageClick = { index ->
-                                        imageViewer = ImageViewerState(mAtt.images.mapNotNull(MAttendanceImage::displayModel), index)
-                                    },
-                                )
+                                mAtt.images.takeIf { it.isNotEmpty() }?.let { images ->
+                                    VerticalSpacer(4)
+                                    Row {
+                                        (attW + 8.dp - tagW).takeIf { it > 0.dp }?.let {
+                                            HorizontalSpacer(it)
+                                        }
+                                        AttendanceImageThumbnails(
+                                            modifier = Modifier.weight(1f),
+                                            images = images,
+                                            onImageClick = { index ->
+                                                imageViewer =
+                                                    ImageViewerState(
+                                                        mAtt.images.mapNotNull(MAttendanceImage::displayModel),
+                                                        index,
+                                                    )
+                                            },
+                                        )
+                                    }
+                                }
                             }
                         }
                     }
@@ -739,11 +752,20 @@ private fun AttEditDialog(
                         }
                     }
                 }
-                AttendanceImageThumbnails(
-                    images = mAtt.images,
-                    onImageClick = { index -> onImageClick(mAtt.images, index) },
-                    onDelete = { image -> viewModel.removeImage(mAtt.siteId, image) },
-                )
+                mAtt.images.takeIf { it.isNotEmpty() }?.let { images ->
+                    VerticalSpacer(4)
+                    Row(Modifier.fillMaxWidth()) {
+                        (attW + 8.dp - tagW).takeIf { it > 0.dp }?.let {
+                            HorizontalSpacer(it)
+                        }
+                        AttendanceImageThumbnails(
+                            modifier = Modifier.weight(1f),
+                            images = images,
+                            onImageClick = { index -> onImageClick(mAtt.images, index) },
+                            onDelete = { image -> viewModel.removeImage(mAtt.siteId, image) },
+                        )
+                    }
+                }
             }
         }
     }
@@ -756,54 +778,53 @@ private data class ImageViewerState(
 
 @Composable
 private fun AttendanceImageThumbnails(
+    modifier: Modifier,
     images: List<MAttendanceImage>,
     onImageClick: (Int) -> Unit,
     onDelete: ((MAttendanceImage) -> Unit)? = null,
 ) {
-    if (images.isNotEmpty()) {
-        Row(
-            modifier = Modifier.padding(top = 8.dp),
-            horizontalArrangement = Arrangement.spacedBy(8.dp),
-        ) {
-            images.forEachIndexed { index, image ->
-                Box(Modifier.size(72.dp)) {
-                    var isLoading by remember { mutableStateOf(false) }
-                    AsyncImage(
-                        model = image.displayModel,
-                        contentDescription = "工地照片",
-                        contentScale = ContentScale.Crop,
-                        onState = {
-                            isLoading = it !is AsyncImagePainter.State.Success
-                        },
-                        modifier =
-                            Modifier
-                                .fillMaxSize()
-                                .clip(MaterialShape.small)
-                                .clickRipple { onImageClick(index) },
-                    )
-                    if(isLoading) {
-                        val color = MaterialColor.secondary
-                        val colorAlpha = color.copy(alpha = 0.5f)
-                        Box(
-                            Modifier.size(72.dp).border(0.5.dp, colorAlpha, MaterialShape.small),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            CircularProgressIndicator(
-                                modifier = Modifier.size(32.dp),
-                                color = color,
-                                strokeWidth = 3.2.dp,
-                                trackColor = colorAlpha,
-                            )
-                        }
+    Row(
+        modifier = modifier,
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
+    ) {
+        images.forEachIndexed { index, image ->
+            Box(Modifier.size(72.dp)) {
+                var isLoading by remember { mutableStateOf(false) }
+                AsyncImage(
+                    model = image.displayModel,
+                    contentDescription = "工地照片",
+                    contentScale = ContentScale.Crop,
+                    onState = {
+                        isLoading = it !is AsyncImagePainter.State.Success
+                    },
+                    modifier =
+                        Modifier
+                            .fillMaxSize()
+                            .clip(MaterialShape.small)
+                            .clickRipple { onImageClick(index) },
+                )
+                if (isLoading) {
+                    val color = MaterialColor.secondary
+                    val colorAlpha = color.copy(alpha = 0.5f)
+                    Box(
+                        Modifier.size(72.dp).border(0.5.dp, colorAlpha, MaterialShape.small),
+                        contentAlignment = Alignment.Center,
+                    ) {
+                        CircularProgressIndicator(
+                            modifier = Modifier.size(32.dp),
+                            color = color,
+                            strokeWidth = 3.2.dp,
+                            trackColor = colorAlpha,
+                        )
                     }
-                    onDelete?.let { delete ->
-                        if(!isLoading) {
-                            CustomIcon(
-                                drawableResId = R.drawable.arr_r24_cancel,
-                                modifier = Modifier.align(Alignment.TopEnd).clickRipple { delete(image) },
-                                tint = MaterialColor.onSecondaryContainer,
-                            )
-                        }
+                }
+                onDelete?.let { delete ->
+                    if (!isLoading) {
+                        CustomIcon(
+                            drawableResId = R.drawable.arr_r24_cancel,
+                            modifier = Modifier.align(Alignment.TopEnd).clickRipple { delete(image) },
+                            tint = MaterialColor.onSecondaryContainer,
+                        )
                     }
                 }
             }
@@ -869,30 +890,30 @@ private fun ZoomableImage(
     var containerSize by remember { mutableStateOf(IntSize.Zero) }
     var isLoading by remember { mutableStateOf(false) }
     Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .onSizeChanged { size ->
-                containerSize = size
-                offset = offset.coerceInBounds(size, scale)
-            }
-            .pointerInput(Unit) {
-                awaitEachGesture {
-                    awaitFirstDown(requireUnconsumed = false)
-                    do {
-                        val event = awaitPointerEvent()
-                        val zoomChange = event.calculateZoom()
-                        val panChange = event.calculatePan()
-                        val newScale = (scale * zoomChange).coerceIn(1f, 5f)
-                        scale = newScale
-                        if (newScale > 1f) {
-                            offset = (offset + panChange).coerceInBounds(containerSize, newScale)
-                            event.changes.forEach { it.consume() }
-                        } else {
-                            offset = Offset.Zero
-                        }
-                    } while (event.changes.any { it.pressed })
-                }
-            }
+        modifier =
+            Modifier
+                .fillMaxSize()
+                .onSizeChanged { size ->
+                    containerSize = size
+                    offset = offset.coerceInBounds(size, scale)
+                }.pointerInput(Unit) {
+                    awaitEachGesture {
+                        awaitFirstDown(requireUnconsumed = false)
+                        do {
+                            val event = awaitPointerEvent()
+                            val zoomChange = event.calculateZoom()
+                            val panChange = event.calculatePan()
+                            val newScale = (scale * zoomChange).coerceIn(1f, 5f)
+                            scale = newScale
+                            if (newScale > 1f) {
+                                offset = (offset + panChange).coerceInBounds(containerSize, newScale)
+                                event.changes.forEach { it.consume() }
+                            } else {
+                                offset = Offset.Zero
+                            }
+                        } while (event.changes.any { it.pressed })
+                    }
+                },
     ) {
         AsyncImage(
             model = model,
@@ -901,22 +922,23 @@ private fun ZoomableImage(
             onState = {
                 isLoading = it !is AsyncImagePainter.State.Success
             },
-            modifier = Modifier
-                .fillMaxSize()
-                .align(Alignment.Center)
-                .graphicsLayer(
-                    scaleX = scale,
-                    scaleY = scale,
-                    translationX = offset.x,
-                    translationY = offset.y
-                )
+            modifier =
+                Modifier
+                    .fillMaxSize()
+                    .align(Alignment.Center)
+                    .graphicsLayer(
+                        scaleX = scale,
+                        scaleY = scale,
+                        translationX = offset.x,
+                        translationY = offset.y,
+                    ),
         )
-        if(isLoading) {
+        if (isLoading) {
             val color = MaterialColor.secondary
             val colorAlpha = color.copy(alpha = 0.5f)
             Box(
                 Modifier.fillMaxSize(),
-                contentAlignment = Alignment.Center
+                contentAlignment = Alignment.Center,
             ) {
                 CircularProgressIndicator(
                     modifier = Modifier.size(64.dp),

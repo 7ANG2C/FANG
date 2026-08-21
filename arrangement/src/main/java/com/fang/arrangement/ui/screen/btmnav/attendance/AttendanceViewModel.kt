@@ -371,25 +371,27 @@ internal class AttendanceViewModel(
         edit: AttAllEdit,
         id: Long,
     ) = coroutineScope {
-            AttendanceAll(
-                id = id,
-                attendances =
-                    edit.attSiteEdits.mapNoNull({ it.fulls.isNotEmpty() || it.halfs.isNotEmpty() }) { siteEdit ->
-                        Attendance(
-                            siteId = siteEdit.siteId,
-                            fulls = siteEdit.fulls.map { it.id },
-                            halfs = siteEdit.halfs.map { it.id },
-                            remark = siteEdit.remark.orEmpty().trim(),
-                            images =
-                                siteEdit.images.map { image ->
+        AttendanceAll(
+            id = id,
+            attendances =
+                edit.attSiteEdits.mapNoNull({ it.fulls.isNotEmpty() || it.halfs.isNotEmpty() }) { siteEdit ->
+                    Attendance(
+                        siteId = siteEdit.siteId,
+                        fulls = siteEdit.fulls.map { it.id },
+                        halfs = siteEdit.halfs.map { it.id },
+                        remark = siteEdit.remark.orEmpty().trim(),
+                        images =
+                            siteEdit.images
+                                .map { image ->
                                     async {
-                                        image.remote ?: attendanceImageRepository.upload(id, siteEdit.siteId, requireNotNull(image.localUri))
+                                        image.remote
+                                            ?: attendanceImageRepository.upload(id, siteEdit.siteId, requireNotNull(image.localUri))
                                     }
                                 }.awaitAll(),
-                        )
-                    },
-            )
-        }
+                    )
+                },
+        )
+    }
 
     private fun <T> execute(block: suspend CoroutineScope.() -> Result<T>) {
         loading()
