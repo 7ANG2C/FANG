@@ -31,7 +31,7 @@ internal class ArrangementViewModel(
                 .flowOn(Dispatchers.Default)
                 .collectLatest { sheets ->
                     if (sheets != null) {
-                        (500 - (System.currentTimeMillis() - startMillis))
+                        (1000 - (System.currentTimeMillis() - startMillis))
                             .let { if (Arrangement.isFancy && it > 0) delay(it) }
                         initialized.value = true
                     }
