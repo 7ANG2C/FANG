@@ -402,6 +402,7 @@ internal fun AttendanceScreen(
                         .padding(horizontal = 14.dp),
                     horizontalArrangement = Arrangement.spacedBy(4.dp),
                 ) {
+                    Spacer(Modifier.weight(1.6f))
                     Box(modifier = Modifier.weight(1f)) {
                         FullChip(Modifier.align(Alignment.Center))
                     }
@@ -434,10 +435,26 @@ internal fun AttendanceScreen(
                         Row(
                             modifier = Modifier.fillMaxWidth(),
                             horizontalArrangement = Arrangement.spacedBy(4.dp),
+                            verticalAlignment = Alignment.CenterVertically,
                         ) {
+                            Row(
+                                modifier =
+                                    Modifier
+                                        .weight(1.6f)
+                                        .padding(vertical = 4.dp),
+                                verticalAlignment = Alignment.CenterVertically,
+                            ) {
+                                ArrText(
+                                    text = employee.employee?.name ?: employee.id.toString(),
+                                ) { ContentText.style.color(ContentText.color) }
+                                if (employeeState(employee.employee)) {
+                                    HorizontalSpacer(4)
+                                    EmployeeTag(employee = employee.employee)
+                                }
+                            }
                             listOf(fulls to true, halfs to false).forEach { (list, isFull) ->
                                 val employeeIn = employee in list
-                                Row(
+                                Box(
                                     modifier =
                                         Modifier
                                             .weight(1f)
@@ -451,26 +468,26 @@ internal fun AttendanceScreen(
                                             }.clickRipple {
                                                 viewModel.editSingleSiteEmployee(isFull, employee)
                                             }.padding(vertical = 4.dp),
-                                    horizontalArrangement = Arrangement.Center,
+                                    contentAlignment = Alignment.Center,
                                 ) {
-                                    Row(verticalAlignment = Alignment.CenterVertically) {
-                                        ArrText(
-                                            text =
-                                                employee.employee?.name
-                                                    ?: employee.id.toString(),
-                                        ) {
-                                            ContentText.style.color(
+                                    if (isFull) {
+                                        FullChip(
+                                            tint =
                                                 if (employeeIn) {
-                                                    onSecondaryContainer
+                                                    MaterialColor.primary
                                                 } else {
-                                                    ContentText.color
+                                                    MaterialColor.outline
                                                 },
-                                            )
-                                        }
-                                        if (employeeState(employee.employee)) {
-                                            HorizontalSpacer(4)
-                                            EmployeeTag(employee = employee.employee)
-                                        }
+                                        )
+                                    } else {
+                                        HalfChip(
+                                            tint =
+                                                if (employeeIn) {
+                                                    MaterialColor.primary
+                                                } else {
+                                                    MaterialColor.outline
+                                                },
+                                        )
                                     }
                                 }
                             }
