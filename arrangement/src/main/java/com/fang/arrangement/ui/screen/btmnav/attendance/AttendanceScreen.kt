@@ -363,7 +363,7 @@ internal fun AttendanceScreen(
                 Modifier
                     .fillMaxWidth()
                     .bg(RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp)) { surfaceBright }
-                    .heightIn(0.dp, screenHeightDp * 0.6f),
+                    .heightIn(0.dp, screenHeightDp * 0.7f),
             ) {
                 Row(
                     modifier =
