@@ -45,6 +45,7 @@ internal class PDFViewModel(
     WorkState by WorkStateImpl() {
     private companion object {
         val BLUE = "#0270ed".toColorInt()
+        val RED = "#bf0625".toColorInt()
         const val WIDTH = 595
         const val HEIGHT = 842
         const val LEFT_MARGIN = 20f
@@ -79,9 +80,10 @@ internal class PDFViewModel(
         val site: Site,
         val fulls: List<Employee>,
         val halfs: List<Employee>,
+        val overtimes: List<Employee>,
         val remark: String?,
     ) {
-        val total get() = fulls.size + halfs.size * 0.5
+        val total get() = (fulls + halfs + overtimes).sumOf { it.factor }
     }
 
     private data class TargetAttendance(
@@ -159,6 +161,21 @@ internal class PDFViewModel(
                                                                         Employee(it.id, it.name, s, 0.5)
                                                                     } ?: Employee(id, null, null, 0.5)
                                                                 },
+                                                            overtimes =
+                                                                att.overtimes.map { overtime ->
+                                                                    employees?.find { it.id == overtime.employeeId }?.let {
+                                                                        val s =
+                                                                            it.salaries
+                                                                                .find { s -> attAll.id >= s.millis }
+                                                                                ?.salary
+                                                                        Employee(it.id, it.name, s, overtime.count)
+                                                                    } ?: Employee(
+                                                                        overtime.employeeId,
+                                                                        null,
+                                                                        null,
+                                                                        overtime.count,
+                                                                    )
+                                                                },
                                                             remark = att.remark.takeIf { request.includeRemark },
                                                         )
                                                     },
@@ -178,7 +195,7 @@ internal class PDFViewModel(
                                                             val salary =
                                                                 atts
                                                                     .sumOf { a ->
-                                                                        (a.fulls + a.halfs).sumOf {
+                                                                        (a.fulls + a.halfs + a.overtimes).sumOf {
                                                                             BigDecimal.valueOf(
                                                                                 (
                                                                                     it.salary?.toDouble()
@@ -199,7 +216,7 @@ internal class PDFViewModel(
                                         async(Dispatchers.Default) {
                                             flattenAtts
                                                 .flatMap { att ->
-                                                    att.fulls + att.halfs
+                                                    att.fulls + att.halfs + att.overtimes
                                                 }.groupBy { it.id }
                                                 .mapNotNull { (_, employees) ->
                                                     employees
@@ -365,6 +382,10 @@ internal class PDFViewModel(
                                                     paint = paint(14f, BLUE),
                                                 ),
                                                 Draw(
+                                                    text = "    **紅字加班 ",
+                                                    paint = paint(14f, RED),
+                                                ),
+                                                Draw(
                                                     text = "    **灰字備註",
                                                     paint = paint(14f, Color.GRAY),
                                                 ).takeIf { request.includeRemark },
@@ -458,6 +479,22 @@ internal class PDFViewModel(
                                                             ),
                                                         )
                                                     }
+                                                att.overtimes.takeIf { it.isNotEmpty() }?.let { overtimes ->
+                                                    overtimes.chunked(7).forEach { chunked ->
+                                                        draws(
+                                                            listOf(
+                                                                Draw(
+                                                                    text =
+                                                                        chunked.joinToString("／") {
+                                                                            "${it.name.orDeleted} ${AttendanceNumFormat(it.factor)}"
+                                                                        },
+                                                                    paint = paint(14f, RED),
+                                                                    x = w,
+                                                                ),
+                                                            ),
+                                                        )
+                                                    }
+                                                }
                                             }
                                             newLine(4f)
                                         }

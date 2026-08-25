@@ -9,13 +9,19 @@ internal data class Attendance(
     val siteId: Long,
     val fulls: List<Long>,
     val halfs: List<Long>,
+    val overtimes: List<Overtime>,
     val remark: String?,
-    val images: List<AttendanceImage>,
+    val images: List<Image>,
 ) {
-    val total get() = fulls.size + halfs.size * 0.5
-}
+    internal data class Overtime(
+        val employeeId: Long,
+        val count: Double,
+    )
 
-internal data class AttendanceImage(
-    val path: String,
-    val downloadUrl: String,
-)
+    internal data class Image(
+        val path: String,
+        val downloadUrl: String,
+    )
+
+    val total get() = fulls.size + halfs.size * 0.5 + overtimes.sumOf { it.count }
+}

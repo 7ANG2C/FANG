@@ -28,5 +28,12 @@ internal data class SiteMoney(
         val att: Double,
         val fulls: List<Employee>?,
         val halfs: List<Employee>?,
+        val overtimes: List<Overtime>?,
+    )
+
+    data class Overtime(
+        val employee: Employee?,
+        val employeeId: Long,
+        val count: Double,
     )
 }

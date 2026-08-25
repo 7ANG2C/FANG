@@ -32,6 +32,7 @@ import com.fang.arrangement.ui.shared.component.button.component.PositiveButton
 import com.fang.arrangement.ui.shared.component.chip.AttendanceChip
 import com.fang.arrangement.ui.shared.component.dialog.DialogShared
 import com.fang.arrangement.ui.shared.component.dialog.dialogBg
+import com.fang.arrangement.ui.shared.dsl.AttendanceNumFormat
 import com.fang.arrangement.ui.shared.dsl.ContentText
 import com.fang.arrangement.ui.shared.dsl.EmployeeTag
 import com.fang.arrangement.ui.shared.dsl.HighlightText
@@ -196,6 +197,7 @@ private fun MonthlyDialog(ySummary: MutableState<YearAttendance.Summary?>) {
                             ) {
                                 val fulls = month.fullDays.map { it to true }
                                 val halfs = month.halfDays.map { it to false }
+                                val overtimes = month.overtimes.associate { it.day to it.count }
                                 (fulls + halfs)
                                     .sortedBy { it.first }
                                     .forEachIndexed { i, pair ->
@@ -212,8 +214,13 @@ private fun MonthlyDialog(ySummary: MutableState<YearAttendance.Summary?>) {
                                                 ArrText(text = "·") { style }
                                                 HorizontalSpacer(1)
                                             }
+                                            val overtime =
+                                                overtimes[day]
+                                                    ?.let {
+                                                        "(+${AttendanceNumFormat(it)})"
+                                                    }.orEmpty()
                                             ArrText(
-                                                text = day.toString(),
+                                                text = day.toString() + overtime,
                                                 modifier =
                                                     if (isFull) {
                                                         Modifier

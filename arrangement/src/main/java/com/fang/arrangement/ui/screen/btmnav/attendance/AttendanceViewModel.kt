@@ -14,7 +14,6 @@ import com.fang.arrangement.definition.storage.AttendanceImageRepository
 import com.fang.arrangement.ui.shared.dsl.Remark
 import com.fang.cosmos.definition.workstate.WorkState
 import com.fang.cosmos.definition.workstate.WorkStateImpl
-import com.fang.cosmos.foundation.logD
 import com.fang.cosmos.foundation.mapNoNull
 import com.fang.cosmos.foundation.takeIfNotBlank
 import com.fang.cosmos.foundation.time.calendar.midnight
@@ -86,9 +85,9 @@ internal class AttendanceViewModel(
                                                 fulls =
                                                     att.fulls
                                                         .map { id ->
-                                                            MEmployee(id, findEmployee(id))
+                                                            MAttendance.MEmployee(id, findEmployee(id))
                                                         }.sortedWith(
-                                                            compareBy<MEmployee>(
+                                                            compareBy<MAttendance.MEmployee>(
                                                                 { it.employee == null },
                                                                 { it.employee?.isDelete == true },
                                                                 { it.employee?.isExpire == true },
@@ -97,16 +96,35 @@ internal class AttendanceViewModel(
                                                 halfs =
                                                     att.halfs
                                                         .map { id ->
-                                                            MEmployee(id, findEmployee(id))
+                                                            MAttendance.MEmployee(id, findEmployee(id))
                                                         }.sortedWith(
-                                                            compareBy<MEmployee>(
+                                                            compareBy<MAttendance.MEmployee>(
                                                                 { it.employee == null },
                                                                 { it.employee?.isDelete == true },
                                                                 { it.employee?.isExpire == true },
                                                             ).thenBy { it.employee?.order },
                                                         ),
+                                                overtimes =
+                                                    att.overtimes
+                                                        .filter { it.count != 0.0 }
+                                                        .map { overtime ->
+                                                            MAttendance.Overtime(
+                                                                employee =
+                                                                    MAttendance.MEmployee(
+                                                                        overtime.employeeId,
+                                                                        findEmployee(overtime.employeeId),
+                                                                    ),
+                                                                count = overtime.count,
+                                                            )
+                                                        }.sortedWith(
+                                                            compareBy<MAttendance.Overtime>(
+                                                                { it.employee.employee == null },
+                                                                { it.employee.employee?.isDelete == true },
+                                                                { it.employee.employee?.isExpire == true },
+                                                            ).thenBy { it.employee.employee?.order },
+                                                        ),
                                                 remark = att.remark.takeIfNotBlank,
-                                                images = att.images.map { MAttendanceImage(remote = it) },
+                                                images = att.images.map { MAttendance.Image(remote = it) },
                                             )
                                         }.sortedWith(
                                             compareBy<MAttendance>(
@@ -152,6 +170,7 @@ internal class AttendanceViewModel(
                                     site = site,
                                     fulls = emptyList(),
                                     halfs = emptyList(),
+                                    overtimes = emptyList(),
                                     remark = null,
                                     images = emptyList(),
                                 )
@@ -176,6 +195,7 @@ internal class AttendanceViewModel(
                     site = site,
                     fulls = emptyList(),
                     halfs = emptyList(),
+                    overtimes = emptyList(),
                     remark = null,
                     images = emptyList(),
                 )
@@ -210,45 +230,68 @@ internal class AttendanceViewModel(
 
     fun editSingleSiteEmployee(
         isFull: Boolean,
-        employee: MEmployee,
+        employee: MAttendance.MEmployee,
     ) {
         _mAttEdit.update { old ->
+            val fulls =
+                when {
+                    isFull && employee in old.fulls -> old.fulls - employee
+                    isFull -> (old.fulls + employee).sortedEmployees()
+                    else -> old.fulls - employee
+                }
+            val halfs =
+                when {
+                    !isFull && employee in old.halfs -> old.halfs - employee
+                    !isFull -> (old.halfs + employee).sortedEmployees()
+                    else -> old.halfs - employee
+                }
             old.copy(
-                fulls =
-                    if (isFull) {
-                        if (employee in old.fulls) {
-                            old.fulls - employee
-                        } else {
-                            (old.fulls + employee).sortedWith(
-                                compareBy<MEmployee>(
-                                    { it.employee == null },
-                                    { it.employee?.isDelete == true },
-                                    { it.employee?.isExpire == true },
-                                ).thenBy { it.employee?.order },
-                            )
-                        }
-                    } else {
-                        old.fulls - employee
-                    },
-                halfs =
-                    if (isFull) {
-                        old.halfs - employee
-                    } else {
-                        if (employee in old.halfs) {
-                            old.halfs - employee
-                        } else {
-                            (old.halfs + employee).sortedWith(
-                                compareBy<MEmployee>(
-                                    { it.employee == null },
-                                    { it.employee?.isDelete == true },
-                                    { it.employee?.isExpire == true },
-                                ).thenBy { it.employee?.order },
-                            )
-                        }
+                fulls = fulls,
+                halfs = halfs,
+                overtimes =
+                    old.overtimes.filterNot {
+                        it.employee == employee && employee !in fulls && employee !in halfs
                     },
             )
         }
     }
+
+    fun editSingleSiteOvertime(
+        employee: MAttendance.MEmployee,
+        increase: Boolean,
+    ) {
+        _mAttEdit.update { old ->
+            if (employee !in old.fulls && employee !in old.halfs) {
+                old
+            } else {
+                val current = old.overtimes.find { it.employee == employee }?.count ?: 0.0
+                val count = (current + if (increase) 0.5 else -0.5).coerceIn(0.0, 9.0)
+                old.copy(
+                    overtimes =
+                        (
+                            old.overtimes.filterNot { it.employee == employee } +
+                                MAttendance.Overtime(employee, count).takeIf { count != 0.0 }
+                        ).filterNotNull()
+                            .sortedWith(
+                                compareBy<MAttendance.Overtime>(
+                                    { it.employee.employee == null },
+                                    { it.employee.employee?.isDelete == true },
+                                    { it.employee.employee?.isExpire == true },
+                                ).thenBy { it.employee.employee?.order },
+                            ),
+                )
+            }
+        }
+    }
+
+    private fun List<MAttendance.MEmployee>.sortedEmployees() =
+        sortedWith(
+            compareBy<MAttendance.MEmployee>(
+                { it.employee == null },
+                { it.employee?.isDelete == true },
+                { it.employee?.isExpire == true },
+            ).thenBy { it.employee?.order },
+        )
 
     fun editSingleSiteRemark(remark: String?) {
         _mAttEdit.update { old ->
@@ -273,7 +316,7 @@ internal class AttendanceViewModel(
                                 } else {
                                     attendance.copy(
                                         images =
-                                            (attendance.images + uris.map { MAttendanceImage(localUri = it) })
+                                            (attendance.images + uris.map { MAttendance.Image(localUri = it) })
                                                 .take(MAttendance.MAX_IMAGE_COUNT),
                                     )
                                 }
@@ -285,7 +328,7 @@ internal class AttendanceViewModel(
 
     fun removeImage(
         siteId: Long,
-        image: MAttendanceImage,
+        image: MAttendance.Image,
     ) {
         _editBundle.update { bundle ->
             bundle?.copy(
@@ -379,6 +422,12 @@ internal class AttendanceViewModel(
                         siteId = siteEdit.siteId,
                         fulls = siteEdit.fulls.map { it.id },
                         halfs = siteEdit.halfs.map { it.id },
+                        overtimes =
+                            siteEdit.overtimes
+                                .filter { it.count != 0.0 }
+                                .map {
+                                    Attendance.Overtime(it.employee.id, it.count)
+                                },
                         remark = siteEdit.remark.orEmpty().trim(),
                         images =
                             siteEdit.images

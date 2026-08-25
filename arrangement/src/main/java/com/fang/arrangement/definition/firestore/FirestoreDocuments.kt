@@ -1,8 +1,8 @@
 package com.fang.arrangement.definition.firestore
 
 import com.fang.arrangement.definition.Attendance
+import com.fang.arrangement.definition.Attendance.Overtime
 import com.fang.arrangement.definition.AttendanceAll
-import com.fang.arrangement.definition.AttendanceImage
 import com.fang.arrangement.definition.Boss
 import com.fang.arrangement.definition.Employee
 import com.fang.arrangement.definition.Fund
@@ -26,14 +26,20 @@ internal data class FsAttendance(
     var id: Long = 0L,
     var full: List<Long> = emptyList(),
     var half: List<Long> = emptyList(),
+    var overtimes: List<Overtime> = emptyList(),
     var remark: String? = null,
-    var images: List<FsAttendanceImage> = emptyList(),
-)
+    var images: List<Image> = emptyList(),
+) {
+    internal data class Overtime(
+        val employeeId: Long = 0L,
+        val count: Double = 0.0,
+    )
 
-internal data class FsAttendanceImage(
-    var path: String = "",
-    var downloadUrl: String = "",
-)
+    internal data class Image(
+        var path: String = "",
+        var downloadUrl: String = "",
+    )
+}
 
 internal data class FsEmployee(
     var id: Long = 0L,
@@ -104,58 +110,78 @@ internal data class FsSite(
     var delete: Int = 0,
 )
 
-internal fun FsAttendanceAll.toDomain() =
+internal fun FsAttendanceAll.domain() =
     AttendanceAll(
         id = millis,
-        attendances = attendances.map(FsAttendance::toDomain),
+        attendances = attendances.map(FsAttendance::domain),
     )
 
-internal fun AttendanceAll.toFirestore() =
+internal fun AttendanceAll.firestore() =
     FsAttendanceAll(
         millis = id,
-        attendances = attendances.map(Attendance::toFirestore),
+        attendances = attendances.map(Attendance::firestore),
     )
 
-internal fun FsAttendance.toDomain() = Attendance(id, full, half, remark, images.map(FsAttendanceImage::toDomain))
+internal fun FsAttendance.domain() =
+    Attendance(
+        siteId = id,
+        fulls = full,
+        halfs = half,
+        overtimes = overtimes.map(FsAttendance.Overtime::domain),
+        remark = remark,
+        images = images.map(FsAttendance.Image::domain),
+    )
 
-internal fun Attendance.toFirestore() = FsAttendance(siteId, fulls, halfs, remark, images.map(AttendanceImage::toFirestore))
+internal fun Attendance.firestore() =
+    FsAttendance(
+        id = siteId,
+        full = fulls,
+        half = halfs,
+        overtimes = overtimes.filter { it.count != 0.0 }.map(Overtime::firestore),
+        remark = remark,
+        images = images.map(Attendance.Image::firestore),
+    )
 
-internal fun FsAttendanceImage.toDomain() = AttendanceImage(path, downloadUrl)
+internal fun FsAttendance.Image.domain() = Attendance.Image(path, downloadUrl)
 
-internal fun AttendanceImage.toFirestore() = FsAttendanceImage(path, downloadUrl)
+internal fun Attendance.Image.firestore() = FsAttendance.Image(path, downloadUrl)
 
-internal fun FsEmployee.toDomain() = Employee(id, name, salaries.map(FsSalary::toDomain), expired, delete, order)
+internal fun Overtime.firestore() = FsAttendance.Overtime(employeeId, count)
 
-internal fun Employee.toFirestore() = FsEmployee(id, name, salaries.map(Salary::toFirestore), expiredMillis, delete, order)
+internal fun FsAttendance.Overtime.domain() = Overtime(employeeId, count)
 
-internal fun FsSalary.toDomain() = Salary(millis, salary)
+internal fun FsEmployee.domain() = Employee(id, name, salaries.map(FsSalary::domain), expired, delete, order)
 
-internal fun Salary.toFirestore() = FsSalary(millis, salary)
+internal fun Employee.firestore() = FsEmployee(id, name, salaries.map(Salary::firestore), expiredMillis, delete, order)
 
-internal fun FsLoan.toDomain() = Loan(id, employee, loan, millis, records.map(FsLoanRecord::toDomain), remark)
+internal fun FsSalary.domain() = Salary(millis, salary)
 
-internal fun Loan.toFirestore() = FsLoan(id, employeeId, loan, millis, records.map(Record::toFirestore), remark)
+internal fun Salary.firestore() = FsSalary(millis, salary)
 
-internal fun FsLoanRecord.toDomain() = Record(millis, loan, remark)
+internal fun FsLoan.domain() = Loan(id, employee, loan, millis, records.map(FsLoanRecord::domain), remark)
 
-internal fun Record.toFirestore() = FsLoanRecord(millis, loan, remark)
+internal fun Loan.firestore() = FsLoan(id, employeeId, loan, millis, records.map(Record::firestore), remark)
 
-internal fun FsFund.toDomain() = Fund(id, fund, millis, site, remark)
+internal fun FsLoanRecord.domain() = Record(millis, loan, remark)
 
-internal fun Fund.toFirestore() = FsFund(id, fund, millis, siteId, remark)
+internal fun Record.firestore() = FsLoanRecord(millis, loan, remark)
 
-internal fun FsPayback.toDomain() = Payback(id, boss, loan, millis, records.map(FsPaybackRecord::toDomain), remark)
+internal fun FsFund.domain() = Fund(id, fund, millis, site, remark)
 
-internal fun Payback.toFirestore() = FsPayback(id, bossId, payback, millis, records.map(PaybackRecord::toFirestore), remark)
+internal fun Fund.firestore() = FsFund(id, fund, millis, siteId, remark)
 
-internal fun FsPaybackRecord.toDomain() = PaybackRecord(millis, loan, remark)
+internal fun FsPayback.domain() = Payback(id, boss, loan, millis, records.map(FsPaybackRecord::domain), remark)
 
-internal fun PaybackRecord.toFirestore() = FsPaybackRecord(millis, payback, remark)
+internal fun Payback.firestore() = FsPayback(id, bossId, payback, millis, records.map(PaybackRecord::firestore), remark)
 
-internal fun FsBoss.toDomain() = Boss(id, name, delete)
+internal fun FsPaybackRecord.domain() = PaybackRecord(millis, loan, remark)
 
-internal fun Boss.toFirestore() = FsBoss(id, name, delete)
+internal fun PaybackRecord.firestore() = FsPaybackRecord(millis, payback, remark)
 
-internal fun FsSite.toDomain() = Site(id, name, address, income, start, end, archive, delete)
+internal fun FsBoss.domain() = Boss(id, name, delete)
 
-internal fun Site.toFirestore() = FsSite(id, name, address, income, startMillis, endMillis, archive, delete)
+internal fun Boss.firestore() = FsBoss(id, name, delete)
+
+internal fun FsSite.domain() = Site(id, name, address, income, start, end, archive, delete)
+
+internal fun Site.firestore() = FsSite(id, name, address, income, startMillis, endMillis, archive, delete)

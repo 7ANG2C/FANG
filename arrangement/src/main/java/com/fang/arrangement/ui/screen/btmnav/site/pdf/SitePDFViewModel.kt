@@ -44,6 +44,7 @@ internal class SitePDFViewModel(
     WorkState by WorkStateImpl() {
     private companion object {
         val BLUE = "#0270ed".toColorInt()
+        val RED = "#bf0625".toColorInt()
         const val WIDTH = 595
         const val HEIGHT = 842
         const val LEFT_MARGIN = 20f
@@ -72,9 +73,10 @@ internal class SitePDFViewModel(
         val site: Site,
         val fulls: List<Employee>,
         val halfs: List<Employee>,
+        val overtimes: List<Employee>,
         val remark: String?,
     ) {
-        val total get() = fulls.size + halfs.size * 0.5
+        val total get() = (fulls + halfs + overtimes).sumOf { it.factor }
     }
 
     private data class TargetAttendance(
@@ -188,6 +190,21 @@ internal class SitePDFViewModel(
                                                                         0.5,
                                                                     )
                                                                 },
+                                                            overtimes =
+                                                                att.overtimes.map { overtime ->
+                                                                    employees?.find { it.id == overtime.employeeId }?.let {
+                                                                        val s =
+                                                                            it.salaries
+                                                                                .find { s -> attAll.id >= s.millis }
+                                                                                ?.salary
+                                                                        Employee(it.id, it.name, s, overtime.count)
+                                                                    } ?: Employee(
+                                                                        overtime.employeeId,
+                                                                        null,
+                                                                        null,
+                                                                        overtime.count,
+                                                                    )
+                                                                },
                                                             remark = att.remark.takeIf { request.includeRemark },
                                                         ).takeIf { att.siteId == site?.id }
                                                     },
@@ -197,7 +214,7 @@ internal class SitePDFViewModel(
                                     val pdfEmployees =
                                         flattenAtts
                                             .flatMap { att ->
-                                                att.fulls + att.halfs
+                                                att.fulls + att.halfs + att.overtimes
                                             }.groupBy { it.id }
                                             .mapNotNull { (_, employees) ->
                                                 employees
@@ -352,6 +369,10 @@ internal class SitePDFViewModel(
                                                     paint = paint(14f, BLUE),
                                                 ).takeIf { request.showDailyEmployee },
                                                 Draw(
+                                                    text = "    **紅字加班 ",
+                                                    paint = paint(14f, RED),
+                                                ).takeIf { request.showDailyEmployee },
+                                                Draw(
                                                     text = "    **灰字備註",
                                                     paint = paint(14f, Color.GRAY),
                                                 ).takeIf { request.includeRemark },
@@ -438,6 +459,22 @@ internal class SitePDFViewModel(
                                                         ) + employeeDraws.firstOrNull().orEmpty(),
                                                     )
                                                     employeeDraws.drop(1).forEach { draws(it) }
+                                                    att.overtimes.takeIf { it.isNotEmpty() }?.let { overtimes ->
+                                                        overtimes.chunked(7).forEach { chunked ->
+                                                            draws(
+                                                                listOf(
+                                                                    Draw(
+                                                                        text =
+                                                                            chunked.joinToString("／") {
+                                                                                "${it.name.orDeleted} ${AttendanceNumFormat(it.factor)}"
+                                                                            },
+                                                                        paint = paint(14f, RED),
+                                                                        x = w,
+                                                                    ),
+                                                                ),
+                                                            )
+                                                        }
+                                                    }
                                                     draws(
                                                         listOfNotNull(
                                                             Draw(

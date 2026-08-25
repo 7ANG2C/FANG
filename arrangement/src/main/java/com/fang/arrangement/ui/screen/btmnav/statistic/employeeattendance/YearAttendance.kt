@@ -16,6 +16,12 @@ internal data class YearAttendance(
             val month: Int,
             val halfDays: List<Int>,
             val fullDays: List<Int>,
+            val overtimes: List<Overtime>,
+        )
+
+        internal data class Overtime(
+            val day: Int,
+            val count: Double,
         )
     }
 }

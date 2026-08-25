@@ -8,7 +8,7 @@ import android.net.Uri
 import androidx.core.graphics.scale
 import androidx.exifinterface.media.ExifInterface
 import com.fang.arrangement.Arrangement
-import com.fang.arrangement.definition.AttendanceImage
+import com.fang.arrangement.definition.Attendance
 import com.google.firebase.storage.FirebaseStorage
 import com.google.firebase.storage.StorageMetadata
 import kotlinx.coroutines.Dispatchers
@@ -34,14 +34,14 @@ internal class AttendanceImageRepository(
         attendanceMillis: Long,
         siteId: Long,
         uri: Uri,
-    ): AttendanceImage =
+    ): Attendance.Image =
         withContext(Dispatchers.IO) {
             val path = "attendance/${Arrangement.current.id}/$attendanceMillis/$siteId/${UUID.randomUUID()}.jpg"
             val reference = storage.reference.child(path)
             val bytes = compress(uri)
             val metadata = StorageMetadata.Builder().setContentType("image/jpeg").build()
             reference.putBytes(bytes, metadata).await()
-            AttendanceImage(path = reference.path, downloadUrl = reference.downloadUrl.await().toString())
+            Attendance.Image(path = reference.path, downloadUrl = reference.downloadUrl.await().toString())
         }
 
     suspend fun delete(path: String) {

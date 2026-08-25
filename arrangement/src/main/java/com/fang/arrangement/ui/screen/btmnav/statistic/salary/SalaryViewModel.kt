@@ -66,6 +66,13 @@ internal class SalaryViewModel(
                                                                     attMillis = monthAtt.id,
                                                                     attFactor = 0.5,
                                                                 )
+                                                            } +
+                                                            att.overtimes.map {
+                                                                Mediator(
+                                                                    employeeId = it.employeeId,
+                                                                    attMillis = monthAtt.id,
+                                                                    attFactor = it.count,
+                                                                )
                                                             }
                                                     }
                                                 }.groupBy { it.employeeId }

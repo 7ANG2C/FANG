@@ -40,6 +40,12 @@ internal class EmployeeAttendanceViewModel(
             override val employeeId: Long,
             override val attMillis: Long,
         ) : Mediator(employeeId, attMillis, 0.5)
+
+        class Overtime(
+            override val employeeId: Long,
+            override val attMillis: Long,
+            count: Double,
+        ) : Mediator(employeeId, attMillis, count)
     }
 
     private data class FlattenAtt(
@@ -95,6 +101,13 @@ internal class EmployeeAttendanceViewModel(
                                                 employeeId = it,
                                                 attMillis = fAtt.attMillis,
                                             )
+                                        } +
+                                        fAtt.attendance.overtimes.map {
+                                            Mediator.Overtime(
+                                                employeeId = it.employeeId,
+                                                attMillis = fAtt.attMillis,
+                                                count = it.count,
+                                            )
                                         }
                                 }.groupBy { it.employeeId }
                                 .mapNotNull { (employeeId, eMediators) ->
@@ -125,6 +138,16 @@ internal class EmployeeAttendanceViewModel(
                                                                 values.filterIsInstance<Mediator.Full>().map {
                                                                     today(it.attMillis).dayOfMonth
                                                                 },
+                                                            overtimes =
+                                                                values
+                                                                    .filterIsInstance<Mediator.Overtime>()
+                                                                    .groupBy { today(it.attMillis).dayOfMonth }
+                                                                    .map { (day, overtimes) ->
+                                                                        YearAttendance.Summary.Overtime(
+                                                                            day = day,
+                                                                            count = overtimes.sumOf { it.attFactor },
+                                                                        )
+                                                                    },
                                                         )
                                                     },
                                         ).takeIf { show }

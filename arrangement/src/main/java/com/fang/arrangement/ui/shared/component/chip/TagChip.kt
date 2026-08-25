@@ -19,6 +19,7 @@ import androidx.compose.ui.text.PlatformTextStyle
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.fang.arrangement.ui.shared.dsl.HighlightText
 import com.fang.cosmos.foundation.ui.dsl.ColorLuma
 import com.fang.cosmos.foundation.ui.dsl.MaterialColor
 import com.fang.cosmos.foundation.ui.dsl.MaterialShape
@@ -38,6 +39,14 @@ internal fun HalfChip(
     tint: Color = MaterialColor.primary,
 ) {
     OutlinedTag(modifier = modifier, text = '半', tint = tint)
+}
+
+@Composable
+internal fun OvertimeChip(
+    modifier: Modifier = Modifier,
+    tint: Color = HighlightText.color,
+) {
+    OutlinedTag(modifier = modifier, text = '加', tint = tint)
 }
 
 @Composable

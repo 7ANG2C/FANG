@@ -92,6 +92,18 @@ internal class SiteViewModel(
                                                         }?.salary ?: 0
                                                 }
                                             } * 0.5
+                                        val overtime =
+                                            atts.sumOf { p ->
+                                                p.second.overtimes.sumOf { overtime ->
+                                                    (
+                                                        employees
+                                                            ?.find { it.id == overtime.employeeId }
+                                                            ?.salaries
+                                                            ?.find { s -> p.first >= s.millis }
+                                                            ?.salary ?: 0
+                                                    ) * overtime.count
+                                                }
+                                            }
                                         SiteMoney(
                                             att = atts.sumOf { it.second.total }.takeIf { it > 0.0 },
                                             years =
@@ -124,13 +136,26 @@ internal class SiteViewModel(
                                                                                                 .mapNotNull { eId ->
                                                                                                     employees?.find { e -> e.id == eId }
                                                                                                 }.takeIf { it.isNotEmpty() },
+                                                                                        overtimes =
+                                                                                            pair.second.overtimes
+                                                                                                .map { overtime ->
+                                                                                                    SiteMoney.Overtime(
+                                                                                                        employee =
+                                                                                                            employees?.find {
+                                                                                                                it.id ==
+                                                                                                                    overtime.employeeId
+                                                                                                            },
+                                                                                                        employeeId = overtime.employeeId,
+                                                                                                        count = overtime.count,
+                                                                                                    )
+                                                                                                }.takeIf { it.isNotEmpty() },
                                                                                     )
                                                                                 },
                                                                         )
                                                                     },
                                                         )
                                                     },
-                                            salary = (full + half).takeIf { it > 0.0 },
+                                            salary = (full + half + overtime).takeIf { it > 0.0 },
                                         )
                                     }.orEmpty()
                             }

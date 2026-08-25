@@ -2,7 +2,6 @@ package com.fang.arrangement.ui.screen.btmnav.site
 
 import android.content.Intent
 import android.net.Uri
-import android.widget.Toast
 import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -12,6 +11,7 @@ import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
@@ -38,6 +38,7 @@ import com.fang.arrangement.ui.screen.btmnav.site.pdf.SitePDFDialog
 import com.fang.arrangement.ui.screen.btmnav.site.pdf.SitePDFViewModel
 import com.fang.arrangement.ui.shared.component.ArrText
 import com.fang.arrangement.ui.shared.component.ArrangementList
+import com.fang.arrangement.ui.shared.component.DashedLine
 import com.fang.arrangement.ui.shared.component.DateSelector
 import com.fang.arrangement.ui.shared.component.ToggleBox
 import com.fang.arrangement.ui.shared.component.button.component.PositiveButton
@@ -80,7 +81,6 @@ import com.fang.cosmos.foundation.ui.ext.clickableNoRipple
 import com.fang.cosmos.foundation.ui.ext.color
 import com.fang.cosmos.foundation.ui.ext.stateValue
 import org.koin.androidx.compose.koinViewModel
-import com.fang.arrangement.Arrangement as FArrangement
 
 @Composable
 internal fun SiteScreen(
@@ -263,7 +263,6 @@ private fun MonthlyDialog(
         remember {
             mutableStateOf<SiteMoney.Day?>(null)
         }
-    var showToast by remember { mutableStateOf(true) }
     DialogThemedScreen(isShow = ySummary.value != null) {
         Column(
             modifier =
@@ -345,7 +344,6 @@ private fun MonthlyDialog(
                                                 Row(
                                                     modifier =
                                                         Modifier.clickableNoRipple {
-                                                            showToast = true && FArrangement.isFancy
                                                             showEmployee.value = day
                                                         },
                                                 ) {
@@ -398,33 +396,16 @@ private fun MonthlyDialog(
                 ?.indexOfFirst { (y, m, d) ->
                     y == today.year && m == today.month && d.dateMillis == dayMillis
                 }
-        val context = LocalContext.current
         MonthlyEmployeeDialog(
             showEmployee = showEmployeeState,
             pre =
                 currentIndex
                     ?.takeIf { it != 0 }
-                    ?.let {
-                        {
-                            if (showToast) {
-                                showToast = false
-                                Toast.makeText(context, "胖手指 Ծ‸Ծ", Toast.LENGTH_LONG).show()
-                            }
-                            showEmployeeState.value = flattenList[it - 1].third
-                        }
-                    },
+                    ?.let { { showEmployeeState.value = flattenList[it - 1].third } },
             next =
                 currentIndex
                     ?.takeIf { it != flattenList.lastIndex }
-                    ?.let {
-                        {
-                            if (showToast) {
-                                showToast = false
-                                Toast.makeText(context, "手指胖 Ծ‸Ծ", Toast.LENGTH_LONG).show()
-                            }
-                            showEmployeeState.value = flattenList[it + 1].third
-                        }
-                    },
+                    ?.let { { showEmployeeState.value = flattenList[it + 1].third } },
         )
     }
 }
@@ -476,13 +457,30 @@ private fun MonthlyEmployeeDialog(
                         verticalArrangement = Arrangement.spacedBy(6.dp),
                         horizontalAlignment = Alignment.CenterHorizontally,
                     ) {
-                        summary.fulls?.joinToString("、") { it.name }?.let {
-                            ContentText(text = it)
+                        summary.fulls?.joinToString("、") { it.name }?.let { text ->
+                            Row(Modifier.fillMaxWidth()) {
+                                listOf("全：", text).forEach { ContentText(text = it) }
+                            }
                         }
-                        summary.halfs?.joinToString("、") { it.name }?.let {
-                            ArrText(
-                                text = it,
-                            ) { ContentText.style.color(HighlightText.color) }
+                        summary.halfs?.joinToString("、") { it.name }?.let { text ->
+                            DashedLine(Modifier.fillMaxWidth().height(1.dp))
+                            Row(Modifier.fillMaxWidth()) {
+                                listOf("半：", text).forEach { ContentText(text = it) }
+                            }
+                        }
+                        summary.overtimes?.takeIf { it.isNotEmpty() }?.let { list ->
+                            DashedLine(Modifier.fillMaxWidth().height(1.dp))
+                            val text =
+                                list.joinToString("、") { overtime ->
+                                    "${overtime.employee?.name ?: overtime.employeeId} ${AttendanceNumFormat(overtime.count)}"
+                                }
+                            Row(Modifier.fillMaxWidth()) {
+                                listOf("加：", text).forEach {
+                                    ArrText(
+                                        text = it,
+                                    ) { ContentText.style.color(HighlightText.color) }
+                                }
+                            }
                         }
                     }
                     CustomIcon(

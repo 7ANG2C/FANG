@@ -15,8 +15,8 @@ import com.fang.arrangement.definition.firestore.FsFund
 import com.fang.arrangement.definition.firestore.FsLoan
 import com.fang.arrangement.definition.firestore.FsPayback
 import com.fang.arrangement.definition.firestore.FsSite
-import com.fang.arrangement.definition.firestore.toDomain
-import com.fang.arrangement.definition.firestore.toFirestore
+import com.fang.arrangement.definition.firestore.domain
+import com.fang.arrangement.definition.firestore.firestore
 import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.MetadataChanges
@@ -70,30 +70,30 @@ internal class SheetRepository(
                 "attendance",
                 AttendanceAll::class.java,
                 FsAttendanceAll::class.java,
-                FsAttendanceAll::toDomain,
-                AttendanceAll::toFirestore,
+                FsAttendanceAll::domain,
+                AttendanceAll::firestore,
                 AttendanceAll::id,
             ),
-            TypedCollection("loans", Loan::class.java, FsLoan::class.java, FsLoan::toDomain, Loan::toFirestore, Loan::id),
-            TypedCollection("funds", Fund::class.java, FsFund::class.java, FsFund::toDomain, Fund::toFirestore, Fund::id),
+            TypedCollection("loans", Loan::class.java, FsLoan::class.java, FsLoan::domain, Loan::firestore, Loan::id),
+            TypedCollection("funds", Fund::class.java, FsFund::class.java, FsFund::domain, Fund::firestore, Fund::id),
             TypedCollection(
                 "paybacks",
                 Payback::class.java,
                 FsPayback::class.java,
-                FsPayback::toDomain,
-                Payback::toFirestore,
+                FsPayback::domain,
+                Payback::firestore,
                 Payback::id,
             ),
-            TypedCollection("bosses", Boss::class.java, FsBoss::class.java, FsBoss::toDomain, Boss::toFirestore, Boss::id),
+            TypedCollection("bosses", Boss::class.java, FsBoss::class.java, FsBoss::domain, Boss::firestore, Boss::id),
             TypedCollection(
                 "employees",
                 Employee::class.java,
                 FsEmployee::class.java,
-                FsEmployee::toDomain,
-                Employee::toFirestore,
+                FsEmployee::domain,
+                Employee::firestore,
                 Employee::id,
             ),
-            TypedCollection("sites", Site::class.java, FsSite::class.java, FsSite::toDomain, Site::toFirestore, Site::id),
+            TypedCollection("sites", Site::class.java, FsSite::class.java, FsSite::domain, Site::firestore, Site::id),
         )
 
     @PublishedApi

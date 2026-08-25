@@ -6,6 +6,7 @@ import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.gestures.awaitEachGesture
@@ -20,12 +21,14 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.CircularProgressIndicator
@@ -39,11 +42,13 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
@@ -63,6 +68,7 @@ import com.fang.arrangement.R
 import com.fang.arrangement.foundation.orDash
 import com.fang.arrangement.ui.shared.component.ArrText
 import com.fang.arrangement.ui.shared.component.ArrangementList
+import com.fang.arrangement.ui.shared.component.DashedLine
 import com.fang.arrangement.ui.shared.component.DateSelector
 import com.fang.arrangement.ui.shared.component.button.component.PositiveButton
 import com.fang.arrangement.ui.shared.component.button.composition.ButtonSets
@@ -71,10 +77,12 @@ import com.fang.arrangement.ui.shared.component.chip.AttendanceChip
 import com.fang.arrangement.ui.shared.component.chip.DeletedTag
 import com.fang.arrangement.ui.shared.component.chip.FullChip
 import com.fang.arrangement.ui.shared.component.chip.HalfChip
+import com.fang.arrangement.ui.shared.component.chip.OvertimeChip
 import com.fang.arrangement.ui.shared.component.dialog.EditDialog
 import com.fang.arrangement.ui.shared.component.dialog.ErrorDialog
 import com.fang.arrangement.ui.shared.component.dialog.Loading
 import com.fang.arrangement.ui.shared.component.inputfield.StringInputField
+import com.fang.arrangement.ui.shared.dsl.AttendanceNumFormat
 import com.fang.arrangement.ui.shared.dsl.ContentText
 import com.fang.arrangement.ui.shared.dsl.EmployeeTag
 import com.fang.arrangement.ui.shared.dsl.HighlightText
@@ -92,6 +100,7 @@ import com.fang.cosmos.foundation.ui.dsl.MaterialShape
 import com.fang.cosmos.foundation.ui.dsl.MaterialTypography
 import com.fang.cosmos.foundation.ui.dsl.screenHeightDp
 import com.fang.cosmos.foundation.ui.ext.bg
+import com.fang.cosmos.foundation.ui.ext.clickableNoRipple
 import com.fang.cosmos.foundation.ui.ext.color
 import com.fang.cosmos.foundation.ui.ext.fontSize
 import com.fang.cosmos.foundation.ui.ext.stateValue
@@ -116,7 +125,7 @@ internal fun AttendanceScreen(
         ) { item ->
             Column(Modifier) {
                 var isExpand by rememberSaveable { mutableStateOf(false) }
-                val total = item.attendances.sumOf { it.fulls.size + it.halfs.size * 0.5 }
+                val total = item.attendances.sumOf { it.total }
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     AttendanceChip(
                         attendance = total,
@@ -146,7 +155,7 @@ internal fun AttendanceScreen(
                         VerticalSpacer(4f)
                         item.attendances.forEach { mAtt ->
                             if (mAtt.fulls.isNotEmpty() || mAtt.halfs.isNotEmpty()) {
-                                val attTotal = mAtt.fulls.size + mAtt.halfs.size * 0.5
+                                val attTotal = mAtt.total
                                 VerticalSpacer(3.2f)
                                 Row {
                                     val style =
@@ -309,6 +318,33 @@ internal fun AttendanceScreen(
                                         }
                                     }
                                 }
+                                if (mAtt.overtimes.isNotEmpty()) {
+                                    VerticalSpacer(4)
+                                    Row {
+                                        Box(contentAlignment = Alignment.CenterEnd) {
+                                            ArrText(
+                                                text = "000.0",
+                                                modifier = Modifier.padding(horizontal = 4.dp),
+                                            ) { ContentText.style.color(Color.Transparent) }
+                                            OvertimeChip(modifier = Modifier.scale(0.88f))
+                                        }
+                                        HorizontalSpacer(8)
+                                        FlowRow {
+                                            val overtimeStyle = style.color(HighlightText.color.copy(alpha = 0.85f))
+                                            mAtt.overtimes.forEachIndexed { i, overtime ->
+                                                ArrText(
+                                                    text =
+                                                        "${overtime.employee.employee?.name ?: overtime.employee.id} ${AttendanceNumFormat(
+                                                            overtime.count,
+                                                        )}",
+                                                ) { overtimeStyle }
+                                                if (i != mAtt.overtimes.lastIndex) {
+                                                    ArrText(text = "・") { overtimeStyle }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
                                 mAtt.remark?.let { remark ->
                                     VerticalSpacer(1.8f)
                                     Row {
@@ -330,7 +366,7 @@ internal fun AttendanceScreen(
                                             onImageClick = { index ->
                                                 imageViewer =
                                                     ImageViewerState(
-                                                        mAtt.images.mapNotNull(MAttendanceImage::displayModel),
+                                                        mAtt.images.mapNotNull(MAttendance.Image::displayModel),
                                                         index,
                                                     )
                                             },
@@ -349,7 +385,7 @@ internal fun AttendanceScreen(
         dates = bundle.attAlls.map { it.id },
         viewModel = viewModel,
         onImageClick = { images, index ->
-            imageViewer = ImageViewerState(images.mapNotNull(MAttendanceImage::displayModel), index)
+            imageViewer = ImageViewerState(images.mapNotNull(MAttendance.Image::displayModel), index)
         },
     )
     ErrorDialog(viewModel)
@@ -363,13 +399,11 @@ internal fun AttendanceScreen(
                 Modifier
                     .fillMaxWidth()
                     .bg(RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp)) { surfaceBright }
-                    .heightIn(0.dp, screenHeightDp * 0.7f),
+                    .heightIn(0.dp, screenHeightDp * 0.7f)
+                    .padding(horizontal = 14.dp),
             ) {
                 Row(
-                    modifier =
-                        Modifier
-                            .fillMaxWidth()
-                            .padding(horizontal = 14.dp),
+                    modifier = Modifier.fillMaxWidth(),
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.Center,
                 ) {
@@ -393,32 +427,35 @@ internal fun AttendanceScreen(
                     }
                 }
                 HorizontalDivider(
-                    Modifier.padding(horizontal = 14.dp),
+                    Modifier.fillMaxWidth(),
                     color = MaterialColor.outline.copy(alpha = 0.52f),
                 )
                 Row(
-                    Modifier
-                        .padding(vertical = 8.dp)
-                        .padding(horizontal = 14.dp),
-                    horizontalArrangement = Arrangement.spacedBy(4.dp),
+                    Modifier.fillMaxWidth().padding(vertical = 8.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.End,
                 ) {
-                    Spacer(Modifier.weight(1.6f))
-                    Box(modifier = Modifier.weight(1f)) {
-                        FullChip(Modifier.align(Alignment.Center))
-                    }
-                    Box(modifier = Modifier.weight(1f)) {
-                        HalfChip(Modifier.align(Alignment.Center))
+                    FullChip(Modifier.heightIn(min = 20.dp))
+                    HorizontalSpacer(20)
+                    HalfChip(Modifier.heightIn(min = 20.dp))
+                    HorizontalSpacer(20)
+                    Box(contentAlignment = Alignment.Center) {
+                        Row(Modifier.alpha(0f)) {
+                            HorizontalSpacer(60.dp)
+                            HighlightText("0.0")
+                        }
+                        ContentText(text = "加班")
                     }
                 }
                 val mEmployees =
                     bundle.employees.mapNoNull({
                         it.notDelete && it.notExpire
-                    }) { MEmployee(it.id, it) }
+                    }) { MAttendance.MEmployee(it.id, it) }
                 val employees =
-                    (mEmployees + fulls + halfs)
+                    (mEmployees + fulls + halfs + overtimes.map { it.employee })
                         .distinctBy { it.id }
                         .sortedWith(
-                            compareBy<MEmployee>(
+                            compareBy<MAttendance.MEmployee>(
                                 { it.employee == null },
                                 { it.employee?.isDelete == true },
                                 { it.employee?.isExpire == true },
@@ -427,21 +464,16 @@ internal fun AttendanceScreen(
                 Column(
                     Modifier
                         .weight(1f, false)
-                        .padding(horizontal = 14.dp)
                         .verticalScroll(rememberScrollState()),
                     verticalArrangement = Arrangement.spacedBy(6.dp),
                 ) {
                     employees.forEach { employee ->
                         Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.spacedBy(4.dp),
+                            modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp),
                             verticalAlignment = Alignment.CenterVertically,
                         ) {
                             Row(
-                                modifier =
-                                    Modifier
-                                        .weight(1.6f)
-                                        .padding(vertical = 4.dp),
+                                modifier = Modifier.weight(1f),
                                 verticalAlignment = Alignment.CenterVertically,
                             ) {
                                 ArrText(
@@ -451,55 +483,76 @@ internal fun AttendanceScreen(
                                     HorizontalSpacer(4)
                                     EmployeeTag(employee = employee.employee)
                                 }
+                                DashedLine(Modifier.weight(1f).height(1.dp).padding(start = 16.dp))
                             }
+                            HorizontalSpacer(16)
                             listOf(fulls to true, halfs to false).forEach { (list, isFull) ->
-                                val employeeIn = employee in list
                                 Box(
                                     modifier =
                                         Modifier
-                                            .weight(1f)
-                                            .clip(MaterialShape.small)
-                                            .bg(MaterialShape.small) {
-                                                if (employeeIn) {
-                                                    MaterialColor.primaryContainer
-                                                } else {
-                                                    Color.Transparent
-                                                }
-                                            }.clickRipple {
+                                            .clickableNoRipple {
                                                 viewModel.editSingleSiteEmployee(isFull, employee)
-                                            }.padding(vertical = 4.dp),
+                                            },
                                     contentAlignment = Alignment.Center,
                                 ) {
-                                    if (isFull) {
-                                        FullChip(
-                                            tint =
-                                                if (employeeIn) {
-                                                    MaterialColor.primary
-                                                } else {
-                                                    MaterialColor.outline
-                                                },
-                                        )
-                                    } else {
-                                        HalfChip(
-                                            tint =
-                                                if (employeeIn) {
-                                                    MaterialColor.primary
-                                                } else {
-                                                    MaterialColor.outline
-                                                },
-                                        )
+                                    FullChip(Modifier.alpha(0f))
+                                    Box(
+                                        Modifier
+                                            .border(1.dp, MaterialColor.onSurface, CircleShape)
+                                            .size(20.dp),
+                                        contentAlignment = Alignment.Center,
+                                    ) {
+                                        if (employee in list) {
+                                            Box(
+                                                Modifier
+                                                    .background(MaterialColor.onSurface, CircleShape)
+                                                    .size(12.dp),
+                                            )
+                                        }
                                     }
                                 }
+                                HorizontalSpacer(20)
+                            }
+                            val overtime = overtimes.find { it.employee == employee }?.count ?: 0.0
+                            val hasBasicAttendance = employee in fulls || employee in halfs
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                CustomIcon(
+                                    drawableResId = R.drawable.arr_r24_remove,
+                                    modifier =
+                                        Modifier
+                                            .alpha(if (hasBasicAttendance && overtime > 0.0) 1f else 0.38f)
+                                            .clickableNoRipple {
+                                                if (hasBasicAttendance && overtime > 0.0) {
+                                                    viewModel.editSingleSiteOvertime(employee, increase = false)
+                                                }
+                                            },
+                                    tint = MaterialColor.secondary,
+                                )
+                                Box(Modifier.padding(horizontal = 6.dp), contentAlignment = Alignment.Center) {
+                                    HighlightText(text = "0.0", modifier = Modifier.alpha(0f))
+                                    if (overtime > 0) {
+                                        HighlightText(text = AttendanceNumFormat(overtime))
+                                    } else {
+                                        ContentText(text = AttendanceNumFormat(overtime))
+                                    }
+                                }
+                                CustomIcon(
+                                    drawableResId = R.drawable.arr_r24_add,
+                                    modifier =
+                                        Modifier
+                                            .alpha(if (hasBasicAttendance && overtime < 9.0) 1f else 0.38f)
+                                            .clickableNoRipple {
+                                                if (hasBasicAttendance && overtime < 9.0) {
+                                                    viewModel.editSingleSiteOvertime(employee, increase = true)
+                                                }
+                                            },
+                                    tint = MaterialColor.secondary,
+                                )
                             }
                         }
                     }
                 }
-                Column(
-                    modifier =
-                        Modifier
-                            .fillMaxWidth()
-                            .padding(horizontal = 20.dp),
-                ) {
+                Column(Modifier.fillMaxWidth()) {
                     StringInputField(
                         modifier = Modifier.fillMaxWidth(),
                         titleText = "備註 (${remark.orEmpty().length}/${Remark.L30})",
@@ -535,7 +588,7 @@ private fun AttEditDialog(
     editBundle: AttEditBundle?,
     dates: List<Long>,
     viewModel: AttendanceViewModel,
-    onImageClick: (List<MAttendanceImage>, Int) -> Unit,
+    onImageClick: (List<MAttendance.Image>, Int) -> Unit,
 ) {
     val current = editBundle?.current
     val edit = editBundle?.edit
@@ -581,9 +634,8 @@ private fun AttEditDialog(
         Row(verticalAlignment = Alignment.CenterVertically) {
             edit
                 ?.attSiteEdits
-                ?.sumOf {
-                    it.fulls.size + it.halfs.size * 0.5
-                }?.let {
+                ?.sumOf { it.total }
+                ?.let {
                     AttendanceChip(
                         attendance = it,
                         bgColor = {
@@ -608,7 +660,7 @@ private fun AttEditDialog(
             )
         }
         edit?.attSiteEdits?.forEach { mAtt ->
-            val total = mAtt.fulls.size + mAtt.halfs.size * 0.5
+            val total = mAtt.total
             val exist = total > 0.0
             val focusManager = LocalFocusManager.current
             Column(
@@ -755,6 +807,32 @@ private fun AttEditDialog(
                             }
                         }
                     }
+                    if (mAtt.overtimes.isNotEmpty()) {
+                        Row(Modifier.fillMaxWidth()) {
+                            Box(contentAlignment = Alignment.CenterEnd) {
+                                ArrText(
+                                    text = "000.0",
+                                    modifier = Modifier.padding(horizontal = 4.dp),
+                                ) { ContentText.style.color(Color.Transparent) }
+                                OvertimeChip(Modifier.scale(0.8f))
+                            }
+                            HorizontalSpacer(3.8f)
+                            FlowRow {
+                                mAtt.overtimes.forEachIndexed { i, overtime ->
+                                    val textStyle = ContentText.style.fontSize(13.2.textDp)
+                                    ArrText(
+                                        text =
+                                            "${overtime.employee.employee?.name ?: overtime.employee.id} ${AttendanceNumFormat(
+                                                overtime.count,
+                                            )}",
+                                    ) { textStyle.color(HighlightText.color) }
+                                    if (i != mAtt.overtimes.lastIndex) {
+                                        ArrText(text = "・") { textStyle.color(HighlightText.color) }
+                                    }
+                                }
+                            }
+                        }
+                    }
                 }
                 mAtt.remark?.let { rmk ->
                     Row(Modifier.fillMaxWidth()) {
@@ -796,9 +874,9 @@ private data class ImageViewerState(
 @Composable
 private fun AttendanceImageThumbnails(
     modifier: Modifier,
-    images: List<MAttendanceImage>,
+    images: List<MAttendance.Image>,
     onImageClick: (Int) -> Unit,
-    onDelete: ((MAttendanceImage) -> Unit)? = null,
+    onDelete: ((MAttendance.Image) -> Unit)? = null,
 ) {
     Row(
         modifier = modifier,
