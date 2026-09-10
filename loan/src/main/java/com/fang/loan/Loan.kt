@@ -11,7 +11,7 @@ data class Loan(
     val day: Int,
 ) {
     companion object {
-        private const  val PIVOT_DATE = 5
+        private const val PIVOT_DATE = 5
         val startDate = LocalDate.parse("2026-09-0${PIVOT_DATE}")
         const val MONTH_AVAILABLE = 55000
         val all =
@@ -27,10 +27,11 @@ data class Loan(
     }
 
     val remainAmount get() = amount * remain
+
     fun lastPaymentDate(date: LocalDate) =
         date.plus(
             remain -
-                    if (date.day >= PIVOT_DATE) 0 else 1,
+                if (date.day >= PIVOT_DATE) 0 else 1,
             DateTimeUnit.MONTH,
         )
 }

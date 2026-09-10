@@ -59,10 +59,11 @@ internal class LoanActivity : ComponentActivity() {
 @Composable
 private fun LoanContent(
     modifier: Modifier,
-    todayDate: LocalDate = Clock.System
-        .now()
-        .toLocalDateTime(TimeZone.currentSystemDefault())
-        .date
+    todayDate: LocalDate =
+        Clock.System
+            .now()
+            .toLocalDateTime(TimeZone.currentSystemDefault())
+            .date,
 ) {
     val startDate = Loan.startDate
     val monthAvailable = Loan.MONTH_AVAILABLE
@@ -87,8 +88,7 @@ private fun LoanContent(
                         Modifier
                             .clickableNoRipple {
                                 dateState = todayDate
-                            }
-                            .padding(vertical = 16.dp),
+                            }.padding(vertical = 16.dp),
                     fontSize = 24.sp,
                     color = Color(0xffc5c5c5),
                 )
@@ -108,7 +108,7 @@ private fun LoanContent(
                             LoanText(loan.remain, "000") { remain }
                             LoanText(NumberFormat(loan.remainAmount), "0,000,000") { remainAmount }
                             LoanText(
-                                loan.lastPaymentDate(dateState).toString().dropLast(3)
+                                loan.lastPaymentDate(dateState).toString().dropLast(3),
                             ) { remain }
                             LoanText(loan.day, "000") { day }
                         }
@@ -125,28 +125,28 @@ private fun LoanContent(
                         it.lastPaymentDate(todayDate)
                     }.distinct()
                     .forEachIndexed { i, freeDate ->
-                        val (totalRemain, remain) = loansState.value
-                            .mapNotNull { loan ->
-                                startDate
-                                    .monthsUntil(freeDate)
-                                    .takeIf { it < loan.remain }
-                                    ?.let { loan.copy(remain = loan.remain - it) }
-                            }.let { loans ->
-                                val totalRemain = loans.sumOf { it.remainAmount }
-                                val remain = loans.sumOf { it.amount }
-                                totalRemain to remain
-                            }
+                        val (totalRemain, remain) =
+                            loansState.value
+                                .mapNotNull { loan ->
+                                    startDate
+                                        .monthsUntil(freeDate)
+                                        .takeIf { it < loan.remain }
+                                        ?.let { loan.copy(remain = loan.remain - it) }
+                                }.let { loans ->
+                                    val totalRemain = loans.sumOf { it.remainAmount }
+                                    val remain = loans.sumOf { it.amount }
+                                    totalRemain to remain
+                                }
                         Row(
                             Modifier
                                 .fillMaxWidth()
                                 .clickableNoRipple {
                                     dateState = freeDate
-                                }
-                                .padding(bottom = 10.dp),
+                                }.padding(bottom = 10.dp),
                             horizontalArrangement = Arrangement.spacedBy(12.dp),
                         ) {
                             ItemText("${i + 1}")
-                            ItemText("$${remain}", "$00,000")
+                            ItemText("$$remain", "$00,000")
                             ItemText(
                                 "$${NumberFormat(monthAvailable - remain).orEmpty()}",
                                 "$00,000",
@@ -156,7 +156,7 @@ private fun LoanContent(
                             )
                             ItemText(
                                 "$${NumberFormat(totalRemain).orEmpty()}",
-                                alignment = Alignment.CenterStart
+                                alignment = Alignment.CenterStart,
                             )
                         }
                     }
@@ -165,7 +165,7 @@ private fun LoanContent(
         Text(
             text = "還清",
             modifier = Modifier.align(Alignment.Center),
-            color = Color.Gray
+            color = Color.Gray,
         )
     }
 }
@@ -176,16 +176,19 @@ private fun MutableState<List<Loan>>.LoanText(
     holder: String? = null,
     alignment: Alignment = Alignment.CenterEnd,
     trans: (Loan.() -> Int)? = null,
-) = Box(modifier = Modifier.clickableNoRipple {
-    value = trans?.let {
-        val asc = value.sortedBy { trans(it) }
-        if (asc == value) {
-            Loan.all.sortedByDescending { trans(it) }
-        } else {
-            asc
-        }
-    } ?: Loan.all
-}) {
+) = Box(
+    modifier =
+        Modifier.clickableNoRipple {
+            value = trans?.let {
+                val asc = value.sortedBy { trans(it) }
+                if (asc == value) {
+                    Loan.all.sortedByDescending { trans(it) }
+                } else {
+                    asc
+                }
+            } ?: Loan.all
+        },
+) {
     ItemText(text, holder, alignment)
 }
 
